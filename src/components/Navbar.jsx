@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { Menu, X, Sparkles, LogIn, LogOut, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
   { path: '/', label: 'Home' },
@@ -13,6 +14,7 @@ const navLinks = [
 
 export default function Navbar() {
   const location = useLocation();
+  const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -66,15 +68,37 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* CTA */}
+          {/* Auth actions */}
           <div className="hidden md:flex items-center gap-2">
-            <Link to="/guidance" className="flex items-center gap-1.5 btn-primary text-sm py-2 px-4">
-              <Sparkles size={14} />
-              Begin
-            </Link>
+            {user ? (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20">
+                  <User size={12} className="text-gold-400" />
+                  <span className="text-xs text-gold-400 font-medium">{user.name.split(' ')[0]}</span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="flex items-center gap-1.5 btn-ghost text-sm py-2 px-3"
+                  title="Log out"
+                >
+                  <LogOut size={14} />
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link to="/login" className="btn-ghost text-sm py-2 px-4 flex items-center gap-1.5">
+                  <LogIn size={14} />
+                  Login
+                </Link>
+                <Link to="/guidance" className="flex items-center gap-1.5 btn-primary text-sm py-2 px-4">
+                  <Sparkles size={14} />
+                  Begin
+                </Link>
+              </>
+            )}
           </div>
 
-          {/* Mobile menu toggle */}
+          {/* Mobile toggle */}
           <button
             className="md:hidden p-2 rounded-lg text-white/60 hover:text-gold-400 hover:bg-white/5 transition-all"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -109,9 +133,18 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <Link to="/guidance" className="btn-primary mt-2 text-center text-sm">
-                Begin Your Journey
-              </Link>
+              <div className="border-t border-white/[0.06] mt-2 pt-2">
+                {user ? (
+                  <button onClick={logout} className="w-full text-left px-4 py-3 rounded-xl text-sm text-white/50 hover:text-red-400 hover:bg-red-500/5 transition-all flex items-center gap-2">
+                    <LogOut size={14} /> Sign out ({user.name})
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Link to="/login" className="flex-1 btn-ghost text-center text-sm py-2.5">Login</Link>
+                    <Link to="/guidance" className="flex-1 btn-primary text-center text-sm py-2.5">Begin</Link>
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
         )}

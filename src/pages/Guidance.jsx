@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Send } from 'lucide-react';
 import AIResponseCard from '../components/AIResponseCard';
 import { getMockAIResponse } from '../data/aiResponses';
+import { useAuth } from '../context/AuthContext';
 
 const emotionPills = [
   { id: 'anxiety', label: '😰 Anxious' },
@@ -19,12 +20,31 @@ const emotionPills = [
   { id: 'betrayal', label: '🗡️ Betrayed' },
 ];
 
+// Normalize OpenAI response to match the shape AIResponseCard expects
+function normalizeAPIResponse(data) {
+  return {
+    greeting: data.greeting,
+    detectedEmotion: data.detectedEmotion,
+    reflection: data.reflection,
+    shloka: {
+      ...data.shloka,
+      emotions: data.shloka?.emotions || [],
+      topics: data.shloka?.topics || [],
+    },
+    secondaryShloka: null,
+    relatedStory: data.relatedStory || null,
+    practicalSteps: data.practicalSteps || [],
+  };
+}
+
 export default function Guidance() {
+  const { authFetch, token } = useAuth();
   const [input, setInput] = useState('');
   const [selectedEmotion, setSelectedEmotion] = useState(null);
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
   const [language, setLanguage] = useState('en');
+  const [usingAI, setUsingAI] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,18 +53,36 @@ export default function Guidance() {
     setLoading(true);
     setResponse(null);
 
-    // Simulate AI thinking time
-    await new Promise((res) => setTimeout(res, 1800));
+    try {
+      // Try real backend first
+      const res = await fetch('http://localhost:5000/api/guidance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: input, emotion: selectedEmotion }),
+      });
+      const data = await res.json();
 
-    const result = getMockAIResponse(input || selectedEmotion, selectedEmotion);
-    setResponse(result);
-    setLoading(false);
+      if (data.success) {
+        setResponse(normalizeAPIResponse(data.data));
+        setUsingAI(true);
+      } else {
+        throw new Error(data.message);
+      }
+    } catch {
+      // Fallback to mock if server is offline
+      await new Promise(r => setTimeout(r, 1200));
+      setResponse(getMockAIResponse(input || selectedEmotion, selectedEmotion));
+      setUsingAI(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReset = () => {
     setResponse(null);
     setInput('');
     setSelectedEmotion(null);
+    setUsingAI(false);
   };
 
   return (
@@ -171,7 +209,14 @@ export default function Guidance() {
               exit={{ opacity: 0 }}
             >
               <div className="flex justify-between items-center mb-6">
-                <p className="text-sm text-white/30">Your guidance is ready 🙏</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-white/30">Your guidance is ready 🙏</p>
+                  {usingAI && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400">
+                      GPT-4o
+                    </span>
+                  )}
+                </div>
                 <button onClick={handleReset} className="btn-ghost text-sm py-2">
                   ← Ask Again
                 </button>

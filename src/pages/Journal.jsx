@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PenLine, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { PenLine, Trash2, ChevronDown, ChevronUp, Sparkles, LogIn } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { getMockJournalReflection } from '../data/aiResponses';
 import ShlokaCard from '../components/ShlokaCard';
+import { useAuth } from '../context/AuthContext';
 
-const STORAGE_KEY = 'dharma_journal_entries';
+const LOCAL_KEY = 'dharma_journal_entries';
 
 function formatDate(ts) {
   return new Date(ts).toLocaleDateString('en-IN', {
@@ -14,40 +16,106 @@ function formatDate(ts) {
 }
 
 export default function Journal() {
-  const [entries, setEntries] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    } catch { return []; }
-  });
+  const { user, authFetch, token } = useAuth();
+  const [entries, setEntries] = useState([]);
   const [currentText, setCurrentText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [isOnline, setIsOnline] = useState(true);
 
+  // Load entries: from API if logged in, else localStorage
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  }, [entries]);
+    if (user && token) {
+      fetchFromAPI();
+    } else {
+      try {
+        setEntries(JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]'));
+      } catch { setEntries([]); }
+    }
+  }, [user, token]);
+
+  const fetchFromAPI = async () => {
+    setFetching(true);
+    try {
+      const res = await authFetch('/journal');
+      const data = await res.json();
+      if (data.success) {
+        setEntries(data.data.map(e => ({
+          id: e._id,
+          text: e.content,
+          reflection: e.ai_response,
+          timestamp: new Date(e.createdAt).getTime(),
+        })));
+        setIsOnline(true);
+      }
+    } catch {
+      setIsOnline(false);
+      // Fallback to localStorage
+      try {
+        setEntries(JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]'));
+      } catch { setEntries([]); }
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!currentText.trim()) return;
     setLoading(true);
 
-    await new Promise(res => setTimeout(res, 1500));
-
-    const reflection = getMockJournalReflection(currentText);
-    const newEntry = {
-      id: Date.now(),
-      text: currentText,
-      reflection,
-      timestamp: Date.now(),
-    };
-
-    setEntries(prev => [newEntry, ...prev]);
-    setCurrentText('');
+    if (user && token && isOnline) {
+      // Save to backend
+      try {
+        const res = await authFetch('/journal', {
+          method: 'POST',
+          body: JSON.stringify({ content: currentText }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          const e = data.data;
+          const newEntry = {
+            id: e._id,
+            text: e.content,
+            reflection: e.ai_response,
+            timestamp: new Date(e.createdAt).getTime(),
+          };
+          setEntries(prev => [newEntry, ...prev]);
+          setExpandedId(newEntry.id);
+          setCurrentText('');
+        }
+      } catch {
+        fallbackLocalSave();
+      }
+    } else {
+      // Fallback: local mock
+      await new Promise(r => setTimeout(r, 1200));
+      fallbackLocalSave();
+    }
     setLoading(false);
-    setExpandedId(newEntry.id);
   };
 
-  const handleDelete = (id) => {
+  const fallbackLocalSave = () => {
+    const reflection = getMockJournalReflection(currentText);
+    const newEntry = { id: Date.now(), text: currentText, reflection, timestamp: Date.now() };
+    setEntries(prev => {
+      const updated = [newEntry, ...prev];
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(updated));
+      return updated;
+    });
+    setExpandedId(newEntry.id);
+    setCurrentText('');
+  };
+
+  const handleDelete = async (id) => {
+    if (user && token && isOnline) {
+      try {
+        await authFetch(`/journal/${id}`, { method: 'DELETE' });
+      } catch { /* still remove from UI */ }
+    } else {
+      const updated = entries.filter(e => e.id !== id);
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(updated));
+    }
     setEntries(prev => prev.filter(e => e.id !== id));
     if (expandedId === id) setExpandedId(null);
   };
@@ -69,6 +137,25 @@ export default function Journal() {
           <p className="section-subtitle mx-auto">
             Write freely. Our AI will reflect your thoughts back through the lens of dharmic wisdom.
           </p>
+
+          {/* Auth status banner */}
+          {!user && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs"
+            >
+              <LogIn size={12} />
+              <Link to="/login" className="hover:text-indigo-300 transition-colors">Sign in</Link>
+              <span className="text-white/30">to save your journal to the cloud</span>
+            </motion.div>
+          )}
+          {user && isOnline && (
+            <div className="mt-4 inline-flex items-center gap-1.5 text-xs text-green-400/60">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              Syncing to cloud as {user.name}
+            </div>
+          )}
         </motion.div>
 
         {/* Writing area */}
@@ -125,6 +212,11 @@ export default function Journal() {
           )}
         </AnimatePresence>
 
+        {/* Fetching */}
+        {fetching && (
+          <div className="text-center py-8 text-white/20 text-sm">Loading your entries…</div>
+        )}
+
         {/* Past entries */}
         {entries.length > 0 && (
           <div>
@@ -142,13 +234,10 @@ export default function Journal() {
                   animate={{ opacity: 1, y: 0 }}
                   className="glass-card border border-white/[0.06] overflow-hidden hover:border-gold-500/10 transition-all duration-300"
                 >
-                  {/* Entry header */}
                   <div className="flex items-start justify-between gap-4 p-5">
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-white/25 mb-2">{formatDate(entry.timestamp)}</p>
-                      <p className="text-sm text-white/55 leading-relaxed line-clamp-2 font-light">
-                        {entry.text}
-                      </p>
+                      <p className="text-sm text-white/55 leading-relaxed line-clamp-2 font-light">{entry.text}</p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <button
@@ -161,14 +250,12 @@ export default function Journal() {
                       <button
                         onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
                         className="p-2 rounded-lg text-white/20 hover:text-gold-400 hover:bg-gold-500/10 transition-all"
-                        title="View reflection"
                       >
                         {expandedId === entry.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                       </button>
                     </div>
                   </div>
 
-                  {/* AI Reflection */}
                   <AnimatePresence>
                     {expandedId === entry.id && (
                       <motion.div
@@ -179,34 +266,38 @@ export default function Journal() {
                         className="overflow-hidden border-t border-white/[0.05]"
                       >
                         <div className="p-5 space-y-5">
-                          {/* Full entry */}
                           <div className="bg-white/[0.02] rounded-xl p-4 border border-white/[0.04]">
                             <p className="text-xs text-white/20 uppercase tracking-wider mb-2">Your Words</p>
                             <p className="text-sm text-white/55 leading-loose font-light whitespace-pre-wrap">{entry.text}</p>
                           </div>
 
-                          {/* Acknowledgment */}
-                          <div className="glass-card-gold p-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif text-xs">ॐ</div>
-                              <span className="text-xs text-gold-500/60 uppercase tracking-wider">Reflection</span>
-                            </div>
-                            <p className="text-sm text-white/65 leading-relaxed font-light mb-4">{entry.reflection.acknowledgment}</p>
-                            <p className="text-sm text-white/55 leading-loose font-light">{entry.reflection.reflection}</p>
-                          </div>
+                          {entry.reflection && (
+                            <>
+                              <div className="glass-card-gold p-4">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif text-xs">ॐ</div>
+                                  <span className="text-xs text-gold-500/60 uppercase tracking-wider">Reflection</span>
+                                </div>
+                                <p className="text-sm text-white/65 leading-relaxed font-light mb-3">
+                                  {entry.reflection.acknowledgment}
+                                </p>
+                                <p className="text-sm text-white/55 leading-loose font-light">{entry.reflection.reflection}</p>
+                              </div>
 
-                          {/* Shloka */}
-                          {entry.reflection.shloka && (
-                            <ShlokaCard shloka={entry.reflection.shloka} compact={true} />
+                              {entry.reflection.shloka && (
+                                <ShlokaCard shloka={entry.reflection.shloka} compact={true} />
+                              )}
+
+                              {entry.reflection.question && (
+                                <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-xl p-4">
+                                  <p className="text-xs text-indigo-400/60 uppercase tracking-wider mb-2">Sit with This Question</p>
+                                  <p className="text-sm text-indigo-300/70 font-serif italic leading-relaxed">
+                                    "{entry.reflection.question}"
+                                  </p>
+                                </div>
+                              )}
+                            </>
                           )}
-
-                          {/* Reflection question */}
-                          <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-xl p-4">
-                            <p className="text-xs text-indigo-400/60 uppercase tracking-wider mb-2">Sit with This Question</p>
-                            <p className="text-sm text-indigo-300/70 font-serif italic leading-relaxed">
-                              "{entry.reflection.question}"
-                            </p>
-                          </div>
                         </div>
                       </motion.div>
                     )}
@@ -217,8 +308,7 @@ export default function Journal() {
           </div>
         )}
 
-        {/* Empty state */}
-        {entries.length === 0 && !loading && (
+        {entries.length === 0 && !loading && !fetching && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
