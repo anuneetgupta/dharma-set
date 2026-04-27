@@ -268,7 +268,7 @@ export default function Home() {
         {/* Sudarshana Chakra */}
         <SudarshanaChakra />
         {/* Deep indigo ambient glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[600px] bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 text-center page-container pt-20 sm:pt-24 pb-16">
           {/* Om symbol */}

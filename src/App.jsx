@@ -41,7 +41,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="min-h-screen bg-cosmic-900">
+        <div className="min-h-screen bg-cosmic-900 overflow-x-hidden">
           <Navbar />
           <main>
             <AnimatedRoutes />

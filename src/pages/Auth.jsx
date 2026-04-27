@@ -140,7 +140,7 @@ export default function Auth() {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center pt-16 pb-10 px-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center pt-16 pb-10 px-4 relative overflow-x-hidden">
       {/* Background glows */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -151,7 +151,7 @@ export default function Auth() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-cosmic-800/60 backdrop-blur-xl shadow-card flex min-h-[600px]"
+          className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-cosmic-800/60 backdrop-blur-xl shadow-card flex min-h-[500px] sm:min-h-[600px]"
         >
 
           {/* ════ LEFT PANEL — Forms ════ */}
