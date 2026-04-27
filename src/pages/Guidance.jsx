@@ -1,0 +1,202 @@
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Send } from 'lucide-react';
+import AIResponseCard from '../components/AIResponseCard';
+import { getMockAIResponse } from '../data/aiResponses';
+
+const emotionPills = [
+  { id: 'anxiety', label: '😰 Anxious' },
+  { id: 'lost', label: '🌊 Lost' },
+  { id: 'confused', label: '🌀 Confused' },
+  { id: 'angry', label: '🔥 Angry' },
+  { id: 'sad', label: '💧 Sad' },
+  { id: 'afraid', label: '😨 Afraid' },
+  { id: 'hopeless', label: '🌑 Hopeless' },
+  { id: 'lonely', label: '🌙 Lonely' },
+  { id: 'overwhelmed', label: '⚡ Overwhelmed' },
+  { id: 'purpose', label: '🔍 Seeking Purpose' },
+  { id: 'failure', label: '💔 Feeling Like a Failure' },
+  { id: 'betrayal', label: '🗡️ Betrayed' },
+];
+
+export default function Guidance() {
+  const [input, setInput] = useState('');
+  const [selectedEmotion, setSelectedEmotion] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState(null);
+  const [language, setLanguage] = useState('en');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!input.trim() && !selectedEmotion) return;
+
+    setLoading(true);
+    setResponse(null);
+
+    // Simulate AI thinking time
+    await new Promise((res) => setTimeout(res, 1800));
+
+    const result = getMockAIResponse(input || selectedEmotion, selectedEmotion);
+    setResponse(result);
+    setLoading(false);
+  };
+
+  const handleReset = () => {
+    setResponse(null);
+    setInput('');
+    setSelectedEmotion(null);
+  };
+
+  return (
+    <div className="min-h-screen pt-28 pb-20">
+      <div className="page-container max-w-4xl">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-500 text-xs mb-4">
+            <Sparkles size={12} />
+            AI-Powered Guidance
+          </div>
+          <h1 className="section-title mb-4">What's on your mind?</h1>
+          <p className="section-subtitle mx-auto">
+            Share your feeling freely. Our AI will find the wisdom that speaks directly to you — from Gita, Ramayana, and Mahabharata.
+          </p>
+
+          {/* Language toggle */}
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <button
+              onClick={() => setLanguage('en')}
+              className={`px-4 py-1.5 rounded-full text-sm transition-all ${language === 'en' ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30' : 'text-white/30 hover:text-white/50'}`}
+            >
+              English
+            </button>
+            <button
+              onClick={() => setLanguage('hi')}
+              className={`px-4 py-1.5 rounded-full text-sm transition-all ${language === 'hi' ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30' : 'text-white/30 hover:text-white/50'}`}
+            >
+              हिंदी
+            </button>
+          </div>
+          {language === 'hi' && (
+            <p className="text-xs text-white/30 mt-2">Hindi translations coming soon — content currently in English.</p>
+          )}
+        </motion.div>
+
+        <AnimatePresence mode="wait">
+          {!response ? (
+            <motion.div
+              key="input"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {/* Emotion quick-select */}
+              <div className="glass-card border border-white/[0.06] p-6 mb-5">
+                <p className="text-xs text-white/30 uppercase tracking-wider font-medium mb-4">Quick Select</p>
+                <div className="flex flex-wrap gap-2">
+                  {emotionPills.map((e) => (
+                    <button
+                      key={e.id}
+                      onClick={() => setSelectedEmotion(selectedEmotion === e.id ? null : e.id)}
+                      className={`px-4 py-2 rounded-full text-sm border transition-all duration-200 ${
+                        selectedEmotion === e.id
+                          ? 'bg-gold-500/20 border-gold-500/50 text-gold-400 shadow-gold'
+                          : 'border-white/10 text-white/40 hover:border-gold-500/30 hover:text-white/60'
+                      }`}
+                    >
+                      {e.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Text input */}
+              <form onSubmit={handleSubmit}>
+                <div className="glass-card border border-white/[0.06] focus-within:border-gold-500/30 transition-all duration-300 p-2 mb-4">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={`"I feel lost in life..." or "My family doesn't understand me..." or "I'm afraid of failing again..."`}
+                    rows={5}
+                    className="w-full bg-transparent text-white/80 placeholder-white/20 text-base resize-none outline-none p-4 leading-relaxed font-light"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSubmit(e);
+                    }}
+                  />
+                  <div className="flex items-center justify-between px-4 pb-3">
+                    <span className="text-xs text-white/20">Press Ctrl+Enter to submit</span>
+                    <button
+                      type="submit"
+                      disabled={!input.trim() && !selectedEmotion}
+                      className="flex items-center gap-2 btn-primary py-2.5 px-5 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      <Send size={14} />
+                      Seek Wisdom
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              {/* Sample prompts */}
+              <div>
+                <p className="text-xs text-white/20 mb-3 uppercase tracking-wider">Try these</p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "I feel lost in life",
+                    "I'm scared of my future",
+                    "Someone betrayed my trust",
+                    "I don't know my purpose",
+                    "I keep failing at everything",
+                    "I'm exhausted and overwhelmed",
+                  ].map((prompt) => (
+                    <button
+                      key={prompt}
+                      onClick={() => setInput(prompt)}
+                      className="px-3 py-1.5 rounded-lg text-xs border border-white/[0.08] text-white/30 hover:text-white/50 hover:border-white/20 transition-all"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          ) : loading ? null : (
+            <motion.div
+              key="response"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <p className="text-sm text-white/30">Your guidance is ready 🙏</p>
+                <button onClick={handleReset} className="btn-ghost text-sm py-2">
+                  ← Ask Again
+                </button>
+              </div>
+              <AIResponseCard response={response} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Loading state */}
+        <AnimatePresence>
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-center py-20"
+            >
+              <div className="lotus-spinner mx-auto mb-6" />
+              <div className="font-serif text-2xl text-gold-400/60 animate-pulse mb-2">ॐ</div>
+              <p className="text-white/30 text-sm">Consulting the ancient wisdom…</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
