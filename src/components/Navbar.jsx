@@ -1,8 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Sparkles, LogIn, LogOut, User } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Menu, X, Sparkles } from 'lucide-react';
 
 const navLinks = [
   { path: '/', label: 'Home' },
@@ -14,7 +13,6 @@ const navLinks = [
 
 export default function Navbar() {
   const location = useLocation();
-  const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -24,9 +22,7 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
+  useEffect(() => setMobileOpen(false), [location.pathname]);
 
   return (
     <>
@@ -53,7 +49,7 @@ export default function Navbar() {
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {navLinks.map(link => (
               <Link
                 key={link.path}
                 to={link.path}
@@ -68,34 +64,12 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Auth actions */}
+          {/* CTA */}
           <div className="hidden md:flex items-center gap-2">
-            {user ? (
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20">
-                  <User size={12} className="text-gold-400" />
-                  <span className="text-xs text-gold-400 font-medium">{user.name.split(' ')[0]}</span>
-                </div>
-                <button
-                  onClick={logout}
-                  className="flex items-center gap-1.5 btn-ghost text-sm py-2 px-3"
-                  title="Log out"
-                >
-                  <LogOut size={14} />
-                </button>
-              </div>
-            ) : (
-              <>
-                <Link to="/login" className="btn-ghost text-sm py-2 px-4 flex items-center gap-1.5">
-                  <LogIn size={14} />
-                  Login
-                </Link>
-                <Link to="/guidance" className="flex items-center gap-1.5 btn-primary text-sm py-2 px-4">
-                  <Sparkles size={14} />
-                  Begin
-                </Link>
-              </>
-            )}
+            <Link to="/guidance" className="flex items-center gap-1.5 btn-primary text-sm py-2 px-4">
+              <Sparkles size={14} />
+              Begin
+            </Link>
           </div>
 
           {/* Mobile toggle */}
@@ -120,7 +94,7 @@ export default function Navbar() {
             className="fixed top-20 left-4 right-4 z-40 bg-cosmic-800/95 backdrop-blur-xl border border-gold-500/20 rounded-2xl p-4 shadow-card"
           >
             <div className="flex flex-col gap-1">
-              {navLinks.map((link) => (
+              {navLinks.map(link => (
                 <Link
                   key={link.path}
                   to={link.path}
@@ -133,18 +107,9 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="border-t border-white/[0.06] mt-2 pt-2">
-                {user ? (
-                  <button onClick={logout} className="w-full text-left px-4 py-3 rounded-xl text-sm text-white/50 hover:text-red-400 hover:bg-red-500/5 transition-all flex items-center gap-2">
-                    <LogOut size={14} /> Sign out ({user.name})
-                  </button>
-                ) : (
-                  <div className="flex gap-2">
-                    <Link to="/login" className="flex-1 btn-ghost text-center text-sm py-2.5">Login</Link>
-                    <Link to="/guidance" className="flex-1 btn-primary text-center text-sm py-2.5">Begin</Link>
-                  </div>
-                )}
-              </div>
+              <Link to="/guidance" className="btn-primary mt-2 text-center text-sm py-2.5">
+                Begin Your Journey
+              </Link>
             </div>
           </motion.div>
         )}

@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -8,8 +7,6 @@ import Guidance from './pages/Guidance';
 import Stories from './pages/Stories';
 import Shloka from './pages/Shloka';
 import Journal from './pages/Journal';
-import Login from './pages/Login';
-import Register from './pages/Register';
 
 const pageVariants = {
   initial: { opacity: 0, y: 10 },
@@ -28,8 +25,6 @@ function AnimatedRoutes() {
           <Route path="/stories" element={<Stories />} />
           <Route path="/shloka" element={<Shloka />} />
           <Route path="/journal" element={<Journal />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
         </Routes>
       </motion.div>
     </AnimatePresence>
@@ -39,15 +34,13 @@ function AnimatedRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <div className="min-h-screen bg-cosmic-900">
-          <Navbar />
-          <main>
-            <AnimatedRoutes />
-          </main>
-          <Footer />
-        </div>
-      </AuthProvider>
+      <div className="min-h-screen bg-cosmic-900">
+        <Navbar />
+        <main>
+          <AnimatedRoutes />
+        </main>
+        <Footer />
+      </div>
     </BrowserRouter>
   );
 }

@@ -1,10 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./config/db');
-
-// Connect to MongoDB Atlas
-connectDB();
 
 const app = express();
 
@@ -14,31 +10,34 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: false }));
 
 // ── Routes ──
-app.use('/api/auth', require('./routes/auth'));
 app.use('/api/guidance', require('./routes/guidance'));
-app.use('/api/journal', require('./routes/journal'));
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ success: true, message: 'Dharma Setu API is running 🙏', timestamp: new Date().toISOString() });
+  res.json({
+    success: true,
+    message: '🙏 Dharma Setu API is running',
+    openai: !!process.env.OPENAI_API_KEY,
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// 404 handler
+// 404
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
 });
 
-// Global error handler
+// Error handler
 app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
+  console.error('Server error:', err.message);
   res.status(500).json({ success: false, message: 'Internal server error' });
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Dharma Setu server running on port ${PORT}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`\n🚀 Dharma Setu server running on http://localhost:${PORT}`);
+  console.log(`🔗 Health: http://localhost:${PORT}/api/health`);
+  console.log(`🤖 OpenAI key: ${process.env.OPENAI_API_KEY ? '✅ set' : '❌ missing — set OPENAI_API_KEY in .env'}\n`);
 });

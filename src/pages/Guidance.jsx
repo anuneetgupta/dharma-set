@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Send } from 'lucide-react';
 import AIResponseCard from '../components/AIResponseCard';
 import { getMockAIResponse } from '../data/aiResponses';
-import { useAuth } from '../context/AuthContext';
 
 const emotionPills = [
   { id: 'anxiety', label: '😰 Anxious' },
@@ -20,7 +19,7 @@ const emotionPills = [
   { id: 'betrayal', label: '🗡️ Betrayed' },
 ];
 
-// Normalize OpenAI response to match the shape AIResponseCard expects
+// Normalize OpenAI API response shape → AIResponseCard shape
 function normalizeAPIResponse(data) {
   return {
     greeting: data.greeting,
@@ -38,41 +37,38 @@ function normalizeAPIResponse(data) {
 }
 
 export default function Guidance() {
-  const { authFetch, token } = useAuth();
   const [input, setInput] = useState('');
   const [selectedEmotion, setSelectedEmotion] = useState(null);
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
   const [language, setLanguage] = useState('en');
-  const [usingAI, setUsingAI] = useState(false);
+  const [isLiveAI, setIsLiveAI] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim() && !selectedEmotion) return;
-
     setLoading(true);
     setResponse(null);
 
     try {
-      // Try real backend first
+      // Try real OpenAI backend
       const res = await fetch('http://localhost:5000/api/guidance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: input, emotion: selectedEmotion }),
       });
       const data = await res.json();
-
       if (data.success) {
         setResponse(normalizeAPIResponse(data.data));
-        setUsingAI(true);
+        setIsLiveAI(true);
       } else {
         throw new Error(data.message);
       }
     } catch {
-      // Fallback to mock if server is offline
-      await new Promise(r => setTimeout(r, 1200));
+      // Graceful fallback to mock AI when server is offline
+      await new Promise(r => setTimeout(r, 1400));
       setResponse(getMockAIResponse(input || selectedEmotion, selectedEmotion));
-      setUsingAI(false);
+      setIsLiveAI(false);
     } finally {
       setLoading(false);
     }
@@ -82,12 +78,13 @@ export default function Guidance() {
     setResponse(null);
     setInput('');
     setSelectedEmotion(null);
-    setUsingAI(false);
+    setIsLiveAI(false);
   };
 
   return (
     <div className="min-h-screen pt-28 pb-20">
       <div className="page-container max-w-4xl">
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -105,33 +102,30 @@ export default function Guidance() {
 
           {/* Language toggle */}
           <div className="flex items-center justify-center gap-2 mt-6">
-            <button
-              onClick={() => setLanguage('en')}
-              className={`px-4 py-1.5 rounded-full text-sm transition-all ${language === 'en' ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30' : 'text-white/30 hover:text-white/50'}`}
-            >
-              English
-            </button>
-            <button
-              onClick={() => setLanguage('hi')}
-              className={`px-4 py-1.5 rounded-full text-sm transition-all ${language === 'hi' ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30' : 'text-white/30 hover:text-white/50'}`}
-            >
-              हिंदी
-            </button>
+            {['en', 'hi'].map(lang => (
+              <button
+                key={lang}
+                onClick={() => setLanguage(lang)}
+                className={`px-4 py-1.5 rounded-full text-sm transition-all ${
+                  language === lang
+                    ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30'
+                    : 'text-white/30 hover:text-white/50'
+                }`}
+              >
+                {lang === 'en' ? 'English' : 'हिंदी'}
+              </button>
+            ))}
           </div>
           {language === 'hi' && (
-            <p className="text-xs text-white/30 mt-2">Hindi translations coming soon — content currently in English.</p>
+            <p className="text-xs text-white/30 mt-2">Hindi translations coming soon.</p>
           )}
         </motion.div>
 
         <AnimatePresence mode="wait">
           {!response ? (
-            <motion.div
-              key="input"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              {/* Emotion quick-select */}
+            <motion.div key="input" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+
+              {/* Emotion pills */}
               <div className="glass-card border border-white/[0.06] p-6 mb-5">
                 <p className="text-xs text-white/30 uppercase tracking-wider font-medium mb-4">Quick Select</p>
                 <div className="flex flex-wrap gap-2">
@@ -156,16 +150,14 @@ export default function Guidance() {
                 <div className="glass-card border border-white/[0.06] focus-within:border-gold-500/30 transition-all duration-300 p-2 mb-4">
                   <textarea
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={e => setInput(e.target.value)}
                     placeholder={`"I feel lost in life..." or "My family doesn't understand me..." or "I'm afraid of failing again..."`}
                     rows={5}
                     className="w-full bg-transparent text-white/80 placeholder-white/20 text-base resize-none outline-none p-4 leading-relaxed font-light"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSubmit(e);
-                    }}
+                    onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSubmit(e); }}
                   />
                   <div className="flex items-center justify-between px-4 pb-3">
-                    <span className="text-xs text-white/20">Press Ctrl+Enter to submit</span>
+                    <span className="text-xs text-white/20">Ctrl + Enter to submit</span>
                     <button
                       type="submit"
                       disabled={!input.trim() && !selectedEmotion}
@@ -189,7 +181,7 @@ export default function Guidance() {
                     "I don't know my purpose",
                     "I keep failing at everything",
                     "I'm exhausted and overwhelmed",
-                  ].map((prompt) => (
+                  ].map(prompt => (
                     <button
                       key={prompt}
                       onClick={() => setInput(prompt)}
@@ -201,32 +193,25 @@ export default function Guidance() {
                 </div>
               </div>
             </motion.div>
-          ) : loading ? null : (
-            <motion.div
-              key="response"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
+          ) : !loading && (
+            <motion.div key="response" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
                   <p className="text-sm text-white/30">Your guidance is ready 🙏</p>
-                  {usingAI && (
+                  {isLiveAI && (
                     <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400">
-                      GPT-4o
+                      GPT-4o Live
                     </span>
                   )}
                 </div>
-                <button onClick={handleReset} className="btn-ghost text-sm py-2">
-                  ← Ask Again
-                </button>
+                <button onClick={handleReset} className="btn-ghost text-sm py-2">← Ask Again</button>
               </div>
               <AIResponseCard response={response} />
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Loading state */}
+        {/* Loading spinner */}
         <AnimatePresence>
           {loading && (
             <motion.div
@@ -241,6 +226,7 @@ export default function Guidance() {
             </motion.div>
           )}
         </AnimatePresence>
+
       </div>
     </div>
   );
