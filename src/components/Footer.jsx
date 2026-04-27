@@ -3,9 +3,9 @@ import { Heart } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/[0.06] mt-24 py-12">
+    <footer className="border-t border-white/[0.06] mt-16 sm:mt-24 py-8 sm:py-12">
       <div className="page-container">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
           {/* Brand */}
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif font-bold text-sm">
@@ -18,7 +18,7 @@ export default function Footer() {
           </div>
 
           {/* Links */}
-          <div className="flex items-center gap-6 text-sm text-white/40">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-white/40">
             <Link to="/guidance" className="hover:text-gold-400 transition-colors">AI Guidance</Link>
             <Link to="/stories" className="hover:text-gold-400 transition-colors">Stories</Link>
             <Link to="/shloka" className="hover:text-gold-400 transition-colors">Shlokas</Link>
@@ -34,7 +34,7 @@ export default function Footer() {
         </div>
 
         {/* Sanskrit quote */}
-        <div className="sacred-divider my-8">
+        <div className="sacred-divider my-6 sm:my-8">
           <span className="font-serif text-gold-500/50 text-sm italic">सर्वे भवन्तु सुखिनः</span>
         </div>
         <p className="text-center text-xs text-white/20">

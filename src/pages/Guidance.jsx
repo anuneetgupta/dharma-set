@@ -82,7 +82,7 @@ export default function Guidance() {
   };
 
   return (
-    <div className="min-h-screen pt-28 pb-20">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-16 sm:pb-20">
       <div className="page-container max-w-4xl">
 
         {/* Header */}
@@ -95,8 +95,8 @@ export default function Guidance() {
             <Sparkles size={12} />
             AI-Powered Guidance
           </div>
-          <h1 className="section-title mb-4">What's on your mind?</h1>
-          <p className="section-subtitle mx-auto">
+          <h1 className="section-title mb-3 sm:mb-4 text-3xl sm:text-4xl md:text-5xl">What's on your mind?</h1>
+          <p className="section-subtitle mx-auto text-sm sm:text-base">
             Share your feeling freely. Our AI will find the wisdom that speaks directly to you — from Gita, Ramayana, and Mahabharata.
           </p>
 
@@ -156,12 +156,12 @@ export default function Guidance() {
                     className="w-full bg-transparent text-white/80 placeholder-white/20 text-base resize-none outline-none p-4 leading-relaxed font-light"
                     onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSubmit(e); }}
                   />
-                  <div className="flex items-center justify-between px-4 pb-3">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 pb-3 gap-3 sm:gap-0">
                     <span className="text-xs text-white/20">Ctrl + Enter to submit</span>
                     <button
                       type="submit"
                       disabled={!input.trim() && !selectedEmotion}
-                      className="flex items-center gap-2 btn-primary py-2.5 px-5 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      className="flex items-center gap-2 btn-primary py-2.5 px-5 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 w-full sm:w-auto justify-center"
                     >
                       <Send size={14} />
                       Seek Wisdom
@@ -195,7 +195,7 @@ export default function Guidance() {
             </motion.div>
           ) : !loading && (
             <motion.div key="response" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 sm:gap-0">
                 <div className="flex items-center gap-2">
                   <p className="text-sm text-white/30">Your guidance is ready 🙏</p>
                   {isLiveAI && (

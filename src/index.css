@@ -19,6 +19,7 @@
     font-family: 'Inter', system-ui, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
 
   ::selection {
@@ -50,28 +51,12 @@
     @apply bg-white/[0.04] backdrop-blur-md border border-gold-500/20 rounded-2xl shadow-gold;
   }
 
-  .btn-primary {
-    @apply px-6 py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-cosmic-900 font-semibold rounded-full
-           hover:from-gold-500 hover:to-gold-400 transition-all duration-300
-           hover:shadow-gold hover:scale-105 active:scale-95;
-  }
-
-  .btn-secondary {
-    @apply px-6 py-3 border border-gold-500/40 text-gold-400 font-medium rounded-full
-           hover:border-gold-500 hover:bg-gold-500/10 transition-all duration-300;
-  }
-
-  .btn-ghost {
-    @apply px-6 py-3 text-gold-400/70 font-medium rounded-full
-           hover:text-gold-400 hover:bg-white/5 transition-all duration-300;
-  }
-
   .section-title {
-    @apply font-serif text-4xl md:text-5xl font-light text-gold-400 leading-tight;
+    @apply font-serif text-3xl sm:text-4xl md:text-5xl font-light text-gold-400 leading-tight;
   }
 
   .section-subtitle {
-    @apply text-base md:text-lg text-white/50 font-light max-w-2xl;
+    @apply text-sm sm:text-base md:text-lg text-white/50 font-light max-w-2xl;
   }
 
   .emotion-tag {
@@ -88,6 +73,22 @@
 
   .nav-link {
     @apply text-sm font-medium text-white/60 hover:text-gold-400 transition-colors duration-200 relative;
+  }
+
+  .btn-primary {
+    @apply px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-cosmic-900 font-semibold rounded-full
+           hover:from-gold-500 hover:to-gold-400 transition-all duration-300
+           hover:shadow-gold hover:scale-105 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply px-5 py-2.5 sm:px-6 sm:py-3 border border-gold-500/40 text-gold-400 font-medium rounded-full
+           hover:border-gold-500 hover:bg-gold-500/10 transition-all duration-300;
+  }
+
+  .btn-ghost {
+    @apply px-5 py-2.5 sm:px-6 sm:py-3 text-gold-400/70 font-medium rounded-full
+           hover:text-gold-400 hover:bg-white/5 transition-all duration-300;
   }
 
   .shimmer-text {

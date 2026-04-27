@@ -38,12 +38,12 @@ function SudarshanaChakra() {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 1.6, ease: 'easeOut' }}
       className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none"
-      style={{ width: 520, height: 520 }}
+      style={{ width: 'min(520px, 90vw)', height: 'min(520px, 90vw)' }}
     >
       <svg
         viewBox="0 0 400 400"
-        width="520"
-        height="520"
+        width="100%"
+        height="100%"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
@@ -270,16 +270,16 @@ export default function Home() {
         {/* Deep indigo ambient glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 text-center page-container pt-24 pb-16">
+        <div className="relative z-10 text-center page-container pt-20 sm:pt-24 pb-16">
           {/* Om symbol */}
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, ease: 'easeOut' }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-gold-600/20 to-gold-400/10 border border-gold-500/30 shadow-gold-lg om-glow">
-              <span className="font-serif text-4xl text-gold-400">ॐ</span>
+            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-gold-600/20 to-gold-400/10 border border-gold-500/30 shadow-gold-lg om-glow">
+              <span className="font-serif text-3xl sm:text-4xl text-gold-400">ॐ</span>
             </div>
           </motion.div>
 
@@ -299,7 +299,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="font-serif text-5xl md:text-7xl lg:text-8xl font-light text-white leading-tight mb-6"
+            className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-light text-white leading-tight mb-5 sm:mb-6"
           >
             Ancient Wisdom
             <br />
@@ -311,7 +311,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="section-subtitle mx-auto mb-10 text-lg md:text-xl"
+            className="section-subtitle mx-auto mb-8 sm:mb-10 text-base sm:text-lg md:text-xl px-2"
           >
             Dharma Setu bridges your everyday struggles with the timeless wisdom of
             Bhagavad Gita, Ramayana & Mahabharata — translated into clarity, not lectures.
@@ -322,13 +322,13 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full px-4 sm:px-0"
           >
-            <Link to="/guidance" className="btn-primary flex items-center gap-2 text-base px-8 py-4">
+            <Link to="/guidance" className="btn-primary flex items-center gap-2 text-base px-6 sm:px-8 py-3.5 sm:py-4 w-full sm:w-auto justify-center">
               <Sparkles size={16} />
               Get Guidance
             </Link>
-            <Link to="/stories" className="btn-secondary flex items-center gap-2 text-base px-8 py-4">
+            <Link to="/stories" className="btn-secondary flex items-center gap-2 text-base px-6 sm:px-8 py-3.5 sm:py-4 w-full sm:w-auto justify-center">
               <ScrollText size={16} />
               Explore Stories
             </Link>
@@ -339,7 +339,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
-            className="flex items-center justify-center gap-10 mt-16"
+            className="flex items-center justify-center gap-6 sm:gap-10 mt-12 sm:mt-16"
           >
             {[
               { value: '700+', label: 'Shlokas' },
@@ -347,7 +347,7 @@ export default function Home() {
               { value: '∞', label: 'Insights' },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className="font-serif text-3xl text-gold-400">{stat.value}</div>
+                <div className="font-serif text-2xl sm:text-3xl text-gold-400">{stat.value}</div>
                 <div className="text-xs text-white/30 mt-1">{stat.label}</div>
               </div>
             ))}
@@ -415,7 +415,7 @@ export default function Home() {
             <p className="section-subtitle mx-auto mt-3">Everything you need for a grounded, wisdom-centered life.</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {features.map((f, i) => (
               <motion.div
                 key={f.title}
@@ -455,7 +455,7 @@ export default function Home() {
             <p className="section-subtitle mx-auto mt-3">Three steps from confusion to clarity.</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 relative">
             {/* Connector line */}
             <div className="hidden md:block absolute top-8 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
 
@@ -498,7 +498,7 @@ export default function Home() {
             <h2 className="section-title">What Seekers Say</h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {testimonials.map((t, i) => (
               <motion.div
                 key={i}
@@ -531,18 +531,18 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="relative overflow-hidden glass-card-gold text-center py-16 px-8 rounded-3xl"
+            className="relative overflow-hidden glass-card-gold text-center py-12 sm:py-16 px-5 sm:px-8 rounded-3xl"
           >
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="relative z-10">
-              <div className="font-serif text-5xl text-gold-400 mb-4 om-glow">ॐ</div>
-              <h2 className="font-serif text-4xl md:text-5xl text-white mb-4">
+              <div className="font-serif text-4xl sm:text-5xl text-gold-400 mb-3 sm:mb-4 om-glow">ॐ</div>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white mb-3 sm:mb-4">
                 Begin Your Journey
               </h2>
-              <p className="text-white/50 mb-8 max-w-lg mx-auto text-lg font-light">
+              <p className="text-white/50 mb-6 sm:mb-8 max-w-lg mx-auto text-base sm:text-lg font-light">
                 The answers you seek have been waiting 5,000 years. Let's find them — together.
               </p>
-              <Link to="/guidance" className="btn-primary inline-flex items-center gap-2 text-base px-10 py-4">
+              <Link to="/guidance" className="btn-primary inline-flex items-center gap-2 text-base px-8 sm:px-10 py-3.5 sm:py-4">
                 <Sparkles size={16} />
                 Start Now — It's Free
               </Link>

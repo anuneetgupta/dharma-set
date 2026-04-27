@@ -27,7 +27,7 @@ export default function Shloka() {
   }, [searchQuery, selectedChapter, selectedEmotion]);
 
   return (
-    <div className="min-h-screen pt-28 pb-20">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-16 sm:pb-20">
       <div className="page-container">
         {/* Header */}
         <motion.div
@@ -39,7 +39,7 @@ export default function Shloka() {
             <span className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-pulse" />
             Bhagavad Gita
           </div>
-          <h1 className="section-title mb-4">Shloka Library</h1>
+          <h1 className="section-title mb-3 sm:mb-4 text-3xl sm:text-4xl md:text-5xl">Shloka Library</h1>
           <p className="section-subtitle mx-auto">
             700 verses. Timeless wisdom. Explore by emotion, chapter, or simply search.
           </p>
@@ -79,8 +79,8 @@ export default function Shloka() {
           </div>
 
           {/* Chapter filter */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-white/30">Chapter:</span>
+          <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
+            <span className="text-xs text-white/30 flex-shrink-0">Chapter:</span>
             {['All', ...allChapters].map(c => (
               <button
                 key={c}
@@ -121,7 +121,7 @@ export default function Shloka() {
         </p>
 
         {filteredShlokas.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {filteredShlokas.map((shloka, i) => (
               <motion.div
                 key={shloka.id}

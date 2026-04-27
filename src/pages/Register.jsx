@@ -53,7 +53,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center pt-20 pb-10 px-4">
+    <div className="min-h-screen flex items-center justify-center pt-16 pb-10 px-4">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <motion.div
@@ -64,11 +64,11 @@ export default function Register() {
       >
         <div className="glass-card border border-white/[0.08] p-8 md:p-10">
           {/* Logo */}
-          <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gold-600/30 to-gold-400/10 border border-gold-500/30 flex items-center justify-center mx-auto mb-4 shadow-gold">
-              <span className="font-serif text-3xl text-gold-400">ॐ</span>
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-gold-600/30 to-gold-400/10 border border-gold-500/30 flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-gold">
+              <span className="font-serif text-2xl sm:text-3xl text-gold-400">ॐ</span>
             </div>
-            <h1 className="font-serif text-3xl text-gold-400 mb-1">Begin Your Journey</h1>
+            <h1 className="font-serif text-2xl sm:text-3xl text-gold-400 mb-1">Begin Your Journey</h1>
             <p className="text-sm text-white/40">Create your Dharma Setu account</p>
           </div>
 

@@ -25,7 +25,7 @@ export default function Stories() {
   }, [searchQuery, selectedScripture, selectedEmotion]);
 
   return (
-    <div className="min-h-screen pt-28 pb-20">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-16 sm:pb-20">
       <div className="page-container">
         {/* Header */}
         <motion.div
@@ -37,7 +37,7 @@ export default function Stories() {
             <span>📖</span>
             Epic Wisdom
           </div>
-          <h1 className="section-title mb-4">Sacred Stories</h1>
+          <h1 className="section-title mb-3 sm:mb-4 text-3xl sm:text-4xl md:text-5xl">Sacred Stories</h1>
           <p className="section-subtitle mx-auto">
             Every crisis in the epics mirrors a crisis in your life. Find yours.
           </p>
@@ -62,16 +62,16 @@ export default function Stories() {
             />
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap items-start gap-2 sm:gap-3">
             {/* Scripture filter */}
-            <div className="flex items-center gap-2">
-              <Filter size={14} className="text-white/30" />
-              <span className="text-xs text-white/30">Scripture:</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <Filter size={14} className="text-white/30 flex-shrink-0" />
+              <span className="text-xs text-white/30 flex-shrink-0">Scripture:</span>
               {['All', ...allScriptures].map(s => (
                 <button
                   key={s}
                   onClick={() => setSelectedScripture(s)}
-                  className={`px-3 py-1 rounded-full text-xs border transition-all ${
+                  className={`px-3 py-1.5 rounded-full text-xs border transition-all ${
                     selectedScripture === s
                       ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-400'
                       : 'border-white/10 text-white/30 hover:border-white/20'
@@ -111,7 +111,7 @@ export default function Stories() {
 
         {/* Story grid */}
         {filteredStories.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {filteredStories.map((story, i) => (
               <motion.div
                 key={story.id}

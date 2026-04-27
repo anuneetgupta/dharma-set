@@ -67,7 +67,7 @@ export default function Journal() {
   };
 
   return (
-    <div className="min-h-screen pt-28 pb-20">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-16 sm:pb-20">
       <div className="page-container max-w-3xl">
 
         {/* Header */}
@@ -80,7 +80,7 @@ export default function Journal() {
             <PenLine size={12} />
             Personal Journal
           </div>
-          <h1 className="section-title mb-4">Your Sacred Space</h1>
+          <h1 className="section-title mb-3 sm:mb-4 text-3xl sm:text-4xl md:text-5xl">Your Sacred Space</h1>
           <p className="section-subtitle mx-auto">
             Write freely. Our AI will reflect your thoughts back through the lens of dharmic wisdom.
           </p>
@@ -103,12 +103,12 @@ export default function Journal() {
               className="w-full bg-transparent text-white/75 placeholder-white/15 text-base resize-none outline-none leading-loose font-light"
             />
           </div>
-          <div className="flex items-center justify-between px-5 py-3 border-t border-white/[0.05]">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-5 py-3 border-t border-white/[0.05] gap-3 sm:gap-0">
             <span className="text-xs text-white/20">{currentText.length} characters</span>
             <button
               onClick={handleSubmit}
               disabled={!currentText.trim() || loading}
-              className="flex items-center gap-2 btn-primary py-2.5 px-5 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 btn-primary py-2.5 px-5 disabled:opacity-30 disabled:cursor-not-allowed w-full sm:w-auto justify-center"
             >
               {loading ? (
                 <>
