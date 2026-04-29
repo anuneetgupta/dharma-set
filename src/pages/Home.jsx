@@ -3,6 +3,35 @@ import { Link } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import { Sparkles, BookOpen, PenLine, ScrollText, ArrowRight, Star } from 'lucide-react';
 
+/* ─── Social Icons ─── */
+function LinkedinIcon({ size = 18 }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+      <rect x="2" y="9" width="4" height="12"></rect>
+      <circle cx="4" cy="4" r="2"></circle>
+    </svg>
+  );
+}
+
+function GithubIcon({ size = 18 }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+    </svg>
+  );
+}
+
+function InstagramIcon({ size = 18 }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+    </svg>
+  );
+}
+
 /* ─── Sudarshana Chakra SVG Component ─── */
 function SudarshanaChakra() {
   // Build spoke paths: 16 flame-tipped spokes radiating from center
@@ -520,6 +549,66 @@ export default function Home() {
                 </div>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* ═══ FOUNDER ═══ */}
+      <section className="py-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold-500/5 to-transparent pointer-events-none" />
+        <div className="page-container relative">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-14"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-500 text-xs mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-pulse" />
+              The Vision
+            </div>
+            <h2 className="section-title">Meet the Founder</h2>
+            <p className="section-subtitle mx-auto mt-3">Bridging ancient wisdom with modern technology.</p>
+          </motion.div>
+
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="glass-card border border-white/[0.06] p-8 sm:p-12 flex flex-col md:flex-row items-center gap-10 hover:border-gold-500/20 transition-all duration-300"
+            >
+              <div className="w-48 h-48 sm:w-56 sm:h-56 flex-shrink-0 relative group">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-500" />
+                <div className="absolute inset-0 rounded-full border border-gold-500/30 group-hover:scale-105 transition-transform duration-500" />
+                <img
+                  src="/founder.jpg"
+                  alt="Founder"
+                  className="w-full h-full object-cover rounded-full relative z-10 border-2 border-white/10"
+                />
+              </div>
+              
+              <div className="flex-1 text-center md:text-left">
+                <h3 className="font-serif text-3xl text-gold-400 mb-1">JANVI SAHU</h3>
+                <p className="text-sm text-white/50 mb-6 uppercase tracking-wider font-medium">CEO AND FOUNDER</p>
+                <p className="text-base text-white/70 leading-relaxed font-light mb-8">
+                  "Dharma Setu was born from a personal realization: while we have advanced technologically, we often struggle emotionally. I built this platform to make the profound, practical wisdom of our ancient texts accessible, relatable, and applicable to the challenges of modern life."
+                </p>
+                
+                <div className="flex items-center justify-center md:justify-start gap-4">
+                  <a href="https://www.linkedin.com/in/janvi-sahu-0968b8329?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass-card border border-white/[0.1] flex items-center justify-center text-white/60 hover:text-[#0A66C2] hover:border-[#0A66C2]/50 hover:bg-[#0A66C2]/10 transition-all">
+                    <LinkedinIcon size={18} />
+                  </a>
+                  <a href="https://github.com/janvi3ssj" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass-card border border-white/[0.1] flex items-center justify-center text-white/60 hover:text-white hover:border-white/50 hover:bg-white/10 transition-all">
+                    <GithubIcon size={18} />
+                  </a>
+                  <a href="https://www.instagram.com/janvi_sahu93?igsh=MWRrZnI2djFoZ3BhZw==" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass-card border border-white/[0.1] flex items-center justify-center text-white/60 hover:text-[#E1306C] hover:border-[#E1306C]/50 hover:bg-[#E1306C]/10 transition-all">
+                    <InstagramIcon size={18} />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
