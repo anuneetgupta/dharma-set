@@ -602,15 +602,25 @@ export default function Home() {
           </motion.div>
 
           <div className="max-w-4xl mx-auto flex flex-col items-center">
-            <div className="w-full relative">
-              <AnimatePresence mode="wait">
+            <div className="w-full relative min-h-[680px] md:min-h-[380px]">
+              <AnimatePresence>
                 <motion.div
                   key={currentFounder}
-                  initial={{ opacity: 0, x: 50 }}
+                  initial={{ opacity: 0, x: 100 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  transition={{ duration: 0.5, ease: "easeInOut" }}
-                  className="glass-card border border-white/[0.06] p-8 sm:p-12 flex flex-col md:flex-row items-center gap-10 hover:border-gold-500/20 transition-all duration-300 w-full"
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, { offset }) => {
+                    if (offset.x < -50) {
+                      setCurrentFounder((prev) => (prev + 1) % founders.length);
+                    } else if (offset.x > 50) {
+                      setCurrentFounder((prev) => (prev - 1 + founders.length) % founders.length);
+                    }
+                  }}
+                  className="glass-card border border-white/[0.06] p-8 sm:p-12 flex flex-col md:flex-row items-center gap-10 hover:border-gold-500/20 transition-all duration-300 w-full absolute top-0 left-0 cursor-grab active:cursor-grabbing"
                 >
                   <div className="w-48 h-48 sm:w-56 sm:h-56 flex-shrink-0 relative group">
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-500" />
