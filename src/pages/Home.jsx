@@ -1,6 +1,6 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Sparkles, BookOpen, PenLine, ScrollText, ArrowRight, Star } from 'lucide-react';
 
 /* ─── Social Icons ─── */
@@ -247,9 +247,39 @@ const howItWorks = [
   },
 ];
 
+const founders = [
+  {
+    name: "JANVI SAHU",
+    role: "CEO AND FOUNDER",
+    description: "\"Dharma Setu was born from a personal realization: while we have advanced technologically, we often struggle emotionally. I built this platform to make the profound, practical wisdom of our ancient texts accessible, relatable, and applicable to the challenges of modern life.\"",
+    img: "/founder.jpg",
+    linkedin: "https://www.linkedin.com/in/janvi-sahu-0968b8329?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+    github: "https://github.com/janvi3ssj",
+    instagram: "https://www.instagram.com/janvi_sahu93?igsh=MWRrZnI2djFoZ3BhZw=="
+  },
+  {
+    name: "ANUNEET GUPTA",
+    role: "CO-FOUNDER AND CTO",
+    description: "\"I am dedicated to building the technological foundation of Dharma Setu, ensuring that ancient wisdom reaches the modern world through an intuitive, reliable, and beautifully crafted digital experience.\"",
+    img: "/anuneet.jpg",
+    linkedin: "https://www.linkedin.com/in/anuneet-gupta-57898631a?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+    github: "https://github.com/anuneetgupta",
+    instagram: "https://www.instagram.com/anuneet_gupta?igsh=NXgyb3g4YTVyc2lh",
+    fallback: "https://ui-avatars.com/api/?name=Anuneet+Gupta&background=C9A96E&color=fff&size=256"
+  }
+];
+
 export default function Home() {
   const dailyShloka = shlokas[getDailyShlokaIndex()];
   const particleRef = useRef(null);
+  const [currentFounder, setCurrentFounder] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentFounder((prev) => (prev + 1) % founders.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const canvas = particleRef.current;
@@ -571,44 +601,69 @@ export default function Home() {
             <p className="section-subtitle mx-auto mt-3">Bridging ancient wisdom with modern technology.</p>
           </motion.div>
 
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="glass-card border border-white/[0.06] p-8 sm:p-12 flex flex-col md:flex-row items-center gap-10 hover:border-gold-500/20 transition-all duration-300"
-            >
-              <div className="w-48 h-48 sm:w-56 sm:h-56 flex-shrink-0 relative group">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-500" />
-                <div className="absolute inset-0 rounded-full border border-gold-500/30 group-hover:scale-105 transition-transform duration-500" />
-                <img
-                  src="/founder.jpg"
-                  alt="Founder"
-                  className="w-full h-full object-cover rounded-full relative z-10 border-2 border-white/10"
+          <div className="max-w-4xl mx-auto flex flex-col items-center">
+            <div className="w-full relative overflow-hidden" style={{ minHeight: '380px' }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentFounder}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="glass-card border border-white/[0.06] p-8 sm:p-12 flex flex-col md:flex-row items-center gap-10 hover:border-gold-500/20 transition-all duration-300 w-full absolute top-0 left-0"
+                >
+                  <div className="w-48 h-48 sm:w-56 sm:h-56 flex-shrink-0 relative group">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-500" />
+                    <div className="absolute inset-0 rounded-full border border-gold-500/30 group-hover:scale-105 transition-transform duration-500" />
+                    <img
+                      src={founders[currentFounder].img}
+                      alt={founders[currentFounder].role}
+                      className="w-full h-full object-cover rounded-full relative z-10 border-2 border-white/10"
+                      onError={(e) => {
+                        if (founders[currentFounder].fallback) {
+                          e.target.onerror = null;
+                          e.target.src = founders[currentFounder].fallback;
+                        }
+                      }}
+                    />
+                  </div>
+                  
+                  <div className="flex-1 text-center md:text-left">
+                    <h3 className="font-serif text-3xl text-gold-400 mb-1 uppercase">{founders[currentFounder].name}</h3>
+                    <p className="text-sm text-white/50 mb-6 uppercase tracking-wider font-medium">{founders[currentFounder].role}</p>
+                    <p className="text-base text-white/70 leading-relaxed font-light mb-8">
+                      {founders[currentFounder].description}
+                    </p>
+                    
+                    <div className="flex items-center justify-center md:justify-start gap-4">
+                      <a href={founders[currentFounder].linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass-card border border-white/[0.1] flex items-center justify-center text-white/60 hover:text-[#0A66C2] hover:border-[#0A66C2]/50 hover:bg-[#0A66C2]/10 transition-all">
+                        <LinkedinIcon size={18} />
+                      </a>
+                      <a href={founders[currentFounder].github} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass-card border border-white/[0.1] flex items-center justify-center text-white/60 hover:text-white hover:border-white/50 hover:bg-white/10 transition-all">
+                        <GithubIcon size={18} />
+                      </a>
+                      <a href={founders[currentFounder].instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass-card border border-white/[0.1] flex items-center justify-center text-white/60 hover:text-[#E1306C] hover:border-[#E1306C]/50 hover:bg-[#E1306C]/10 transition-all">
+                        <InstagramIcon size={18} />
+                      </a>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Slider Dots */}
+            <div className="flex justify-center gap-3 mt-8">
+              {founders.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentFounder(idx)}
+                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                    currentFounder === idx ? 'bg-gold-400 w-8' : 'bg-white/20 hover:bg-white/40 w-2.5'
+                  }`}
+                  aria-label={`Go to founder slide ${idx + 1}`}
                 />
-              </div>
-              
-              <div className="flex-1 text-center md:text-left">
-                <h3 className="font-serif text-3xl text-gold-400 mb-1">JANVI SAHU</h3>
-                <p className="text-sm text-white/50 mb-6 uppercase tracking-wider font-medium">CEO AND FOUNDER</p>
-                <p className="text-base text-white/70 leading-relaxed font-light mb-8">
-                  "Dharma Setu was born from a personal realization: while we have advanced technologically, we often struggle emotionally. I built this platform to make the profound, practical wisdom of our ancient texts accessible, relatable, and applicable to the challenges of modern life."
-                </p>
-                
-                <div className="flex items-center justify-center md:justify-start gap-4">
-                  <a href="https://www.linkedin.com/in/janvi-sahu-0968b8329?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass-card border border-white/[0.1] flex items-center justify-center text-white/60 hover:text-[#0A66C2] hover:border-[#0A66C2]/50 hover:bg-[#0A66C2]/10 transition-all">
-                    <LinkedinIcon size={18} />
-                  </a>
-                  <a href="https://github.com/janvi3ssj" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass-card border border-white/[0.1] flex items-center justify-center text-white/60 hover:text-white hover:border-white/50 hover:bg-white/10 transition-all">
-                    <GithubIcon size={18} />
-                  </a>
-                  <a href="https://www.instagram.com/janvi_sahu93?igsh=MWRrZnI2djFoZ3BhZw==" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass-card border border-white/[0.1] flex items-center justify-center text-white/60 hover:text-[#E1306C] hover:border-[#E1306C]/50 hover:bg-[#E1306C]/10 transition-all">
-                    <InstagramIcon size={18} />
-                  </a>
-                </div>
-              </div>
-            </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
