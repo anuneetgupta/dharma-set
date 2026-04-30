@@ -602,7 +602,7 @@ export default function Home() {
           </motion.div>
 
           <div className="max-w-4xl mx-auto flex flex-col items-center">
-            <div className="w-full relative overflow-hidden" style={{ minHeight: '380px' }}>
+            <div className="w-full relative">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentFounder}
@@ -610,7 +610,7 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -50 }}
                   transition={{ duration: 0.5, ease: "easeInOut" }}
-                  className="glass-card border border-white/[0.06] p-8 sm:p-12 flex flex-col md:flex-row items-center gap-10 hover:border-gold-500/20 transition-all duration-300 w-full absolute top-0 left-0"
+                  className="glass-card border border-white/[0.06] p-8 sm:p-12 flex flex-col md:flex-row items-center gap-10 hover:border-gold-500/20 transition-all duration-300 w-full"
                 >
                   <div className="w-48 h-48 sm:w-56 sm:h-56 flex-shrink-0 relative group">
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-500" />
