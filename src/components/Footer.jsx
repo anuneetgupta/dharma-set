@@ -23,6 +23,8 @@ export default function Footer() {
             <Link to="/stories" className="hover:text-gold-400 transition-colors">Stories</Link>
             <Link to="/shloka" className="hover:text-gold-400 transition-colors">Shlokas</Link>
             <Link to="/journal" className="hover:text-gold-400 transition-colors">Journal</Link>
+            <Link to="/about" className="hover:text-gold-400 transition-colors">About</Link>
+            <Link to="/contact" className="hover:text-gold-400 transition-colors">Contact</Link>
           </div>
 
           {/* Credit */}

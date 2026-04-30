@@ -1,8 +1,16 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const { connectDB, sequelize } = require('./config/db');
+const passport = require('passport');
+require('./config/passport'); // Load passport config
 
 const app = express();
+
+// Connect to Database and sync models
+connectDB().then(() => {
+  sequelize.sync({ alter: true }).then(() => console.log('✅ Database models synced'));
+});
 
 // ── Middleware ──
 app.use(cors({
@@ -10,9 +18,11 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: '10kb' }));
+app.use(passport.initialize());
 
 // ── Routes ──
 app.use('/api/guidance', require('./routes/guidance'));
+app.use('/api/auth', require('./routes/auth'));
 
 // Health check
 app.get('/api/health', (req, res) => {

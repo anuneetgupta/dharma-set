@@ -103,6 +103,16 @@
   }
 }
 
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes pulseGold {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(201,169,110,0.5)); }
+  50%       { filter: drop-shadow(0 0 35px rgba(201,169,110,0.85)); }
+}
+
 /* Particle canvas */
 #particle-canvas {
   position: absolute;

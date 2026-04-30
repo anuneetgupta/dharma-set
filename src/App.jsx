@@ -3,17 +3,21 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import AnnouncementStrip from './components/AnnouncementStrip';
+import OmPageTransition from './components/OmPageTransition';
 import Home from './pages/Home';
 import Guidance from './pages/Guidance';
 import Stories from './pages/Stories';
 import Shloka from './pages/Shloka';
 import Journal from './pages/Journal';
 import Auth from './pages/Auth';
+import About from './pages/About';
+import Contact from './pages/Contact';
 
 const pageVariants = {
-  initial: { opacity: 0, y: 10 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.2 } },
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.35, delay: 0.55, ease: 'easeOut' } },
+  exit:    { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' } },
 };
 
 function AnimatedRoutes() {
@@ -27,8 +31,9 @@ function AnimatedRoutes() {
           <Route path="/stories" element={<Stories />} />
           <Route path="/shloka" element={<Shloka />} />
           <Route path="/journal" element={<Journal />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/auth" element={<Auth />} />
-          {/* Legacy routes redirect to /auth */}
           <Route path="/login" element={<Auth />} />
           <Route path="/register" element={<Auth />} />
         </Routes>
@@ -42,11 +47,16 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <div className="min-h-screen bg-cosmic-900 overflow-x-hidden">
-          <Navbar />
+          {/* Sticky header — Navbar first, strip below. Sticks as a unit, no overlap. */}
+          <div className="sticky top-0 z-50">
+            <Navbar />
+            <AnnouncementStrip />
+          </div>
           <main>
             <AnimatedRoutes />
           </main>
           <Footer />
+          <OmPageTransition />
         </div>
       </AuthProvider>
     </BrowserRouter>

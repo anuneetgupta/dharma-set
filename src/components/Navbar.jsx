@@ -10,6 +10,8 @@ const navLinks = [
   { path: '/stories', label: 'Stories' },
   { path: '/shloka', label: 'Shlokas' },
   { path: '/journal', label: 'Journal' },
+  { path: '/about', label: 'About' },
+  { path: '/contact', label: 'Contact' },
 ];
 
 export default function Navbar() {
@@ -57,7 +59,7 @@ export default function Navbar() {
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-500 ${
+        className={`w-full transition-all duration-500 ${
           scrolled
             ? 'bg-cosmic-900/95 backdrop-blur-xl border-b border-gold-500/20 shadow-gold'
             : 'bg-cosmic-900/80 backdrop-blur-md border-b border-white/[0.08]'
@@ -173,7 +175,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-16 left-0 right-0 z-40 bg-cosmic-800/98 backdrop-blur-xl border-b border-gold-500/20 shadow-card"
+            className="w-full bg-cosmic-800/98 backdrop-blur-xl border-b border-gold-500/20 shadow-card"
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-1">
               {navLinks.map(link => (
