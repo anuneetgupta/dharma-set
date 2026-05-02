@@ -71,6 +71,14 @@ export default function OmPageTransition() {
   const [phase, setPhase]     = useState('idle'); // idle | in | hold | out
   const prevPath              = useRef(location.pathname);
   const timeoutsRef           = useRef([]);
+  const audioRef              = useRef(null);
+
+  useEffect(() => {
+    // Create audio object. 
+    // Please ensure you place an 'om-chant.mp3' file in your 'public' folder.
+    audioRef.current = new Audio('/om-chant.mp3');
+    audioRef.current.volume = 0.5;
+  }, []);
 
   const clear = () => timeoutsRef.current.forEach(clearTimeout);
 
@@ -82,9 +90,31 @@ export default function OmPageTransition() {
     setActive(true);
     setPhase('in');
 
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch((err) => console.log('Autoplay prevented:', err));
+    }
+
     const t1 = setTimeout(() => setPhase('hold'), 300);
     const t2 = setTimeout(() => setPhase('out'),  750);
-    const t3 = setTimeout(() => { setActive(false); setPhase('idle'); }, 1150);
+    const t3 = setTimeout(() => { 
+      setActive(false); 
+      setPhase('idle'); 
+      if (audioRef.current) {
+        // Create a simple fade out effect
+        let vol = audioRef.current.volume;
+        const fadeOut = setInterval(() => {
+          if (vol > 0.05) {
+            vol -= 0.05;
+            audioRef.current.volume = vol;
+          } else {
+            clearInterval(fadeOut);
+            audioRef.current.pause();
+            audioRef.current.volume = 0.5; // reset for next time
+          }
+        }, 50);
+      }
+    }, 1150);
 
     timeoutsRef.current = [t1, t2, t3];
     return clear;
