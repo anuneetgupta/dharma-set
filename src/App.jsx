@@ -13,11 +13,12 @@ import Journal from './pages/Journal';
 import Auth from './pages/Auth';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Courses from './pages/Courses';
 
 const pageVariants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1, transition: { duration: 0.35, delay: 0.55, ease: 'easeOut' } },
-  exit:    { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' } },
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.25, delay: 0.18, ease: [0.23, 1, 0.32, 1] } },
+  exit:    { opacity: 0, y: -8, transition: { duration: 0.1, ease: 'easeIn' } },
 };
 
 function AnimatedRoutes() {
@@ -33,6 +34,7 @@ function AnimatedRoutes() {
           <Route path="/journal" element={<Journal />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/courses" element={<Courses />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/register" element={<Auth />} />

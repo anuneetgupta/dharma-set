@@ -22,6 +22,8 @@
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
+    /* Smooth scrolling on all platforms */
+    -webkit-overflow-scrolling: touch;
   }
 
   ::selection {
@@ -188,6 +190,8 @@
   filter: blur(72px);
   pointer-events: none;
   animation: orbDrift 18s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* ── Sanskrit glyph-draw entrance ── */
