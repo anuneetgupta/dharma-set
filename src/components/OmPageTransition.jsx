@@ -95,8 +95,8 @@ export default function OmPageTransition() {
       audioRef.current.play().catch((err) => console.log('Autoplay prevented:', err));
     }
 
-    const t1 = setTimeout(() => setPhase('hold'), 300);
-    const t2 = setTimeout(() => setPhase('out'),  750);
+    const t1 = setTimeout(() => setPhase('hold'), 180);
+    const t2 = setTimeout(() => setPhase('out'),  420);
     const t3 = setTimeout(() => { 
       setActive(false); 
       setPhase('idle'); 
@@ -114,7 +114,7 @@ export default function OmPageTransition() {
           }
         }, 50);
       }
-    }, 1150);
+    }, 700);
 
     timeoutsRef.current = [t1, t2, t3];
     return clear;
@@ -129,7 +129,7 @@ export default function OmPageTransition() {
           initial={{ opacity: 0 }}
           animate={{ opacity: phase === 'out' ? 0 : 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: phase === 'out' ? 0.38 : 0.22, ease: 'easeInOut' }}
+          transition={{ duration: phase === 'out' ? 0.22 : 0.15, ease: 'easeInOut' }}
           style={{
             background:
               'radial-gradient(ellipse at center, rgba(8,6,18,0.97) 0%, rgba(8,6,18,0.93) 55%, transparent 100%)',

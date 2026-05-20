@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValue } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
-import { Sparkles, BookOpen, PenLine, ScrollText, ArrowRight, Star } from 'lucide-react';
+import { Sparkles, BookOpen, PenLine, ScrollText, ArrowRight, Star, Clock, Users, GraduationCap, Flame, Wind, Heart, Moon } from 'lucide-react';
 
 /* ─── Social Icons ─── */
 function LinkedinIcon({ size = 18 }) {
@@ -203,12 +203,12 @@ function AnimatedStat({ value, label }) {
   );
 }
 
-/* ─── Blur-In Card Variant ─── */
+/* ─── Card Variant — blur removed for smooth scroll ─── */
 const cardVariants = {
-  hidden: { opacity: 0, y: 40, filter: 'blur(8px)' },
+  hidden: { opacity: 0, y: 24 },
   visible: (i = 0) => ({
-    opacity: 1, y: 0, filter: 'blur(0px)',
-    transition: { delay: i * 0.12, duration: 0.7, ease: [0.23, 1, 0.32, 1] }
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.08, duration: 0.45, ease: [0.23, 1, 0.32, 1] }
   })
 };
 import ShlokaCard from '../components/ShlokaCard';
@@ -250,6 +250,94 @@ const features = [
     color: 'text-saffron-400',
     bg: 'bg-saffron-400/10',
     border: 'border-saffron-400/20',
+  },
+];
+
+const courses = [
+  {
+    icon: Flame,
+    title: 'Bhagavad Gita Masterclass',
+    subtitle: 'All 18 Chapters Decoded for Modern Life',
+    description: 'A deep-dive into the Bhagavad Gita — from Arjuna\'s crisis on the battlefield to Krishna\'s timeless answers. Learn how each chapter applies to career, relationships, and inner peace.',
+    duration: '12 weeks',
+    lessons: 36,
+    students: '2.4k+',
+    price: '₹2,999',
+    originalPrice: '₹5,999',
+    level: 'Beginner–Advanced',
+    color: 'text-gold-400',
+    bg: 'bg-gold-500/10',
+    border: 'border-gold-500/25',
+    badge: 'Most Popular',
+    badgeColor: 'bg-gold-500/20 text-gold-400 border-gold-500/30',
+  },
+  {
+    icon: Wind,
+    title: 'Pranayama & Breathwork',
+    subtitle: 'Ancient Breathing Science for Mental Clarity',
+    description: 'Master 12 classical pranayama techniques from Hatha Yoga Pradipika. Includes Anulom Vilom, Bhramari, Kapalabhati and their scientific benefits for stress, sleep, and focus.',
+    duration: '6 weeks',
+    lessons: 18,
+    students: '1.1k+',
+    price: '₹1,499',
+    originalPrice: '₹2,999',
+    level: 'Beginner',
+    color: 'text-indigo-400',
+    bg: 'bg-indigo-500/10',
+    border: 'border-indigo-500/25',
+    badge: 'Beginner Friendly',
+    badgeColor: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30',
+  },
+  {
+    icon: Moon,
+    title: 'Vedantic Philosophy',
+    subtitle: 'Advaita Vedanta — The Non-Dual Path',
+    description: 'Explore the Upanishads, Adi Shankaracharya\'s teachings, and the core doctrine of Advaita Vedanta. Understand Brahman, Atman, Maya, and how non-duality dissolves suffering.',
+    duration: '8 weeks',
+    lessons: 24,
+    students: '870+',
+    price: '₹1,999',
+    originalPrice: '₹3,499',
+    level: 'Intermediate',
+    color: 'text-purple-400',
+    bg: 'bg-purple-500/10',
+    border: 'border-purple-500/25',
+    badge: 'Philosophy',
+    badgeColor: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+  },
+  {
+    icon: Heart,
+    title: 'Bhakti Yoga & Devotion',
+    subtitle: 'The Path of Love, Surrender & Grace',
+    description: 'From Mirabai\'s songs to the Narada Bhakti Sutras — explore the nine forms of devotion. Learn how bhakti transforms emotional suffering into divine love and inner joy.',
+    duration: '5 weeks',
+    lessons: 15,
+    students: '1.6k+',
+    price: '₹1,299',
+    originalPrice: '₹2,499',
+    level: 'All Levels',
+    color: 'text-rose-400',
+    bg: 'bg-rose-500/10',
+    border: 'border-rose-500/25',
+    badge: 'Heart-Centered',
+    badgeColor: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
+  },
+  {
+    icon: GraduationCap,
+    title: 'Karma Yoga in Daily Life',
+    subtitle: 'Act Without Attachment — The Science of Action',
+    description: 'Practical application of Karma Yoga principles in work, family, and society. Learn how to perform your duties with full effort yet zero ego — and transform daily life into spiritual practice.',
+    duration: '4 weeks',
+    lessons: 12,
+    students: '980+',
+    price: '₹999',
+    originalPrice: '₹1,999',
+    level: 'Beginner',
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-500/10',
+    border: 'border-emerald-500/25',
+    badge: 'Quick Start',
+    badgeColor: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
   },
 ];
 
@@ -319,11 +407,11 @@ export default function Home() {
   const particleRef = useRef(null);
   const [currentFounder, setCurrentFounder] = useState(0);
 
-  // Parallax setup
+  // Parallax setup — reduced range for smoother performance
   const { scrollY } = useScroll();
-  const chakraY = useTransform(scrollY, [0, 800], [0, 150]);
-  const particlesY = useTransform(scrollY, [0, 800], [0, 300]);
-  const contentY = useTransform(scrollY, [0, 800], [0, 50]);
+  const chakraY = useTransform(scrollY, [0, 800], [0, 60]);
+  const particlesY = useTransform(scrollY, [0, 800], [0, 80]);
+  const contentY = useTransform(scrollY, [0, 800], [0, 20]);
 
   useEffect(() => {
     const canvas = particleRef.current;
@@ -332,7 +420,7 @@ export default function Home() {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
-    const particles = Array.from({ length: 60 }, () => ({
+    const particles = Array.from({ length: 35 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
       r: Math.random() * 1.5 + 0.3,
@@ -379,12 +467,12 @@ export default function Home() {
         <div className="ambient-orb w-[40vw] h-[40vw] bg-gold-600/5 top-[-10%] left-[-10%]" />
         <div className="ambient-orb w-[50vw] h-[50vw] bg-indigo-600/5 bottom-[-20%] right-[-10%]" style={{ animationDelay: '-5s' }} />
         
-        <motion.div style={{ y: particlesY }} className="absolute inset-0 w-full h-full">
-          <canvas ref={particleRef} id="particle-canvas" className="w-full h-full" />
+        <motion.div style={{ y: particlesY }} className="absolute inset-0 w-full h-full" initial={false}>
+          <canvas ref={particleRef} id="particle-canvas" className="w-full h-full" style={{ willChange: 'transform' }} />
         </motion.div>
 
         {/* Sudarshana Chakra with Parallax */}
-        <motion.div style={{ y: chakraY }} className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <motion.div style={{ y: chakraY }} className="absolute inset-0 flex items-center justify-center pointer-events-none" initial={false}>
           <SudarshanaChakra />
         </motion.div>
 
@@ -640,8 +728,129 @@ export default function Home() {
         </div>
       </section>
       
+      {/* ═══ COURSES ═══ */}
+      <section className="py-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/3 to-transparent pointer-events-none" />
+        <div className="page-container relative">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-14"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-500 text-xs mb-4">
+              <GraduationCap size={12} />
+              Sacred Learning Paths
+            </div>
+            <h2 className="section-title">Spiritual Courses</h2>
+            <p className="section-subtitle mx-auto mt-3">
+              Structured journeys into ancient wisdom — taught simply, practiced daily.
+            </p>
+          </motion.div>
+
+          {/* Course Cards — first 2 large, then 3 in a row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+            {courses.slice(0, 2).map((course, i) => (
+              <motion.div
+                key={course.title}
+                custom={i}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-50px' }}
+                className={`glass-card border ${course.border} p-7 flex flex-col gap-4 hover:shadow-card transition-all duration-300 group relative overflow-hidden`}
+              >
+                {/* Top glow */}
+                <div className={`absolute top-0 left-0 right-0 h-px ${course.bg} opacity-60`} />
+
+                <div className="flex items-start justify-between gap-3">
+                  <div className={`w-12 h-12 rounded-xl ${course.bg} border ${course.border} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                    <course.icon size={22} className={course.color} />
+                  </div>
+                  <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${course.badgeColor}`}>{course.badge}</span>
+                </div>
+
+                <div>
+                  <h3 className={`font-serif text-xl ${course.color} mb-1`}>{course.title}</h3>
+                  <p className="text-xs text-white/40 font-medium uppercase tracking-wider mb-3">{course.subtitle}</p>
+                  <p className="text-sm text-white/55 leading-relaxed">{course.description}</p>
+                </div>
+
+                <div className="flex flex-wrap gap-4 text-xs text-white/40 pt-1">
+                  <span className="flex items-center gap-1.5"><Clock size={12} className={course.color} />{course.duration}</span>
+                  <span className="flex items-center gap-1.5"><BookOpen size={12} className={course.color} />{course.lessons} lessons</span>
+                  <span className="flex items-center gap-1.5"><Users size={12} className={course.color} />{course.students} enrolled</span>
+                  <span className={`ml-auto text-xs px-2.5 py-0.5 rounded-full ${course.bg} ${course.color} border ${course.border}`}>{course.level}</span>
+                </div>
+
+                <div className="flex items-center justify-between mt-1 pt-4 border-t border-white/[0.06]">
+                  <div className="flex items-baseline gap-2">
+                    <span className={`font-serif text-2xl font-semibold ${course.color}`}>{course.price}</span>
+                    <span className="text-sm text-white/25 line-through">{course.originalPrice}</span>
+                  </div>
+                  <button className={`px-5 py-2 rounded-full text-sm font-semibold border ${course.border} ${course.color} ${course.bg} hover:scale-105 hover:shadow-lg transition-all duration-300`}>
+                    Enroll Now
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {courses.slice(2).map((course, i) => (
+              <motion.div
+                key={course.title}
+                custom={i + 2}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-50px' }}
+                className={`glass-card border ${course.border} p-6 flex flex-col gap-4 hover:shadow-card transition-all duration-300 group relative overflow-hidden`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className={`w-11 h-11 rounded-xl ${course.bg} border ${course.border} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                    <course.icon size={20} className={course.color} />
+                  </div>
+                  <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${course.badgeColor}`}>{course.badge}</span>
+                </div>
+
+                <div>
+                  <h3 className={`font-serif text-lg ${course.color} mb-1`}>{course.title}</h3>
+                  <p className="text-xs text-white/35 font-medium uppercase tracking-wider mb-2">{course.subtitle}</p>
+                  <p className="text-xs text-white/50 leading-relaxed line-clamp-3">{course.description}</p>
+                </div>
+
+                <div className="flex flex-wrap gap-3 text-xs text-white/40">
+                  <span className="flex items-center gap-1"><Clock size={11} className={course.color} />{course.duration}</span>
+                  <span className="flex items-center gap-1"><BookOpen size={11} className={course.color} />{course.lessons} lessons</span>
+                  <span className="flex items-center gap-1"><Users size={11} className={course.color} />{course.students}</span>
+                </div>
+
+                <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/[0.06]">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className={`font-serif text-xl font-semibold ${course.color}`}>{course.price}</span>
+                    <span className="text-xs text-white/25 line-through">{course.originalPrice}</span>
+                  </div>
+                  <button className={`px-4 py-1.5 rounded-full text-xs font-semibold border ${course.border} ${course.color} ${course.bg} hover:scale-105 transition-all duration-300`}>
+                    Enroll
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <p className="text-white/30 text-sm mb-4">All courses include lifetime access • Certificate of completion • Community support</p>
+            <button className="btn-secondary inline-flex items-center gap-2">
+              View All Courses <ArrowRight size={14} />
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* ═══ FOUNDER ═══ */}
       <section className="py-20 relative">
+
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold-500/5 to-transparent pointer-events-none" />
         <div className="page-container relative">
           <motion.div
