@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  body {
+    background-color: #0D0A1A;
+    color: #F5F0E8;
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background-color: rgba(201, 169, 110, 0.3);
+    color: #F0DFB5;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0D0A1A;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(201, 169, 110, 0.3);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(201, 169, 110, 0.6);
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/[0.04] backdrop-blur-md border border-white/[0.08] rounded-2xl;
+  }
+
+  .glass-card-gold {
+    @apply bg-white/[0.04] backdrop-blur-md border border-gold-500/20 rounded-2xl shadow-gold;
+  }
+
+  .section-title {
+    @apply font-serif text-3xl sm:text-4xl md:text-5xl font-light text-gold-400 leading-tight;
+  }
+
+  .section-subtitle {
+    @apply text-sm sm:text-base md:text-lg text-white/50 font-light max-w-2xl;
+  }
+
+  .emotion-tag {
+    @apply px-3 py-1 text-xs font-medium rounded-full border;
+  }
+
+  .sanskrit-text {
+    @apply font-serif text-gold-400 italic leading-relaxed;
+  }
+
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .nav-link {
+    @apply text-sm font-medium text-white/60 hover:text-gold-400 transition-colors duration-200 relative;
+  }
+
+  .btn-primary {
+    @apply px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-gold-600 to-gold-500 text-cosmic-900 font-semibold rounded-full
+           hover:from-gold-500 hover:to-gold-400 transition-all duration-300
+           hover:shadow-gold hover:scale-105 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply px-5 py-2.5 sm:px-6 sm:py-3 border border-gold-500/40 text-gold-400 font-medium rounded-full
+           hover:border-gold-500 hover:bg-gold-500/10 transition-all duration-300;
+  }
+
+  .btn-ghost {
+    @apply px-5 py-2.5 sm:px-6 sm:py-3 text-gold-400/70 font-medium rounded-full
+           hover:text-gold-400 hover:bg-white/5 transition-all duration-300;
+  }
+
+  .shimmer-text {
+    background: linear-gradient(90deg, #C9A96E 0%, #F0DFB5 40%, #C9A96E 80%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes pulseGold {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(201,169,110,0.5)); }
+  50%       { filter: drop-shadow(0 0 35px rgba(201,169,110,0.85)); }
+}
+
+/* Particle canvas */
+#particle-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Om symbol pulse */
+.om-glow {
+  filter: drop-shadow(0 0 20px rgba(201, 169, 110, 0.5));
+  animation: pulseGold 4s ease-in-out infinite;
+}
+
+/* Lotus loader */
+.lotus-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(201, 169, 110, 0.1);
+  border-top-color: #C9A96E;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Sudarshana Chakra animations ── */
+@keyframes chakraSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes chakraCounterSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+@keyframes chakraPulse {
+  0%, 100% { opacity: 0.12; }
+  50%       { opacity: 0.45; }
+}
+
+
+/* Divider */
+.sacred-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: rgba(201, 169, 110, 0.4);
+}
+.sacred-divider::before,
+.sacred-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201, 169, 110, 0.3), transparent);
+}
+
+/* ── Ambient floating orbs ── */
+@keyframes orbDrift {
+  0%,  100% { transform: translate(0,   0)   scale(1);    }
+  33%        { transform: translate(28px, -22px) scale(1.06); }
+  66%        { transform: translate(-18px, 16px) scale(0.97); }
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  pointer-events: none;
+  animation: orbDrift 18s ease-in-out infinite;
+}
+
+/* ── Sanskrit glyph-draw entrance ── */
+@keyframes glyphDraw {
+  from { opacity: 0; transform: scale(0.75) rotate(-12deg); filter: blur(6px); }
+  to   { opacity: 1; transform: scale(1)    rotate(0deg);   filter: blur(0);   }
+}
+.glyph-draw {
+  animation: glyphDraw 1.3s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+/* ── Premium expo-out easing for card reveals (used via inline framer variants) ── */
+/* cubic-bezier(0.23, 1, 0.32, 1) is declared in JS variants — no extra CSS needed */
+
+/* ── Magnetic button: subtle lift on hover ── */
+.btn-primary:hover,
+.btn-secondary:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+.btn-primary:active,
+.btn-secondary:active {
+  transform: translateY(0) scale(0.97);
+}
