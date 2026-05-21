@@ -16,7 +16,7 @@ const sendTokenResponse = (user, statusCode, res) => {
   const token = generateToken(user.id);
   res.status(statusCode).json({
     success: true,
-    data: { id: user.id, name: user.name, email: user.email, avatar: user.avatar, token },
+    data: { id: user.id, name: user.name, email: user.email, avatar: user.avatar, role: user.role, token },
   });
 };
 
@@ -93,7 +93,7 @@ router.post('/login', loginRules, async (req, res) => {
 router.get('/me', protect, (req, res) => {
   res.status(200).json({
     success: true,
-    data: { id: req.user.id, name: req.user.name, email: req.user.email, avatar: req.user.avatar },
+    data: { id: req.user.id, name: req.user.name, email: req.user.email, avatar: req.user.avatar, role: req.user.role },
   });
 });
 

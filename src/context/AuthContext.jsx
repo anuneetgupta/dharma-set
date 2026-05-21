@@ -2,9 +2,8 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-const API_BASE = window.location.hostname === 'localhost' 
-  ? 'http://localhost:5000/api' 
-  : 'https://smooth-ghosts-deny.loca.lt/api';
+// In development, the backend is running on port 5000 on the same machine
+const API_BASE = `http://${window.location.hostname}:5000/api`;
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);

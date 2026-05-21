@@ -151,7 +151,14 @@ export default function Auth() {
     try {
       const res = await fetch(`${API_BASE}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(loginForm) });
       const data = await res.json();
-      if (data.success) { login(data.data, data.data.token); navigate('/'); }
+      if (data.success) { 
+        login(data.data, data.data.token);
+        if (data.data.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
+      }
       else setError(data.message || 'Login failed');
     } catch { setError('Cannot connect to server. Please ensure the backend is running.'); }
     finally { setLoading(false); }
@@ -165,7 +172,14 @@ export default function Auth() {
     try {
       const res = await fetch(`${API_BASE}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(regForm) });
       const data = await res.json();
-      if (data.success) { login(data.data, data.data.token); navigate('/'); }
+      if (data.success) { 
+        login(data.data, data.data.token);
+        if (data.data.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
+      }
       else setError(data.message || 'Registration failed');
     } catch { setError('Cannot connect to server. Please ensure the backend is running.'); }
     finally { setLoading(false); }

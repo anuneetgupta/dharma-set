@@ -64,6 +64,7 @@ app.use(passport.initialize());
 // ── Routes ──────────────────────────────────────────────────────────────
 app.use('/api/guidance', guidanceLimiter, require('./routes/guidance'));
 app.use('/api/auth', authLimiter, require('./routes/auth'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Health check
 app.get('/api/health', (req, res) => {
