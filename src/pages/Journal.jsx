@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PenLine, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { getMockJournalReflection } from '../data/aiResponses';
 import ShlokaCard from '../components/ShlokaCard';
+import { useAuth } from '../context/AuthContext';
 
-const STORAGE_KEY = 'dharma_journal_entries';
+const LOCAL_STORAGE_KEY = 'dharma_journal_entries';
 
 function formatDate(ts) {
   return new Date(ts).toLocaleDateString('en-IN', {
@@ -14,17 +15,40 @@ function formatDate(ts) {
 }
 
 export default function Journal() {
-  const [entries, setEntries] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-    catch { return []; }
-  });
+  const { user, authFetch } = useAuth();
+
+  const [entries, setEntries] = useState([]);
   const [currentText, setCurrentText] = useState('');
   const [loading, setLoading] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [fetchLoading, setFetchLoading] = useState(false);
 
+  // Load entries — from DB if logged in, localStorage if guest
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  }, [entries]);
+    if (user) {
+      setFetchLoading(true);
+      authFetch('/journal')
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) setEntries(data.data);
+        })
+        .catch(() => {})
+        .finally(() => setFetchLoading(false));
+    } else {
+      try {
+        setEntries(JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'));
+      } catch {
+        setEntries([]);
+      }
+    }
+  }, [user]);
+
+  // Save to localStorage for guests
+  useEffect(() => {
+    if (!user) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(entries));
+    }
+  }, [entries, user]);
 
   const handleSubmit = async () => {
     if (!currentText.trim()) return;
@@ -32,7 +56,6 @@ export default function Journal() {
 
     let reflection;
     try {
-      // Try live AI journal reflection via backend
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const res = await fetch(`${API_URL}/guidance`, {
         method: 'POST',
@@ -50,22 +73,49 @@ export default function Journal() {
         };
       } else throw new Error();
     } catch {
-      // Fallback to local mock
       await new Promise(r => setTimeout(r, 1200));
       reflection = getMockJournalReflection(currentText);
     }
 
-    const newEntry = { id: Date.now(), text: currentText, reflection, timestamp: Date.now() };
-    setEntries(prev => [newEntry, ...prev]);
-    setExpandedId(newEntry.id);
+    if (user) {
+      // Save to DB
+      try {
+        const res = await authFetch('/journal', {
+          method: 'POST',
+          body: JSON.stringify({ text: currentText, reflection }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setEntries(prev => [data.data, ...prev]);
+          setExpandedId(data.data.id);
+        }
+      } catch {
+        // fallback: add locally
+        const newEntry = { id: Date.now(), text: currentText, reflection, createdAt: new Date().toISOString() };
+        setEntries(prev => [newEntry, ...prev]);
+        setExpandedId(newEntry.id);
+      }
+    } else {
+      const newEntry = { id: Date.now(), text: currentText, reflection, timestamp: Date.now() };
+      setEntries(prev => [newEntry, ...prev]);
+      setExpandedId(newEntry.id);
+    }
+
     setCurrentText('');
     setLoading(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
+    if (user) {
+      try {
+        await authFetch(`/journal/${id}`, { method: 'DELETE' });
+      } catch { /* ignore */ }
+    }
     setEntries(prev => prev.filter(e => e.id !== id));
     if (expandedId === id) setExpandedId(null);
   };
+
+  const getTimestamp = (entry) => entry.createdAt || entry.timestamp;
 
   return (
     <div className="min-h-screen pt-20 sm:pt-24 pb-16 sm:pb-20">
@@ -85,6 +135,11 @@ export default function Journal() {
           <p className="section-subtitle mx-auto">
             Write freely. Our AI will reflect your thoughts back through the lens of dharmic wisdom.
           </p>
+          {!user && (
+            <p className="mt-3 text-xs text-white/25 italic">
+              💡 Sign in to save your journal across all devices
+            </p>
+          )}
         </motion.div>
 
         {/* Writing area */}
@@ -125,19 +180,19 @@ export default function Journal() {
 
         {/* Loading */}
         <AnimatePresence>
-          {loading && (
+          {(loading || fetchLoading) && (
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="text-center py-10 mb-8"
             >
               <div className="lotus-spinner mx-auto mb-4" />
-              <p className="text-sm text-white/30">Reading your words with care…</p>
+              <p className="text-sm text-white/30">{fetchLoading ? 'Loading your journal…' : 'Reading your words with care…'}</p>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Past entries */}
-        {entries.length > 0 && (
+        {entries.length > 0 && !fetchLoading && (
           <div>
             <div className="flex items-center gap-2 mb-5">
               <span className="text-xs text-white/20 uppercase tracking-wider">Past Reflections ({entries.length})</span>
@@ -153,7 +208,7 @@ export default function Journal() {
                 >
                   <div className="flex items-start justify-between gap-4 p-5">
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-white/25 mb-2">{formatDate(entry.timestamp)}</p>
+                      <p className="text-xs text-white/25 mb-2">{formatDate(getTimestamp(entry))}</p>
                       <p className="text-sm text-white/55 leading-relaxed line-clamp-2 font-light">{entry.text}</p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
@@ -183,7 +238,6 @@ export default function Journal() {
                         className="overflow-hidden border-t border-white/[0.05]"
                       >
                         <div className="p-5 space-y-5">
-                          {/* Full entry text */}
                           <div className="bg-white/[0.02] rounded-xl p-4 border border-white/[0.04]">
                             <p className="text-xs text-white/20 uppercase tracking-wider mb-2">Your Words</p>
                             <p className="text-sm text-white/55 leading-loose font-light whitespace-pre-wrap">{entry.text}</p>
@@ -191,7 +245,6 @@ export default function Journal() {
 
                           {entry.reflection && (
                             <>
-                              {/* AI acknowledgment + reflection */}
                               <div className="glass-card-gold p-4">
                                 <div className="flex items-center gap-2 mb-3">
                                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif text-xs">ॐ</div>
@@ -201,12 +254,10 @@ export default function Journal() {
                                 <p className="text-sm text-white/55 leading-loose font-light">{entry.reflection.reflection}</p>
                               </div>
 
-                              {/* Shloka */}
                               {entry.reflection.shloka && (
                                 <ShlokaCard shloka={entry.reflection.shloka} compact={true} />
                               )}
 
-                              {/* Question to sit with */}
                               {entry.reflection.question && (
                                 <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-xl p-4">
                                   <p className="text-xs text-indigo-400/60 uppercase tracking-wider mb-2">Sit with This Question</p>
@@ -228,7 +279,7 @@ export default function Journal() {
         )}
 
         {/* Empty state */}
-        {entries.length === 0 && !loading && (
+        {entries.length === 0 && !loading && !fetchLoading && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
             className="text-center py-12 text-white/20"

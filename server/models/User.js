@@ -40,6 +40,10 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  avatarChosen: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   language_preference: {
     type: DataTypes.STRING,
     defaultValue: 'en',

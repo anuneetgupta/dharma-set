@@ -50,6 +50,10 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('dharma_token');
   };
 
+  const updateUser = (fields) => {
+    setUser(prev => prev ? { ...prev, ...fields } : prev);
+  };
+
   const authFetch = async (url, options = {}) => {
     return fetch(`${API_BASE}${url}`, {
       ...options,
@@ -63,7 +67,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, authFetch, API_BASE }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, updateUser, authFetch, API_BASE }}>
       {children}
     </AuthContext.Provider>
   );

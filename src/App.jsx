@@ -28,6 +28,8 @@ import UserManager from './pages/admin/UserManager';
 import PaymentTracker from './pages/admin/PaymentTracker';
 import SiteSettingsForm from './pages/admin/SiteSettingsForm';
 import UserDashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
+import AvatarPicker from './components/AvatarPicker';
 
 const pageVariants = {
   initial: { opacity: 0, y: 8 },
@@ -53,6 +55,7 @@ function AnimatedRoutes() {
           <Route path="/login" element={<Auth />} />
           <Route path="/register" element={<Auth />} />
           <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
 
@@ -98,6 +101,7 @@ function AppLayout() {
       </main>
       <Footer />
       <OmPageTransition />
+      <AvatarPicker />
     </div>
   );
 }

@@ -13,6 +13,7 @@ const rateLimit = require('express-rate-limit');
 const { connectDB, sequelize } = require('./config/db');
 const passport = require('passport');
 require('./config/passport'); // Load passport config
+require('./models/JournalEntry'); // Ensure model is registered for sync
 
 const app = express();
 app.set('trust proxy', 1);
@@ -65,6 +66,7 @@ app.use(passport.initialize());
 app.use('/api/guidance', guidanceLimiter, require('./routes/guidance'));
 app.use('/api/auth', authLimiter, require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/journal', require('./routes/journal'));
 
 // Health check
 app.get('/api/health', (req, res) => {
