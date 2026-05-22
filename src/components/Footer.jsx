@@ -8,10 +8,12 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif font-bold text-sm">
-              ॐ
-            </div>
-            <div>
+            <img 
+              src="/logo.png" 
+              alt="Dharma Setu" 
+              className="h-10 sm:h-12 w-auto object-contain"
+            />
+            <div className="hidden sm:block">
               <div className="font-serif text-lg text-gold-400">Dharma Setu</div>
               <div className="text-xs text-white/30">Ancient Wisdom · Modern Life</div>
             </div>

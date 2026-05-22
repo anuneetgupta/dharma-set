@@ -394,7 +394,7 @@ export default function Auth() {
                 <motion.div key="side-login"
                   initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.35 }}
                   className="relative z-10 flex flex-col items-center justify-center p-8 text-center w-full">
-                  <div className="font-serif text-5xl text-gold-400 mb-6 om-glow">ॐ</div>
+                  <img src="/logo.png" alt="Dharma Setu Logo" className="h-20 w-auto object-contain mb-6 drop-shadow-2xl" />
                   <h2 className="font-serif text-2xl text-white mb-3">New to<br/>Dharma Setu?</h2>
                   <p className="text-sm text-white/40 leading-relaxed mb-7">Join thousands of seekers finding clarity through ancient wisdom.</p>
                   <button onClick={() => { setPanel('register'); setError(''); }}
@@ -407,7 +407,7 @@ export default function Auth() {
                 <motion.div key="side-register"
                   initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.35 }}
                   className="relative z-10 flex flex-col items-center justify-center p-8 text-center w-full">
-                  <div className="font-serif text-5xl text-gold-400 mb-6 om-glow">ॐ</div>
+                  <img src="/logo.png" alt="Dharma Setu Logo" className="h-20 w-auto object-contain mb-6 drop-shadow-2xl" />
                   <h2 className="font-serif text-2xl text-white mb-3">Already<br/>a Seeker?</h2>
                   <p className="text-sm text-white/40 leading-relaxed mb-7">Sign in to continue your journey, revisit your journal, and find wisdom.</p>
                   <button onClick={() => { setPanel('login'); setError(''); }}

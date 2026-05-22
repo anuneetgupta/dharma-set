@@ -71,13 +71,12 @@ export default function Navbar() {
           <div className="grid grid-cols-[auto_1fr_auto] items-center h-16 gap-4">
 
             {/* Col 1 — Logo */}
-            <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif font-bold text-sm shadow-gold group-hover:shadow-gold-lg transition-all duration-300 flex-shrink-0">
-                ॐ
-              </div>
-              <span className="font-serif text-lg font-semibold text-gold-400 group-hover:text-gold-300 transition-colors whitespace-nowrap">
-                Dharma Setu
-              </span>
+            <Link to="/" className="flex items-center group flex-shrink-0">
+              <img 
+                src="/logo.png" 
+                alt="Dharma Setu" 
+                className="h-12 sm:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              />
             </Link>
 
             {/* Col 2 — Nav links (desktop, centered) */}
