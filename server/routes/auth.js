@@ -105,6 +105,7 @@ router.patch('/avatar', protect, async (req, res) => {
     if (!avatar) return res.status(400).json({ success: false, message: 'Avatar URL is required' });
 
     await req.user.update({ avatar, avatarChosen: true });
+    await req.user.reload(); // Reload to get updated values from DB
 
     res.json({
       success: true,
