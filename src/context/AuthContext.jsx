@@ -47,12 +47,14 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const login = (userData, jwt) => {
-    const localAvatar = localStorage.getItem(`dharma_avatar_${userData.email}`);
-    if (localAvatar) {
-      userData.avatar = localAvatar;
-      userData.avatarChosen = true;
-    } else {
-      userData.avatarChosen = false;
+    if (userData) {
+      const localAvatar = localStorage.getItem(`dharma_avatar_${userData.email}`);
+      if (localAvatar) {
+        userData.avatar = localAvatar;
+        userData.avatarChosen = true;
+      } else {
+        userData.avatarChosen = false;
+      }
     }
     setUser(userData);
     setToken(jwt);
