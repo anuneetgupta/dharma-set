@@ -23,7 +23,15 @@ export function AuthProvider({ children }) {
         });
         const data = await res.json();
         if (data.success) {
-          setUser(data.data);
+          const userData = data.data;
+          const localAvatar = localStorage.getItem(`dharma_avatar_${userData.email}`);
+          if (localAvatar) {
+            userData.avatar = localAvatar;
+            userData.avatarChosen = true;
+          } else {
+            userData.avatarChosen = false;
+          }
+          setUser(userData);
         } else {
           // Token invalid — clear it
           localStorage.removeItem('dharma_token');
@@ -39,6 +47,13 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const login = (userData, jwt) => {
+    const localAvatar = localStorage.getItem(`dharma_avatar_${userData.email}`);
+    if (localAvatar) {
+      userData.avatar = localAvatar;
+      userData.avatarChosen = true;
+    } else {
+      userData.avatarChosen = false;
+    }
     setUser(userData);
     setToken(jwt);
     localStorage.setItem('dharma_token', jwt);

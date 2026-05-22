@@ -29,6 +29,7 @@ import PaymentTracker from './pages/admin/PaymentTracker';
 import SiteSettingsForm from './pages/admin/SiteSettingsForm';
 import UserDashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
+import AvatarPicker from './components/AvatarPicker';
 
 const pageVariants = {
   initial: { opacity: 0, y: 8 },
@@ -100,6 +101,7 @@ function AppLayout() {
       </main>
       <Footer />
       <OmPageTransition />
+      <AvatarPicker />
     </div>
   );
 }

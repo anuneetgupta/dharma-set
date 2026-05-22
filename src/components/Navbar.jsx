@@ -104,9 +104,17 @@ export default function Navbar() {
                     onClick={() => setUserMenuOpen(o => !o)}
                     className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/[0.10] hover:border-gold-500/30 hover:bg-white/[0.07] transition-all duration-200 group"
                   >
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif font-bold text-xs">
-                      {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                    </div>
+                    {user.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="w-7 h-7 rounded-full object-cover ring-2 ring-gold-500/30 group-hover:ring-gold-500/60 transition-all"
+                      />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif font-bold text-xs">
+                        {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                      </div>
+                    )}
                     <span className="text-sm text-white/70 group-hover:text-white/90 transition-colors max-w-24 truncate">
                       {user.name?.split(' ')[0] || 'Seeker'}
                     </span>
@@ -201,9 +209,17 @@ export default function Navbar() {
                   {user ? (
                     <>
                       <Link to="/profile" className="flex items-center gap-3 px-4 py-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif font-bold text-sm">
-                          {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                        </div>
+                        {user.avatar ? (
+                          <img
+                            src={user.avatar}
+                            alt={user.name}
+                            className="w-10 h-10 rounded-full object-cover ring-2 ring-gold-500/30"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif font-bold text-sm">
+                            {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                          </div>
+                        )}
                         <div>
                           <p className="text-sm text-white/80 font-medium">{user.name}</p>
                           <p className="text-xs text-white/35">{user.email}</p>
