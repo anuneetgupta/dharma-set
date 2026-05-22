@@ -47,10 +47,6 @@ export default function Profile() {
   };
 
   const handleResetAvatar = async () => {
-    await authFetch('/auth/avatar', {
-      method: 'PATCH',
-      body: JSON.stringify({ avatar: user.avatar }),
-    });
     // Set avatarChosen to false so the picker shows again
     updateUser({ avatarChosen: false });
   };

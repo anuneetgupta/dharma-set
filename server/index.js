@@ -69,6 +69,9 @@ app.use('/api/auth', authLimiter, require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/journal', require('./routes/journal'));
 
+// User profile routes (no strict rate limiting needed — authenticated only)
+app.use('/api/user', require('./routes/user'));
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({

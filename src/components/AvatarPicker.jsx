@@ -46,7 +46,7 @@ export default function AvatarPicker() {
             selected
           );
 
-      const res = await authFetch('/auth/avatar', {
+      const res = await authFetch('/user/avatar', {
         method: 'PATCH',
         body: JSON.stringify({ avatar: avatarUrl }),
       });
