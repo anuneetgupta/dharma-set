@@ -38,8 +38,7 @@ const findOrCreateSocialUser = async (profile, providerIdField) => {
     user = await User.create({
       [providerIdField]: profile.id,
       name: profile.displayName || profile.username || 'Social User',
-      email: email,
-      avatar: profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null
+      email: email
     });
   }
   return user;

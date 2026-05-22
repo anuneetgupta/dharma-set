@@ -16,7 +16,7 @@ const sendTokenResponse = (user, statusCode, res) => {
   const token = generateToken(user.id);
   res.status(statusCode).json({
     success: true,
-    data: { id: user.id, name: user.name, email: user.email, avatar: user.avatar, avatarChosen: user.avatarChosen, role: user.role, token },
+    data: { id: user.id, name: user.name, email: user.email, role: user.role, token },
   });
 };
 
@@ -93,28 +93,8 @@ router.post('/login', loginRules, async (req, res) => {
 router.get('/me', protect, (req, res) => {
   res.status(200).json({
     success: true,
-    data: { id: req.user.id, name: req.user.name, email: req.user.email, avatar: req.user.avatar, avatarChosen: req.user.avatarChosen, role: req.user.role },
+    data: { id: req.user.id, name: req.user.name, email: req.user.email, role: req.user.role },
   });
-});
-
-// @desc    Update user avatar
-// @route   PATCH /api/auth/avatar
-router.patch('/avatar', protect, async (req, res) => {
-  try {
-    const { avatar } = req.body;
-    if (!avatar) return res.status(400).json({ success: false, message: 'Avatar URL is required' });
-
-    await req.user.update({ avatar, avatarChosen: true });
-    await req.user.reload(); // Reload to get updated values from DB
-
-    res.json({
-      success: true,
-      data: { avatar: req.user.avatar, avatarChosen: req.user.avatarChosen },
-    });
-  } catch (error) {
-    console.error('[Auth] Avatar update error:', error.message);
-    res.status(500).json({ success: false, message: 'Failed to update avatar' });
-  }
 });
 
 // ── OAuth Social Auth ─────────────────────────────────────────────────────

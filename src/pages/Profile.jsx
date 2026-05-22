@@ -46,11 +46,6 @@ export default function Profile() {
     } catch { /* ignore */ }
   };
 
-  const handleResetAvatar = async () => {
-    // Set avatarChosen to false so the picker shows again
-    updateUser({ avatarChosen: false });
-  };
-
   const memberSince = user.createdAt ? formatJoinDate(user.createdAt) : null;
 
   return (
@@ -71,25 +66,9 @@ export default function Profile() {
           <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-6">
             {/* Avatar */}
             <div className="relative flex-shrink-0">
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover ring-4 ring-gold-500/25 shadow-card"
-                />
-              ) : (
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif font-bold text-4xl shadow-card">
-                  {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                </div>
-              )}
-              {/* Edit avatar button */}
-              <button
-                onClick={handleResetAvatar}
-                title="Change avatar"
-                className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-cosmic-700 border border-white/[0.12] hover:border-gold-500/40 hover:bg-cosmic-600 flex items-center justify-center text-white/50 hover:text-gold-400 transition-all shadow-card"
-              >
-                <Pencil size={12} />
-              </button>
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-gold-600 to-gold-400 flex items-center justify-center text-cosmic-900 font-serif font-bold text-4xl shadow-card">
+                {user.name?.charAt(0)?.toUpperCase() || 'U'}
+              </div>
             </div>
 
             {/* Info */}

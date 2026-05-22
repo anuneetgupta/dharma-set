@@ -36,14 +36,6 @@ const User = sequelize.define('User', {
     allowNull: true,
     unique: true,
   },
-  avatar: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  avatarChosen: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
   language_preference: {
     type: DataTypes.STRING,
     defaultValue: 'en',
