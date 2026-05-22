@@ -33,7 +33,8 @@ export default function Journal() {
     let reflection;
     try {
       // Try live AI journal reflection via backend
-      const res = await fetch('http://localhost:5000/api/guidance', {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${API_URL}/guidance`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: currentText, emotion: null }),

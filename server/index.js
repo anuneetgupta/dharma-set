@@ -71,7 +71,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     success: true,
     message: '🙏 Dharma Setu API is running',
-    openai: !!process.env.OPENAI_API_KEY,
+    openai: !!process.env.GROQ_API_KEY,
     timestamp: new Date().toISOString(),
   });
 });
@@ -91,5 +91,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`\n🚀 Dharma Setu server running on http://localhost:${PORT}`);
   console.log(`🔗 Health: http://localhost:${PORT}/api/health`);
-  console.log(`🤖 OpenAI key: ${process.env.OPENAI_API_KEY ? '✅ set' : '❌ missing — set OPENAI_API_KEY in .env'}\n`);
+  console.log(`🤖 Groq key: ${process.env.GROQ_API_KEY ? '✅ set' : '❌ missing — set GROQ_API_KEY in .env'}\n`);
 });

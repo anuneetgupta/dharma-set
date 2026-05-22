@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext(null);
 
 // In development, the backend is running on port 5000 on the same machine
-const API_BASE = `http://${window.location.hostname}:5000/api`;
+const API_BASE = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
