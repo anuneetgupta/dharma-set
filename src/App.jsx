@@ -14,6 +14,8 @@ import Auth from './pages/Auth';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Courses from './pages/Courses';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 // Admin imports
 import AdminRoute from './components/AdminRoute';
@@ -51,6 +53,8 @@ function AnimatedRoutes() {
           <Route path="/login" element={<Auth />} />
           <Route path="/register" element={<Auth />} />
           <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminRoute />}>
