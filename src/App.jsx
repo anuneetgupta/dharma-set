@@ -30,6 +30,7 @@ import SiteSettingsForm from './pages/admin/SiteSettingsForm';
 import UserDashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import AvatarPicker from './components/AvatarPicker';
+import ChatbotWidget from './components/ChatbotWidget';
 
 const pageVariants = {
   initial: { opacity: 0, y: 8 },
@@ -102,6 +103,7 @@ function AppLayout() {
       <Footer />
       <OmPageTransition />
       <AvatarPicker />
+      <ChatbotWidget />
     </div>
   );
 }

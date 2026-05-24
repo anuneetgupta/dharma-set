@@ -65,6 +65,16 @@ app.use(passport.initialize());
 
 // ── Routes ──────────────────────────────────────────────────────────────
 app.use('/api/guidance', guidanceLimiter, require('./routes/guidance'));
+
+const chatbotLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Narayan Narayan! Too many questions, please slow down.' },
+});
+app.use('/api/chatbot', chatbotLimiter, require('./routes/chatbot'));
+
 app.use('/api/auth', authLimiter, require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/journal', require('./routes/journal'));

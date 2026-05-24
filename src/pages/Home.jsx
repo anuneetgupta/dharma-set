@@ -448,7 +448,7 @@ export default function Home() {
 
     // Fix: resize canvas on window resize to avoid stretch/blank areas
     const handleResize = () => {
-      canvas.width  = canvas.offsetWidth;
+      canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
     };
     window.addEventListener('resize', handleResize);
@@ -466,7 +466,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-cosmic-gradient" />
         <div className="ambient-orb w-[40vw] h-[40vw] bg-gold-600/5 top-[-10%] left-[-10%]" />
         <div className="ambient-orb w-[50vw] h-[50vw] bg-indigo-600/5 bottom-[-20%] right-[-10%]" style={{ animationDelay: '-5s' }} />
-        
+
         <motion.div style={{ y: particlesY }} className="absolute inset-0 w-full h-full" initial={false}>
           <canvas ref={particleRef} id="particle-canvas" className="w-full h-full" style={{ willChange: 'transform' }} />
         </motion.div>
@@ -727,7 +727,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
+
       {/* ═══ COURSES ═══ */}
       <section className="py-20 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/3 to-transparent pointer-events-none" />
@@ -903,14 +903,14 @@ export default function Home() {
                       }}
                     />
                   </div>
-                  
+
                   <div className="flex-1 text-center md:text-left">
                     <h3 className="font-serif text-3xl text-gold-400 mb-1 uppercase">{founders[currentFounder].name}</h3>
                     <p className="text-sm text-white/50 mb-6 uppercase tracking-wider font-medium">{founders[currentFounder].role}</p>
                     <p className="text-base text-white/70 leading-relaxed font-light mb-8">
                       {founders[currentFounder].description}
                     </p>
-                    
+
                     <div className="flex items-center justify-center md:justify-start gap-4">
                       <a href={founders[currentFounder].linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full glass-card border border-white/[0.1] flex items-center justify-center text-white/60 hover:text-[#0A66C2] hover:border-[#0A66C2]/50 hover:bg-[#0A66C2]/10 transition-all">
                         <LinkedinIcon size={18} />
@@ -933,9 +933,8 @@ export default function Home() {
                 <button
                   key={idx}
                   onClick={() => setCurrentFounder(idx)}
-                  className={`h-2.5 rounded-full transition-all duration-300 ${
-                    currentFounder === idx ? 'bg-gold-400 w-8' : 'bg-white/20 hover:bg-white/40 w-2.5'
-                  }`}
+                  className={`h-2.5 rounded-full transition-all duration-300 ${currentFounder === idx ? 'bg-gold-400 w-8' : 'bg-white/20 hover:bg-white/40 w-2.5'
+                    }`}
                   aria-label={`Go to founder slide ${idx + 1}`}
                 />
               ))}
