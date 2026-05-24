@@ -44,7 +44,7 @@ export default function ChatbotWidget() {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
       } else {
@@ -72,9 +72,9 @@ export default function ChatbotWidget() {
             {/* Header */}
             <div className="p-4 bg-gradient-to-r from-orange-500/20 to-purple-500/20 border-b border-cosmic-700 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <img 
-                  src="/chat bot .jpeg" 
-                  alt="Chat Bot" 
+                <img
+                  src="/chatbot.jpeg"
+                  alt="Chat Bot"
                   className="w-10 h-10 rounded-full border border-purple-400/50 object-cover shadow-[0_0_10px_rgba(168,85,247,0.3)]"
                 />
                 <div>
@@ -82,7 +82,7 @@ export default function ChatbotWidget() {
                   <p className="text-xs text-purple-200/70">Cosmic Guide</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsOpen(false)}
                 className="text-cosmic-300 hover:text-white transition-colors"
               >
@@ -93,16 +93,15 @@ export default function ChatbotWidget() {
             {/* Chat Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.map((msg, idx) => (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div 
-                    className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm leading-relaxed ${
-                      msg.role === 'user' 
-                        ? 'bg-orange-500/80 text-white rounded-br-none' 
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm leading-relaxed ${msg.role === 'user'
+                        ? 'bg-orange-500/80 text-white rounded-br-none'
                         : 'bg-cosmic-700/80 text-cosmic-100 rounded-bl-none border border-cosmic-600'
-                    }`}
+                      }`}
                   >
                     {msg.content}
                   </div>
@@ -153,7 +152,7 @@ export default function ChatbotWidget() {
             onClick={() => setIsOpen(true)}
           >
             {/* Glassmorphism text pill */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5, duration: 0.5 }}
@@ -166,24 +165,25 @@ export default function ChatbotWidget() {
             </motion.div>
 
             {/* Avatar container with glow and float */}
-            <motion.div 
+            <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               className="relative"
             >
               {/* Outer pulsing aura */}
               <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-purple-600 to-orange-500 blur-xl opacity-30 group-hover:opacity-60 transition-opacity duration-700 animate-[pulse_4s_ease-in-out_infinite]"></div>
-              
+
               {/* Secondary tight glow */}
               <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-md group-hover:bg-purple-500/40 transition-colors duration-500"></div>
 
+              {/* The Image Container */}
               <div className="relative w-16 h-16 rounded-full overflow-hidden border border-purple-400/40 shadow-[0_0_20px_rgba(168,85,247,0.4),0_0_40px_rgba(249,115,22,0.2)] group-hover:scale-105 transition-transform duration-300">
-                <img 
-                  src="/chat bot .jpeg" 
-                  alt="Chat Bot" 
+                <img
+                  src="/chatbot.jpeg"
+                  alt="Chat Bot"
                   className="w-full h-full object-cover bg-black/60"
                 />
-                
+
                 {/* Inner glass reflection */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/5 mix-blend-overlay"></div>
               </div>
