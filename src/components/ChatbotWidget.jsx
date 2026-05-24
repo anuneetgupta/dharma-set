@@ -98,7 +98,7 @@ export default function ChatbotWidget() {
                   className="w-10 h-10 rounded-full border border-purple-400/50 object-cover shadow-[0_0_10px_rgba(168,85,247,0.3)]"
                 />
                 <div>
-                  <h3 className="font-semibold text-purple-100">Chat Bot</h3>
+                  <h3 className="font-semibold text-purple-100">Narad Muni</h3>
                   <p className="text-xs text-purple-200/70">Cosmic Guide</p>
                 </div>
               </div>
