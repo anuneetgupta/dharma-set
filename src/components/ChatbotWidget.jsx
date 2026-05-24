@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +12,7 @@ export default function ChatbotWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
+  const { API_BASE } = useAuth();
 
   useEffect(() => {
     // Initialize audio
@@ -55,7 +57,7 @@ export default function ChatbotWidget() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/chatbot', {
+      const response = await fetch(`${API_BASE}/chatbot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages }),
