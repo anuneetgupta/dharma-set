@@ -10,11 +10,29 @@ export default function ChatbotWidget() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    // Initialize audio
+    audioRef.current = new Audio('/chatbotaudio.mpeg');
+    audioRef.current.volume = 0.6;
+  }, []);
+
+  const handleOpenChat = () => {
+    setIsOpen(true);
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => console.log('Audio playback prevented:', e));
+    }
+  };
 
   // Auto open on initial visit
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsOpen(true);
+      if (audioRef.current) {
+        audioRef.current.play().catch(e => console.log('Audio playback prevented:', e));
+      }
     }, 2000); // Pops up after 2 seconds
     return () => clearTimeout(timer);
   }, []);
@@ -149,7 +167,7 @@ export default function ChatbotWidget() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             className="flex items-center space-x-4 cursor-pointer group"
-            onClick={() => setIsOpen(true)}
+            onClick={handleOpenChat}
           >
             {/* Glassmorphism text pill */}
             <motion.div
