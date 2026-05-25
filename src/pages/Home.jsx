@@ -76,14 +76,15 @@ function SudarshanaChakra() {
   const repeatedInnerMantra = innerMantra.repeat(3);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 2, ease: 'easeOut' }}
-      className="absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none"
-      style={{ width: 'min(520px, 90vw)', height: 'min(520px, 90vw)' }}
-    >
-      <svg
+    <div className="chakra-container">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
+        className="pointer-events-none select-none"
+        style={{ width: 'min(520px, 90vw)', height: 'min(520px, 90vw)' }}
+      >
+        <svg
         viewBox="0 0 400 400"
         width="100%"
         height="100%"
@@ -123,7 +124,7 @@ function SudarshanaChakra() {
         <circle cx="200" cy="200" r="180" fill="url(#binduGlow)" opacity="0.1" />
 
         {/* Outermost slow clockwise ring */}
-        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 80s linear infinite' }}>
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 100s linear infinite' }}>
           <circle cx="200" cy="200" r="185" fill="none" stroke="url(#bronzeGrad)" strokeWidth="6" filter="url(#emboss)" opacity="0.8" />
           <circle cx="200" cy="200" r="176" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.4" />
           <circle cx="200" cy="200" r="182" fill="none" stroke="#E8D5A3" strokeWidth="1.5" strokeDasharray="3 9" opacity="0.5" />
@@ -135,7 +136,7 @@ function SudarshanaChakra() {
         </g>
 
         {/* Sanskrit Text Ring (Counter-clockwise) */}
-        <g style={{ transformOrigin: '200px 200px', animation: 'chakraCounterSpin 60s linear infinite' }}>
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraCounterSpin 80s linear infinite' }}>
           <text fill="#C9A96E" fontSize="11" letterSpacing="3" opacity="0.75" style={{ fontFamily: 'serif' }}>
             <textPath href="#textPath" startOffset="0%">
               {repeatedOuterMantra}
@@ -145,14 +146,14 @@ function SudarshanaChakra() {
         </g>
 
         {/* Outer Petals (Clockwise) */}
-        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 45s linear infinite' }}>
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 60s linear infinite' }}>
           {outerPetalEls}
           {/* Concentric detail */}
           <circle cx="200" cy="200" r="135" fill="none" stroke="#C9A96E" strokeWidth="0.5" strokeDasharray="6 4" opacity="0.4" />
         </g>
 
         {/* Inner Text Ring (Clockwise, fast) */}
-        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 35s linear infinite' }}>
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 50s linear infinite' }}>
           <text fill="#E8D5A3" fontSize="9" letterSpacing="4" opacity="0.65" style={{ fontFamily: 'serif' }}>
             <textPath href="#textPathInner" startOffset="0%">
               {repeatedInnerMantra}
@@ -161,30 +162,30 @@ function SudarshanaChakra() {
         </g>
 
         {/* Inner Petals & Mandala Ring (Counter-clockwise) */}
-        <g style={{ transformOrigin: '200px 200px', animation: 'chakraCounterSpin 40s linear infinite' }}>
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraCounterSpin 55s linear infinite' }}>
           {innerPetalEls}
           <circle cx="200" cy="200" r="112" fill="none" stroke="url(#bronzeGrad)" strokeWidth="4" filter="url(#emboss)" opacity="0.8" />
           <circle cx="200" cy="200" r="106" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.5" />
         </g>
 
         {/* Sacred Geometry: Overlapping Squares (Clockwise) */}
-        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 50s linear infinite' }}>
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 70s linear infinite' }}>
           <rect x="135" y="135" width="130" height="130" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.4" transform="rotate(0 200 200)" />
           <rect x="135" y="135" width="130" height="130" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.4" transform="rotate(30 200 200)" />
           <rect x="135" y="135" width="130" height="130" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.4" transform="rotate(60 200 200)" />
         </g>
 
         {/* Cosmic Dust / Particles (Pulse/Rotate) */}
-        <g style={{ transformOrigin: '200px 200px', animation: 'chakraCounterSpin 70s linear infinite' }}>
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraCounterSpin 90s linear infinite' }}>
           {dustEls}
         </g>
 
         {/* Center Bindu / Glow (Pulse) */}
         <g style={{ transformOrigin: '200px 200px', animation: 'chakraPulse 5s ease-in-out infinite' }}>
-          <circle cx="200" cy="200" r="45" fill="none" stroke="#C9A96E" strokeWidth="1" strokeDasharray="2 4" opacity="0.4" filter="url(#ambientGlow)" />
+          <circle cx="200" cy="200" r="45" fill="none" stroke="#C9A96E" strokeWidth="1" strokeDasharray="2 4" opacity="0.25" filter="url(#ambientGlow)" />
           <circle cx="200" cy="200" r="32" fill="url(#bronzeGrad)" filter="url(#emboss)" />
           <circle cx="200" cy="200" r="28" fill="#0D0A1A" />
-          <circle cx="200" cy="200" r="18" fill="url(#binduGlow)" filter="url(#ambientGlow)" opacity="0.85" />
+          <circle cx="200" cy="200" r="18" fill="url(#binduGlow)" filter="url(#ambientGlow)" opacity="0.6" />
         </g>
 
         {/* Central Om */}
@@ -195,10 +196,12 @@ function SudarshanaChakra() {
       </svg>
 
       {/* Radial gold glow behind the chakra */}
-      <div className="absolute inset-0 rounded-full bg-radial-gold pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at center, rgba(201,169,110,0.12) 0%, rgba(123,110,200,0.05) 50%, transparent 70%)',
+      <div className="absolute inset-0 rounded-full bg-radial-gold pointer-events-none blur-xl" style={{
+        background: 'radial-gradient(ellipse at center, rgba(201,169,110,0.15) 0%, rgba(123,110,200,0.08) 40%, transparent 65%)',
+        transform: 'scale(1.2)'
       }} />
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -441,6 +444,7 @@ export default function Home() {
   const dailyShloka = shlokas[getDailyShlokaIndex()];
   const particleRef = useRef(null);
   const [currentFounder, setCurrentFounder] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   // Parallax setup — reduced range for smoother performance
   const { scrollY } = useScroll();
@@ -515,16 +519,37 @@ export default function Home() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[600px] bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <motion.div style={{ y: contentY }} className="relative z-10 text-center page-container pt-20 sm:pt-24 pb-16">
-          {/* Om symbol */}
+          {/* Om / Logo Flip Coin */}
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, ease: 'easeOut' }}
-            className="mb-6 sm:mb-8"
+            className="mb-6 sm:mb-8 cursor-pointer"
+            style={{ perspective: 1000 }}
+            onClick={() => setIsFlipped(!isFlipped)}
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-gold-600/20 to-gold-400/10 border border-gold-500/30 shadow-gold-lg om-glow glyph-draw">
-              <span className="font-serif text-3xl sm:text-4xl text-gold-400">ॐ</span>
-            </div>
+            <motion.div
+              animate={{ rotateY: isFlipped ? 180 : 0 }}
+              transition={{ duration: 0.8, type: "spring", stiffness: 100, damping: 15 }}
+              className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto"
+              style={{ transformStyle: "preserve-3d" }}
+            >
+              {/* Front face (Om) */}
+              <div
+                className="absolute inset-0 flex items-center justify-center rounded-full bg-gradient-to-br from-gold-600/20 to-gold-400/10 border border-gold-500/30 shadow-gold-lg om-glow glyph-draw"
+                style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+              >
+                <span className="font-serif text-3xl sm:text-4xl text-gold-400">ॐ</span>
+              </div>
+              
+              {/* Back face (Logo) */}
+              <div
+                className="absolute inset-0 flex items-center justify-center rounded-full border border-gold-500/30 shadow-gold-lg overflow-hidden bg-white"
+                style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+              >
+                <img src="/logo.png" alt="Company Logo" className="w-full h-full object-contain scale-110" />
+              </div>
+            </motion.div>
           </motion.div>
 
           {/* Badge */}

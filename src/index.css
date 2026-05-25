@@ -146,6 +146,32 @@
 }
 
 /* ── Sudarshana Chakra animations ── */
+.chakra-container {
+  position: absolute;
+  right: -60px;
+  top: 45%;
+  transform: translateY(-50%);
+  opacity: 0.9;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+  .chakra-container {
+    right: -20px;
+    scale: 0.9;
+  }
+}
+
+@media (max-width: 768px) {
+  .chakra-container {
+    right: 50%;
+    transform: translate(50%, -50%);
+    scale: 0.7;
+    opacity: 0.7;
+  }
+}
+
 @keyframes chakraSpin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
@@ -157,8 +183,8 @@
 }
 
 @keyframes chakraPulse {
-  0%, 100% { opacity: 0.12; }
-  50%       { opacity: 0.45; }
+  0%, 100% { opacity: 0.08; }
+  50%       { opacity: 0.35; }
 }
 
 
