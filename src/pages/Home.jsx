@@ -34,39 +34,53 @@ function InstagramIcon({ size = 18 }) {
 
 /* ─── Sudarshana Chakra SVG Component ─── */
 function SudarshanaChakra() {
-  // Build spoke paths: 16 flame-tipped spokes radiating from center
-  const SPOKES = 16;
-  const spokeEls = Array.from({ length: SPOKES }, (_, i) => {
-    const angle = (i / SPOKES) * 360;
+  // Sacred geometry: 12 outer lotus petals
+  const PETALS = 12;
+  const outerPetalEls = Array.from({ length: PETALS }, (_, i) => {
+    const angle = (i / PETALS) * 360;
     return (
-      <g key={i} transform={`rotate(${angle} 200 200)`}>
-        {/* Main spoke */}
-        <line x1="200" y1="200" x2="200" y2="60" stroke="url(#spokeGrad)" strokeWidth="1.5" strokeLinecap="round" />
-        {/* Flame tip */}
-        <ellipse cx="200" cy="54" rx="5" ry="10" fill="url(#flameGrad)" opacity="0.85" />
-        {/* Mid-dot */}
-        <circle cx="200" cy="115" r="2.2" fill="#C9A96E" opacity="0.5" />
+      <g key={`outer-${i}`} transform={`rotate(${angle} 200 200)`}>
+        <path d="M 200 135 Q 218 90 200 45 Q 182 90 200 135" fill="url(#bronzeGrad)" stroke="#C9A96E" strokeWidth="1" opacity="0.4" />
       </g>
     );
   });
 
-  // Inner lotus petals (8)
-  const PETALS = 8;
-  const petalEls = Array.from({ length: PETALS }, (_, i) => {
-    const angle = (i / PETALS) * 360;
+  // Inner petals
+  const INNER_PETALS = 8;
+  const innerPetalEls = Array.from({ length: INNER_PETALS }, (_, i) => {
+    const angle = (i / INNER_PETALS) * 360;
     return (
-      <g key={i} transform={`rotate(${angle} 200 200)`}>
-        <ellipse cx="200" cy="168" rx="7" ry="14" fill="url(#petalGrad)" opacity="0.7" />
+      <g key={`inner-${i}`} transform={`rotate(${angle} 200 200)`}>
+        <path d="M 200 160 Q 212 130 200 100 Q 188 130 200 160" fill="url(#goldGrad)" opacity="0.5" stroke="#E8D5A3" strokeWidth="0.5" />
       </g>
     );
   });
+
+  // Cosmic dust particles inside the wheel
+  const DUST = 30;
+  const dustEls = Array.from({ length: DUST }, (_, i) => {
+    const r = 50 + Math.random() * 130;
+    const theta = Math.random() * Math.PI * 2;
+    const cx = 200 + r * Math.cos(theta);
+    const cy = 200 + r * Math.sin(theta);
+    const size = Math.random() * 1.5 + 0.5;
+    const opacity = Math.random() * 0.6 + 0.2;
+    return <circle key={`dust-${i}`} cx={cx} cy={cy} r={size} fill="#F0DFB5" opacity={opacity} />;
+  });
+
+  // Sanskrit Mantras
+  const outerMantra = "ॐ भूर्भुवः स्वः तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि धियो यो नः प्रचोदयात् ॐ  ";
+  const repeatedOuterMantra = outerMantra.repeat(4);
+  
+  const innerMantra = "अहमात्मा गुडाकेश सर्वभूताशयस्थितः अहमादिश्च मध्यं च भूतानामन्त एव च  ";
+  const repeatedInnerMantra = innerMantra.repeat(3);
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.7 }}
+      initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 1.6, ease: 'easeOut' }}
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none"
+      transition={{ duration: 2, ease: 'easeOut' }}
+      className="absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none"
       style={{ width: 'min(520px, 90vw)', height: 'min(520px, 90vw)' }}
     >
       <svg
@@ -76,92 +90,113 @@ function SudarshanaChakra() {
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Spoke gradient — gold to transparent */}
-          <linearGradient id="spokeGrad" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0%" stopColor="#C9A96E" stopOpacity="0" />
-            <stop offset="40%" stopColor="#C9A96E" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#F0DFB5" stopOpacity="0.9" />
+          <linearGradient id="bronzeGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#4A3B2C" />
+            <stop offset="50%" stopColor="#9A7A35" />
+            <stop offset="100%" stopColor="#2A2015" />
           </linearGradient>
-          {/* Flame tip gradient */}
-          <radialGradient id="flameGrad" cx="50%" cy="70%" r="60%">
+          <linearGradient id="goldGrad" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#C9A96E" />
+            <stop offset="50%" stopColor="#E8D5A3" />
+            <stop offset="100%" stopColor="#8A6A25" />
+          </linearGradient>
+          <radialGradient id="binduGlow" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#FFF0C0" stopOpacity="1" />
-            <stop offset="60%" stopColor="#C9A96E" stopOpacity="0.8" />
+            <stop offset="40%" stopColor="#C9A96E" stopOpacity="0.8" />
             <stop offset="100%" stopColor="#9A7A35" stopOpacity="0" />
           </radialGradient>
-          {/* Lotus petal gradient */}
-          <radialGradient id="petalGrad" cx="50%" cy="30%" r="70%">
-            <stop offset="0%" stopColor="#F0DFB5" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#C9A96E" stopOpacity="0.2" />
-          </radialGradient>
-          {/* Outer ring glow */}
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          
+          <filter id="ambientGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
-          {/* Soft glow filter for hub */}
-          <filter id="hubGlow">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          
+          <filter id="emboss" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="1" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.7"/>
           </filter>
+
+          <path id="textPath" d="M 200, 200 m -165, 0 a 165,165 0 1,1 330,0 a 165,165 0 1,1 -330,0" />
+          <path id="textPathInner" d="M 200, 200 m -125, 0 a 125,125 0 1,1 250,0 a 125,125 0 1,1 -250,0" />
         </defs>
 
-        {/* ── Outermost pulsing ring (fades in/out via CSS animation) ── */}
-        <circle
-          cx="200" cy="200" r="190"
-          fill="none"
-          stroke="#C9A96E"
-          strokeWidth="0.6"
-          strokeDasharray="6 10"
-          opacity="0.25"
-          style={{ animation: 'chakraPulse 4s ease-in-out infinite' }}
-        />
+        {/* Deep background glow */}
+        <circle cx="200" cy="200" r="180" fill="url(#binduGlow)" opacity="0.1" />
 
-        {/* ── Outer decorative ring ── */}
-        <circle cx="200" cy="200" r="178" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.3" filter="url(#glow)" />
-        <circle cx="200" cy="200" r="173" fill="none" stroke="#E8D5A3" strokeWidth="0.4" opacity="0.2" />
-
-        {/* ── 16 spokes + flame tips (clockwise rotation) ── */}
-        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 18s linear infinite' }}>
-          {spokeEls}
+        {/* Outermost slow clockwise ring */}
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 80s linear infinite' }}>
+          <circle cx="200" cy="200" r="185" fill="none" stroke="url(#bronzeGrad)" strokeWidth="6" filter="url(#emboss)" opacity="0.8" />
+          <circle cx="200" cy="200" r="176" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.4" />
+          <circle cx="200" cy="200" r="182" fill="none" stroke="#E8D5A3" strokeWidth="1.5" strokeDasharray="3 9" opacity="0.5" />
+          
+          {/* Tick marks on outer edge */}
+          {Array.from({ length: 72 }).map((_, i) => (
+            <line key={`tick-${i}`} x1="200" y1="15" x2="200" y2="20" stroke="#C9A96E" strokeWidth="1" opacity="0.4" transform={`rotate(${i * 5} 200 200)`} />
+          ))}
         </g>
 
-        {/* ── Mid ring ── */}
-        <circle cx="200" cy="200" r="126" fill="none" stroke="#C9A96E" strokeWidth="1.2" opacity="0.4" filter="url(#glow)" />
-        <circle cx="200" cy="200" r="120" fill="none" stroke="#E8D5A3" strokeWidth="0.5" opacity="0.15" />
-
-        {/* ── Counter-rotating inner spoke layer (8 shorter spokes) ── */}
-        <g style={{ transformOrigin: '200px 200px', animation: 'chakraCounterSpin 12s linear infinite' }}>
-          {Array.from({ length: 8 }, (_, i) => {
-            const angle = (i / 8) * 360;
-            return (
-              <g key={i} transform={`rotate(${angle} 200 200)`}>
-                <line x1="200" y1="200" x2="200" y2="90" stroke="#C9A96E" strokeWidth="1" strokeLinecap="round" opacity="0.4" />
-                <circle cx="200" cy="92" r="3" fill="#E8D5A3" opacity="0.5" />
-              </g>
-            );
-          })}
+        {/* Sanskrit Text Ring (Counter-clockwise) */}
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraCounterSpin 60s linear infinite' }}>
+          <text fill="#C9A96E" fontSize="11" letterSpacing="3" opacity="0.75" style={{ fontFamily: 'serif' }}>
+            <textPath href="#textPath" startOffset="0%">
+              {repeatedOuterMantra}
+            </textPath>
+          </text>
+          <circle cx="200" cy="200" r="152" fill="none" stroke="url(#goldGrad)" strokeWidth="3" filter="url(#emboss)" opacity="0.6" />
         </g>
 
-        {/* ── Inner spoke ring ── */}
-        <circle cx="200" cy="200" r="80" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.5" filter="url(#glow)" />
-
-        {/* ── Lotus petals (counter-rotating slowly) ── */}
-        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 30s linear infinite reverse' }}>
-          {petalEls}
+        {/* Outer Petals (Clockwise) */}
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 45s linear infinite' }}>
+          {outerPetalEls}
+          {/* Concentric detail */}
+          <circle cx="200" cy="200" r="135" fill="none" stroke="#C9A96E" strokeWidth="0.5" strokeDasharray="6 4" opacity="0.4" />
         </g>
 
-        {/* ── Hub circle ── */}
-        <circle cx="200" cy="200" r="30" fill="none" stroke="#C9A96E" strokeWidth="1.5" opacity="0.7" filter="url(#hubGlow)" />
-        <circle cx="200" cy="200" r="24" fill="rgba(201,169,110,0.08)" stroke="#E8D5A3" strokeWidth="0.8" opacity="0.6" />
-        <circle cx="200" cy="200" r="8" fill="url(#flameGrad)" opacity="0.9" filter="url(#hubGlow)" />
+        {/* Inner Text Ring (Clockwise, fast) */}
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 35s linear infinite' }}>
+          <text fill="#E8D5A3" fontSize="9" letterSpacing="4" opacity="0.65" style={{ fontFamily: 'serif' }}>
+            <textPath href="#textPathInner" startOffset="0%">
+              {repeatedInnerMantra}
+            </textPath>
+          </text>
+        </g>
 
-        {/* ── Ambient glow backdrop ── */}
-        <circle cx="200" cy="200" r="185" fill="none" stroke="url(#spokeGrad)" strokeWidth="0" opacity="0" />
+        {/* Inner Petals & Mandala Ring (Counter-clockwise) */}
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraCounterSpin 40s linear infinite' }}>
+          {innerPetalEls}
+          <circle cx="200" cy="200" r="112" fill="none" stroke="url(#bronzeGrad)" strokeWidth="4" filter="url(#emboss)" opacity="0.8" />
+          <circle cx="200" cy="200" r="106" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.5" />
+        </g>
+
+        {/* Sacred Geometry: Overlapping Squares (Clockwise) */}
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraSpin 50s linear infinite' }}>
+          <rect x="135" y="135" width="130" height="130" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.4" transform="rotate(0 200 200)" />
+          <rect x="135" y="135" width="130" height="130" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.4" transform="rotate(30 200 200)" />
+          <rect x="135" y="135" width="130" height="130" fill="none" stroke="#C9A96E" strokeWidth="1" opacity="0.4" transform="rotate(60 200 200)" />
+        </g>
+
+        {/* Cosmic Dust / Particles (Pulse/Rotate) */}
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraCounterSpin 70s linear infinite' }}>
+          {dustEls}
+        </g>
+
+        {/* Center Bindu / Glow (Pulse) */}
+        <g style={{ transformOrigin: '200px 200px', animation: 'chakraPulse 5s ease-in-out infinite' }}>
+          <circle cx="200" cy="200" r="45" fill="none" stroke="#C9A96E" strokeWidth="1" strokeDasharray="2 4" opacity="0.4" filter="url(#ambientGlow)" />
+          <circle cx="200" cy="200" r="32" fill="url(#bronzeGrad)" filter="url(#emboss)" />
+          <circle cx="200" cy="200" r="28" fill="#0D0A1A" />
+          <circle cx="200" cy="200" r="18" fill="url(#binduGlow)" filter="url(#ambientGlow)" opacity="0.85" />
+        </g>
+
+        {/* Central Om */}
+        <text x="200" y="212" fill="#FFF0C0" fontSize="32" fontWeight="400" textAnchor="middle" style={{ fontFamily: 'serif' }} filter="url(#ambientGlow)">
+          ॐ
+        </text>
+
       </svg>
 
       {/* Radial gold glow behind the chakra */}
       <div className="absolute inset-0 rounded-full bg-radial-gold pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at center, rgba(201,169,110,0.08) 0%, rgba(123,110,200,0.04) 50%, transparent 70%)',
+        background: 'radial-gradient(ellipse at center, rgba(201,169,110,0.12) 0%, rgba(123,110,200,0.05) 50%, transparent 70%)',
       }} />
     </motion.div>
   );
@@ -472,7 +507,7 @@ export default function Home() {
         </motion.div>
 
         {/* Sudarshana Chakra with Parallax */}
-        <motion.div style={{ y: chakraY }} className="absolute inset-0 flex items-center justify-center pointer-events-none" initial={false}>
+        <motion.div style={{ y: chakraY }} className="absolute inset-0 pointer-events-none" initial={false}>
           <SudarshanaChakra />
         </motion.div>
 
