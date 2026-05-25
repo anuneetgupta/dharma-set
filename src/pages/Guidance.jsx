@@ -95,7 +95,7 @@ export default function Guidance() {
       const res = await fetch(`${API_URL}/guidance`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: input, emotion: selectedEmotion }),
+        body: JSON.stringify({ query: input, emotion: selectedEmotion, language }),
       });
       const data = await res.json();
       if (data.success) {
@@ -156,9 +156,6 @@ export default function Guidance() {
               </button>
             ))}
           </div>
-          {language === 'hi' && (
-            <p className="text-xs text-white/30 mt-2">Hindi translations coming soon.</p>
-          )}
         </motion.div>
 
         <AnimatePresence mode="wait">

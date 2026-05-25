@@ -54,15 +54,19 @@ Respond ONLY with valid JSON in this exact structure (no text outside the JSON):
 // @access Public
 router.post('/', async (req, res) => {
   try {
-    const { query, emotion } = req.body;
+    const { query, emotion, language } = req.body;
 
     if (!query && !emotion) {
       return res.status(400).json({ success: false, message: 'Please provide a query or emotion' });
     }
 
-    const userMessage = query
+    let userMessage = query
       ? `The user says: "${query}"${emotion ? `. They also selected the emotion: "${emotion}"` : ''}`
       : `The user selected the emotion: "${emotion}" but did not write a detailed message.`;
+
+    if (language === 'hi') {
+      userMessage += ` IMPORTANT: The user has requested the response to be in Hindi. Please translate all your output values (greeting, reflection, meaning, explanation, advice, story summary, practical steps, etc.) into Hindi. Keep the JSON keys in English. Sanskrit shlokas and Roman transliterations should remain as they are.`;
+    }
 
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',   // Groq's fastest + smartest model
