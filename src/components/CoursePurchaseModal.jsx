@@ -7,10 +7,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-// Use relative path so Vite proxy forwards to localhost:5000
-// This avoids CORS issues and works identically to the rest of the app
-const API_PREFIX = '/api';
-
 // ── Utility: format card number with spaces ───────────────────────────────
 const formatCardNumber = (v) => v.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
 const formatExpiry = (v) => {
@@ -57,7 +53,7 @@ function OtpInput({ value, onChange, disabled }) {
 }
 
 // ── OTP Field Block ────────────────────────────────────────────────────────
-function OtpBlock({ label, contact, type, verified, onVerified }) {
+function OtpBlock({ label, contact, type, verified, onVerified, apiBase }) {
   const [sent, setSent] = useState(false);
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
@@ -77,7 +73,7 @@ function OtpBlock({ label, contact, type, verified, onVerified }) {
     try {
       const endpoint = type === 'email' ? '/courses/otp/send-email' : '/courses/otp/send-phone';
       const body = type === 'email' ? { email: contact } : { phone: contact };
-      const res = await fetch(`${API_PREFIX}${endpoint}`, {
+      const res = await fetch(`${apiBase}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -114,7 +110,7 @@ function OtpBlock({ label, contact, type, verified, onVerified }) {
       const body = type === 'email'
         ? { email: contact, otp: otp.replace(/\s/g, '') }
         : { phone: contact, otp: otp.replace(/\s/g, '') };
-      const res = await fetch(`${API_PREFIX}${endpoint}`, {
+      const res = await fetch(`${apiBase}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -195,7 +191,7 @@ function OtpBlock({ label, contact, type, verified, onVerified }) {
 // MAIN MODAL
 // ══════════════════════════════════════════════════════════════════════════════
 export default function CoursePurchaseModal({ course, onClose }) {
-  const { user, token } = useAuth();
+  const { user, token, API_BASE } = useAuth();
 
   // Step: 1 = buyer details, 2 = payment, 3 = success
   const [step, setStep] = useState(1);
@@ -254,7 +250,7 @@ export default function CoursePurchaseModal({ course, onClose }) {
         ? { cardNumber: cardData.cardNumber, cardHolder: cardData.cardHolder, expiry: cardData.expiry }
         : { upiId };
 
-      const res = await fetch(`${API_PREFIX}/courses/purchase`, {
+      const res = await fetch(`${API_BASE}/courses/purchase`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -403,6 +399,7 @@ export default function CoursePurchaseModal({ course, onClose }) {
                   type="email"
                   verified={emailVerified}
                   onVerified={() => setEmailVerified(true)}
+                  apiBase={API_BASE}
                 />
               </div>
 
@@ -427,6 +424,7 @@ export default function CoursePurchaseModal({ course, onClose }) {
                   type="phone"
                   verified={phoneVerified}
                   onVerified={() => setPhoneVerified(true)}
+                  apiBase={API_BASE}
                 />
               </div>
 
