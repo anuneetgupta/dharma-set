@@ -44,4 +44,18 @@ router.get('/overview', async (req, res) => {
   }
 });
 
+// ── Users Management ──
+router.get('/users', async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: ['id', 'name', 'email', 'role', 'createdAt'],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json({ success: true, data: users });
+  } catch (error) {
+    console.error('Admin fetch users error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 module.exports = router;

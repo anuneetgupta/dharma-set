@@ -1,11 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function UserManager() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [users] = useState([
-    { id: '1', name: 'Seeker One', email: 'seeker@example.com', role: 'user', joined: '2026-05-20' },
-  ]); // Stub data
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { authFetch } = useAuth();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await authFetch('/api/admin/users');
+        if (response.success) {
+          setUsers(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, [authFetch]);
+
+  const filteredUsers = users.filter(u => 
+    u.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    u.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -34,25 +56,35 @@ export default function UserManager() {
             </tr>
           </thead>
           <tbody>
-            {users.map(u => (
-              <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                <td className="p-4 text-white font-medium">{u.name}</td>
-                <td className="p-4 text-white/70 text-sm">{u.email}</td>
-                <td className="p-4">
-                  <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-medium ${u.role === 'admin' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-white/5 text-white/40'}`}>
-                    {u.role}
-                  </span>
-                </td>
-                <td className="p-4 flex items-center justify-end gap-2">
-                  <button className="text-xs text-white/40 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 flex items-center gap-1 transition-colors">
-                    <ShieldCheck size={14}/> Grant Premium
-                  </button>
-                  <button className="text-xs text-red-400/60 hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-400/10 flex items-center gap-1 transition-colors">
-                    <ShieldAlert size={14}/> Ban
-                  </button>
-                </td>
+            {loading ? (
+              <tr>
+                <td colSpan={4} className="p-8 text-center text-white/40">Loading users...</td>
               </tr>
-            ))}
+            ) : filteredUsers.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="p-8 text-center text-white/40">No users found.</td>
+              </tr>
+            ) : (
+              filteredUsers.map(u => (
+                <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                  <td className="p-4 text-white font-medium">{u.name}</td>
+                  <td className="p-4 text-white/70 text-sm">{u.email}</td>
+                  <td className="p-4">
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-medium ${u.role === 'admin' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-white/5 text-white/40'}`}>
+                      {u.role}
+                    </span>
+                  </td>
+                  <td className="p-4 flex items-center justify-end gap-2">
+                    <button className="text-xs text-white/40 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 flex items-center gap-1 transition-colors">
+                      <ShieldCheck size={14}/> Grant Premium
+                    </button>
+                    <button className="text-xs text-red-400/60 hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-400/10 flex items-center gap-1 transition-colors">
+                      <ShieldAlert size={14}/> Ban
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
