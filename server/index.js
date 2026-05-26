@@ -19,13 +19,32 @@ require('./models/CourseEnrollment'); // Ensure model is registered for sync
 const app = express();
 app.set('trust proxy', 1);
 
+// ── Global safety net — prevent unhandled rejections from crashing the server ──
+process.on('unhandledRejection', (reason) => {
+  console.error('⚠️  Unhandled rejection (non-fatal):', reason?.message || reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('⚠️  Uncaught exception (non-fatal):', err.message);
+});
+
 // ── Security headers ──────────────────────────────────────────────────────
 app.use(helmet());
 
 // Connect to Database and sync models
-connectDB().then(() => {
-  sequelize.sync({ alter: true }).then(() => console.log('✅ Database models synced'));
-});
+connectDB()
+  .then(() => {
+    sequelize
+      .sync({ alter: true })
+      .then(() => console.log('✅ Database models synced'))
+      .catch((err) => {
+        // Log but do NOT crash — server can still serve existing routes
+        console.error('⚠️  DB sync warning (non-fatal):', err.message);
+      });
+  })
+  .catch((err) => {
+    console.error('❌ DB connection failed:', err.message);
+    // Don't exit — let Render retry / health check fail gracefully
+  });
 
 // ── CORS ─────────────────────────────────────────────────────────────────
 const ALLOWED_ORIGINS = [

@@ -82,7 +82,14 @@ function OtpBlock({ label, contact, type, verified, onVerified }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      const data = await res.json();
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error('Server is unreachable or restarting. Please try again in a moment.');
+      }
+      
       if (!data.success) throw new Error(data.message);
       setSent(true);
       setCountdown(60);
@@ -112,7 +119,14 @@ function OtpBlock({ label, contact, type, verified, onVerified }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      const data = await res.json();
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error('Server is unreachable. Please try again.');
+      }
+
       if (!data.success) throw new Error(data.message);
       onVerified();
     } catch (err) {
@@ -258,7 +272,13 @@ export default function CoursePurchaseModal({ course, onClose }) {
         }),
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error('Server is currently restarting or unavailable. Please try again in a few seconds.');
+      }
+
       if (!data.success) throw new Error(data.message);
       setTxnId(data.data.transactionId);
       setStep(3);
