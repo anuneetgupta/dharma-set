@@ -14,6 +14,7 @@ const { connectDB, sequelize } = require('./config/db');
 const passport = require('passport');
 require('./config/passport'); // Load passport config
 require('./models/JournalEntry'); // Ensure model is registered for sync
+require('./models/CourseEnrollment'); // Ensure model is registered for sync
 
 const app = express();
 app.set('trust proxy', 1);
@@ -78,6 +79,7 @@ app.use('/api/chatbot', chatbotLimiter, require('./routes/chatbot'));
 app.use('/api/auth', authLimiter, require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/journal', require('./routes/journal'));
+app.use('/api/courses', require('./routes/courses'));
 
 // Health check
 app.get('/api/health', (req, res) => {

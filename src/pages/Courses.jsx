@@ -1,5 +1,8 @@
-import { motion } from 'framer-motion';
-import { Clock, Users, BookOpen, GraduationCap, Flame, Wind, Heart, Moon, CheckCircle, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Clock, Users, BookOpen, GraduationCap, Flame, Wind, Heart, Moon, CheckCircle, ArrowRight, Lock } from 'lucide-react';
+import CoursePurchaseModal from '../components/CoursePurchaseModal';
+import { useAuth } from '../context/AuthContext';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 40, filter: 'blur(8px)' },
@@ -103,6 +106,13 @@ const courses = [
 ];
 
 export default function Courses() {
+  const { user } = useAuth();
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
+  const handleEnroll = (course) => {
+    setSelectedCourse(course);
+  };
+
   return (
     <div className="min-h-screen py-20 relative">
       {/* Background */}
@@ -205,8 +215,13 @@ export default function Courses() {
                     {Math.round((1 - parseInt(course.price.replace(/[^0-9]/g, '')) / parseInt(course.originalPrice.replace(/[^0-9]/g, ''))) * 100)}% off
                   </span>
                 </div>
-                <button className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border ${course.border} ${course.color} ${course.bg} hover:scale-105 hover:shadow-lg transition-all duration-300`}>
-                  Enroll Now <ArrowRight size={14} />
+                <button
+                  id={`enroll-btn-${course.title.toLowerCase().replace(/\s+/g, '-')}`}
+                  onClick={() => handleEnroll(course)}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border ${course.border} ${course.color} ${course.bg} hover:scale-105 hover:shadow-lg transition-all duration-300`}
+                >
+                  {user ? 'Enroll Now' : <><Lock size={12} /> Enroll Now</>}
+                  <ArrowRight size={14} />
                 </button>
               </div>
             </motion.div>
@@ -225,6 +240,16 @@ export default function Courses() {
           </p>
         </motion.div>
       </div>
+
+      {/* ── Purchase Modal ── */}
+      <AnimatePresence>
+        {selectedCourse && (
+          <CoursePurchaseModal
+            course={selectedCourse}
+            onClose={() => setSelectedCourse(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -8,6 +8,7 @@ const Announcement = require('../models/Announcement');
 const Payment = require('../models/Payment');
 const SiteSetting = require('../models/SiteSetting');
 const JournalEntry = require('../models/JournalEntry');
+const CourseEnrollment = require('../models/CourseEnrollment');
 const { sequelize } = require('../config/db');
 
 // Apply protection to all admin routes
@@ -88,6 +89,79 @@ router.patch('/journals/:id', async (req, res) => {
     res.json({ success: true, data: entry });
   } catch (error) {
     console.error('Admin journal action error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ── Payment Management ──────────────────────────────────────────────────────
+
+// GET all payments with optional status filter
+// GET /api/admin/payments?status=pending|completed|failed
+router.get('/payments', async (req, res) => {
+  try {
+    const { status } = req.query;
+    const where = {};
+    if (status && ['pending', 'completed', 'failed'].includes(status)) {
+      where.status = status;
+    }
+
+    const payments = await Payment.findAll({
+      where,
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.json({ success: true, data: payments });
+  } catch (error) {
+    console.error('Admin payments error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// PATCH /api/admin/payments/:id/confirm — Admin confirms payment
+router.patch('/payments/:id/confirm', async (req, res) => {
+  try {
+    const { adminNote } = req.body;
+    const payment = await Payment.findByPk(req.params.id);
+    if (!payment) return res.status(404).json({ success: false, message: 'Payment not found' });
+    if (payment.status !== 'pending') {
+      return res.status(400).json({ success: false, message: `Payment is already ${payment.status}` });
+    }
+
+    await payment.update({ status: 'completed', adminNote: adminNote || '' });
+
+    // Update matching enrollment
+    await CourseEnrollment.update(
+      { status: 'confirmed' },
+      { where: { paymentId: payment.id } }
+    );
+
+    res.json({ success: true, message: 'Payment confirmed. Course unlocked for user.', data: payment });
+  } catch (error) {
+    console.error('Admin confirm payment error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// PATCH /api/admin/payments/:id/reject — Admin rejects payment
+router.patch('/payments/:id/reject', async (req, res) => {
+  try {
+    const { adminNote } = req.body;
+    const payment = await Payment.findByPk(req.params.id);
+    if (!payment) return res.status(404).json({ success: false, message: 'Payment not found' });
+    if (payment.status !== 'pending') {
+      return res.status(400).json({ success: false, message: `Payment is already ${payment.status}` });
+    }
+
+    await payment.update({ status: 'failed', adminNote: adminNote || '' });
+
+    await CourseEnrollment.update(
+      { status: 'rejected' },
+      { where: { paymentId: payment.id } }
+    );
+
+    res.json({ success: true, message: 'Payment rejected.', data: payment });
+  } catch (error) {
+    console.error('Admin reject payment error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
