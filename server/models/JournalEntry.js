@@ -22,6 +22,15 @@ const JournalEntry = sequelize.define('JournalEntry', {
     type: DataTypes.JSONB,
     allowNull: true,
   },
+  // 'private' = only visible to the user
+  // 'pending'  = user submitted for public approval
+  // 'approved' = admin approved, visible to everyone
+  // 'rejected' = admin rejected
+  status: {
+    type: DataTypes.ENUM('private', 'pending', 'approved', 'rejected'),
+    defaultValue: 'private',
+    allowNull: false,
+  },
 }, {
   timestamps: true,
 });

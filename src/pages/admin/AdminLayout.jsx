@@ -1,7 +1,7 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, BookOpen, Megaphone, 
-  Users, CreditCard, Settings, LogOut, Home, Palette
+  Users, CreditCard, Settings, LogOut, Home, Palette, PenLine
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { icon: Palette, label: 'Homepage CMS', to: '/admin/cms' },
   { icon: Megaphone, label: 'Announcements', to: '/admin/announcements' },
   { icon: Users, label: 'Users', to: '/admin/users' },
+  { icon: PenLine, label: 'Journal Review', to: '/admin/journals' },
   { icon: CreditCard, label: 'Payments', to: '/admin/payments' },
   { icon: Settings, label: 'Site Settings', to: '/admin/settings' },
 ];

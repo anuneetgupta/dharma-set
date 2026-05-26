@@ -2,6 +2,27 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
 const JournalEntry = require('../models/JournalEntry');
+const User = require('../models/User');
+
+// @desc    Get all APPROVED journals (public wall - no auth needed)
+// @route   GET /api/journal/public
+router.get('/public', async (req, res) => {
+  try {
+    const entries = await JournalEntry.findAll({
+      where: { status: 'approved' },
+      order: [['updatedAt', 'DESC']],
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['name'],
+      }],
+    });
+    res.json({ success: true, data: entries });
+  } catch (error) {
+    console.error('[Journal] Public fetch error:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to fetch public journals' });
+  }
+});
 
 // @desc    Get all journal entries for logged-in user
 // @route   GET /api/journal
@@ -30,11 +51,33 @@ router.post('/', protect, async (req, res) => {
       userId: req.user.id,
       text: text.trim(),
       reflection: reflection || null,
+      status: 'private',
     });
     res.status(201).json({ success: true, data: entry });
   } catch (error) {
     console.error('[Journal] Create error:', error.message);
     res.status(500).json({ success: false, message: 'Failed to save journal entry' });
+  }
+});
+
+// @desc    Submit a journal entry for public approval
+// @route   PATCH /api/journal/:id/submit
+router.patch('/:id/submit', protect, async (req, res) => {
+  try {
+    const entry = await JournalEntry.findOne({
+      where: { id: req.params.id, userId: req.user.id },
+    });
+    if (!entry) {
+      return res.status(404).json({ success: false, message: 'Entry not found' });
+    }
+    if (entry.status !== 'private' && entry.status !== 'rejected') {
+      return res.status(400).json({ success: false, message: 'Entry is already submitted or approved' });
+    }
+    await entry.update({ status: 'pending' });
+    res.json({ success: true, data: entry });
+  } catch (error) {
+    console.error('[Journal] Submit error:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to submit journal entry' });
   }
 });
 

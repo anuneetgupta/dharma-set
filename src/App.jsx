@@ -27,10 +27,12 @@ import AnnouncementsManager from './pages/admin/AnnouncementsManager';
 import UserManager from './pages/admin/UserManager';
 import PaymentTracker from './pages/admin/PaymentTracker';
 import SiteSettingsForm from './pages/admin/SiteSettingsForm';
+import JournalModeration from './pages/admin/JournalModeration';
 import UserDashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import AvatarPicker from './components/AvatarPicker';
 import ChatbotWidget from './components/ChatbotWidget';
+import JournalWall from './pages/JournalWall';
 
 const pageVariants = {
   initial: { opacity: 0, y: 8 },
@@ -49,6 +51,7 @@ function AnimatedRoutes() {
           <Route path="/stories" element={<Stories />} />
           <Route path="/shloka" element={<Shloka />} />
           <Route path="/journal" element={<Journal />} />
+          <Route path="/journal-wall" element={<JournalWall />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/courses" element={<Courses />} />
@@ -68,6 +71,7 @@ function AnimatedRoutes() {
               <Route path="cms" element={<HomepageCMS />} />
               <Route path="announcements" element={<AnnouncementsManager />} />
               <Route path="users" element={<UserManager />} />
+              <Route path="journals" element={<JournalModeration />} />
               <Route path="payments" element={<PaymentTracker />} />
               <Route path="settings" element={<SiteSettingsForm />} />
               <Route path="*" element={<div className="text-white p-8">Under Construction</div>} />

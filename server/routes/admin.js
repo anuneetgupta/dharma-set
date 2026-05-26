@@ -7,6 +7,7 @@ const HomepageSetting = require('../models/HomepageSetting');
 const Announcement = require('../models/Announcement');
 const Payment = require('../models/Payment');
 const SiteSetting = require('../models/SiteSetting');
+const JournalEntry = require('../models/JournalEntry');
 const { sequelize } = require('../config/db');
 
 // Apply protection to all admin routes
@@ -54,6 +55,39 @@ router.get('/users', async (req, res) => {
     res.json({ success: true, data: users });
   } catch (error) {
     console.error('Admin fetch users error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ── Journal Moderation ──
+// GET all pending journals for admin review
+router.get('/journals', async (req, res) => {
+  try {
+    const entries = await JournalEntry.findAll({
+      where: { status: 'pending' },
+      order: [['createdAt', 'DESC']],
+      include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }],
+    });
+    res.json({ success: true, data: entries });
+  } catch (error) {
+    console.error('Admin journals error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// PATCH approve or reject a journal
+router.patch('/journals/:id', async (req, res) => {
+  try {
+    const { action } = req.body; // 'approve' or 'reject'
+    if (!['approve', 'reject'].includes(action)) {
+      return res.status(400).json({ success: false, message: 'Invalid action' });
+    }
+    const entry = await JournalEntry.findByPk(req.params.id);
+    if (!entry) return res.status(404).json({ success: false, message: 'Entry not found' });
+    await entry.update({ status: action === 'approve' ? 'approved' : 'rejected' });
+    res.json({ success: true, data: entry });
+  } catch (error) {
+    console.error('Admin journal action error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });

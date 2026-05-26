@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PenLine, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { PenLine, Trash2, ChevronDown, ChevronUp, Sparkles, Globe, Lock, Clock, XCircle } from 'lucide-react';
 import { getMockJournalReflection } from '../data/aiResponses';
 import ShlokaCard from '../components/ShlokaCard';
 import { useAuth } from '../context/AuthContext';
@@ -42,6 +42,19 @@ export default function Journal() {
       }
     }
   }, [user]);
+
+  // Submit a journal entry for public approval
+  const handleShare = async (id) => {
+    try {
+      const res = await authFetch(`/journal/${id}/submit`, { method: 'PATCH' });
+      const data = await res.json();
+      if (data.success) {
+        setEntries(prev => prev.map(e => e.id === id ? { ...e, status: 'pending' } : e));
+      }
+    } catch (err) {
+      console.error('Share error:', err);
+    }
+  };
 
   // Save to localStorage for guests
   useEffect(() => {
@@ -210,8 +223,43 @@ export default function Journal() {
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-white/25 mb-2">{formatDate(getTimestamp(entry))}</p>
                       <p className="text-sm text-white/55 leading-relaxed line-clamp-2 font-light">{entry.text}</p>
+                      {/* Status badge (only for logged-in users) */}
+                      {user && entry.status && (
+                        <div className="mt-2">
+                          {entry.status === 'private' && (
+                            <span className="inline-flex items-center gap-1 text-[10px] text-white/25 border border-white/10 rounded-full px-2 py-0.5">
+                              <Lock size={9} /> Private
+                            </span>
+                          )}
+                          {entry.status === 'pending' && (
+                            <span className="inline-flex items-center gap-1 text-[10px] text-amber-400/70 border border-amber-400/20 rounded-full px-2 py-0.5 bg-amber-400/5">
+                              <Clock size={9} /> Awaiting Admin Approval
+                            </span>
+                          )}
+                          {entry.status === 'approved' && (
+                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400/70 border border-emerald-400/20 rounded-full px-2 py-0.5 bg-emerald-400/5">
+                              <Globe size={9} /> Published Publicly
+                            </span>
+                          )}
+                          {entry.status === 'rejected' && (
+                            <span className="inline-flex items-center gap-1 text-[10px] text-red-400/60 border border-red-400/20 rounded-full px-2 py-0.5 bg-red-400/5">
+                              <XCircle size={9} /> Not Approved
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
+                      {/* Share button — only for private/rejected, logged-in users */}
+                      {user && (entry.status === 'private' || entry.status === 'rejected') && (
+                        <button
+                          onClick={() => handleShare(entry.id)}
+                          className="p-2 rounded-lg text-white/20 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all"
+                          title="Share with community (needs admin approval)"
+                        >
+                          <Globe size={14} />
+                        </button>
+                      )}
                       <button
                         onClick={() => handleDelete(entry.id)}
                         className="p-2 rounded-lg text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
