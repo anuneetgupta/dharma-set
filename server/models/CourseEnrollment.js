@@ -9,7 +9,7 @@ const CourseEnrollment = sequelize.define('CourseEnrollment', {
   },
   userId: {
     type: DataTypes.UUID,
-    allowNull: false,
+    allowNull: true,
   },
   courseId: {
     type: DataTypes.STRING, // matches course identifier (title slug or static id)
