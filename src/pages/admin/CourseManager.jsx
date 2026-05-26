@@ -10,6 +10,13 @@ export default function CourseManager() {
   useEffect(() => {
     // In a real app, this would fetch from /api/admin/courses
     // For now, it's a stub waiting for the backend endpoints to be fully developed.
+    setCourses([
+      { id: 1, title: 'Bhagavad Gita Masterclass', price: '2,999', isPublished: true },
+      { id: 2, title: 'Pranayama & Breathwork', price: '1,499', isPublished: true },
+      { id: 3, title: 'Vedantic Philosophy', price: '1,999', isPublished: true },
+      { id: 4, title: 'Bhakti Yoga & Devotion', price: '1,299', isPublished: true },
+      { id: 5, title: 'Karma Yoga in Daily Life', price: '999', isPublished: true },
+    ]);
     setLoading(false);
   }, []);
 
@@ -46,7 +53,7 @@ export default function CourseManager() {
               courses.map(course => (
                 <tr key={course.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                   <td className="p-4 text-white font-medium">{course.title}</td>
-                  <td className="p-4 text-white/70">${course.price}</td>
+                  <td className="p-4 text-white/70">₹{course.price}</td>
                   <td className="p-4">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${course.isPublished ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-white/5 text-white/40 border border-white/10'}`}>
                       {course.isPublished ? 'Published' : 'Draft'}
