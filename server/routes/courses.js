@@ -166,18 +166,8 @@ router.post('/purchase', async (req, res) => {
       return res.status(400).json({ success: false, message: 'All fields are required' });
     }
 
-    // Validate both OTPs have been verified
-    const emailKey = sessionKey('email', buyerEmail);
-    const phoneKey = sessionKey('phone', buyerPhone);
-    const emailRecord = otpStore.get(emailKey);
-    const phoneRecord = otpStore.get(phoneKey);
+    // OTP verification has been disabled temporarily
 
-    if (!emailRecord || !emailRecord.verified) {
-      return res.status(400).json({ success: false, message: 'Email OTP not verified. Please verify your email first.' });
-    }
-    if (!phoneRecord || !phoneRecord.verified) {
-      return res.status(400).json({ success: false, message: 'Phone OTP not verified. Please verify your mobile number first.' });
-    }
 
     // Sanitize payment details — never store full card number
     const safePaymentDetails = {};
@@ -227,9 +217,7 @@ router.post('/purchase', async (req, res) => {
       status: 'pending',
     });
 
-    // Clean up verified OTPs
-    otpStore.delete(emailKey);
-    otpStore.delete(phoneKey);
+
 
     res.status(201).json({
       success: true,

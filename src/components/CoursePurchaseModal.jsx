@@ -204,8 +204,6 @@ export default function CoursePurchaseModal({ course, onClose }) {
     email: user?.email || '',
     phone: user?.phone || '',
   });
-  const [emailVerified, setEmailVerified] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
 
   // Step 2 payment data
   const [payMethod, setPayMethod] = useState('card'); // 'card' | 'upi'
@@ -225,8 +223,6 @@ export default function CoursePurchaseModal({ course, onClose }) {
     if (!form.name.trim()) return setGlobalError('Please enter your full name');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return setGlobalError('Please enter a valid email address');
     if (!/^[6-9]\d{9}$/.test(form.phone.replace(/\s/g, ''))) return setGlobalError('Please enter a valid 10-digit Indian mobile number');
-    if (!emailVerified) return setGlobalError('Please verify your email address with OTP');
-    if (!phoneVerified) return setGlobalError('Please verify your mobile number with OTP');
     setStep(2);
   };
 
@@ -359,7 +355,7 @@ export default function CoursePurchaseModal({ course, onClose }) {
               className="p-6 space-y-5"
             >
               <p className="text-sm text-white/50">
-                Please fill in your details below. Both your email and mobile number need to be verified with OTP.
+                Please fill in your details below to continue with the enrollment.
               </p>
 
               {/* Name */}
@@ -387,20 +383,11 @@ export default function CoursePurchaseModal({ course, onClose }) {
                     id="buyer-email"
                     type="email"
                     value={form.email}
-                    onChange={e => { setForm(f => ({ ...f, email: e.target.value })); setEmailVerified(false); }}
+                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                     placeholder="you@example.com"
-                    disabled={emailVerified}
-                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-amber-400/50 transition-all disabled:opacity-50"
+                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-amber-400/50 transition-all"
                   />
                 </div>
-                <OtpBlock
-                  label="Email"
-                  contact={form.email}
-                  type="email"
-                  verified={emailVerified}
-                  onVerified={() => setEmailVerified(true)}
-                  apiBase={API_BASE}
-                />
               </div>
 
               {/* Phone + OTP */}
@@ -412,19 +399,10 @@ export default function CoursePurchaseModal({ course, onClose }) {
                   id="buyer-phone"
                   type="tel"
                   value={form.phone}
-                  onChange={e => { setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })); setPhoneVerified(false); }}
+                  onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
                   placeholder="10-digit mobile number"
-                  disabled={phoneVerified}
                   maxLength={10}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-amber-400/50 transition-all disabled:opacity-50"
-                />
-                <OtpBlock
-                  label="Mobile"
-                  contact={form.phone}
-                  type="phone"
-                  verified={phoneVerified}
-                  onVerified={() => setPhoneVerified(true)}
-                  apiBase={API_BASE}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-amber-400/50 transition-all"
                 />
               </div>
 
