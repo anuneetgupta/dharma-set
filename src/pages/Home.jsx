@@ -848,9 +848,9 @@ export default function Home() {
                     <span className={`font-serif text-2xl font-semibold ${course.color}`}>{course.price}</span>
                     <span className="text-sm text-white/25 line-through">{course.originalPrice}</span>
                   </div>
-                  <button className={`px-5 py-2 rounded-full text-sm font-semibold border ${course.border} ${course.color} ${course.bg} hover:scale-105 hover:shadow-lg transition-all duration-300`}>
-                    Enroll Now
-                  </button>
+                  <Link to="/courses" className={`inline-block px-5 py-2 rounded-full text-center text-sm font-semibold border ${course.border} ${course.color} ${course.bg} hover:scale-105 hover:shadow-lg transition-all duration-300`}>
+                    Explore Course
+                  </Link>
                 </div>
               </motion.div>
             ))}
@@ -891,9 +891,9 @@ export default function Home() {
                     <span className={`font-serif text-xl font-semibold ${course.color}`}>{course.price}</span>
                     <span className="text-xs text-white/25 line-through">{course.originalPrice}</span>
                   </div>
-                  <button className={`px-4 py-1.5 rounded-full text-xs font-semibold border ${course.border} ${course.color} ${course.bg} hover:scale-105 transition-all duration-300`}>
-                    Enroll
-                  </button>
+                  <Link to="/courses" className={`inline-block px-4 py-1.5 rounded-full text-center text-xs font-semibold border ${course.border} ${course.color} ${course.bg} hover:scale-105 transition-all duration-300`}>
+                    Explore
+                  </Link>
                 </div>
               </motion.div>
             ))}

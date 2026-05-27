@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, Users, BookOpen, GraduationCap, Flame, Wind, Heart, Moon, CheckCircle, ArrowRight, Lock } from 'lucide-react';
 import CoursePurchaseModal from '../components/CoursePurchaseModal';
