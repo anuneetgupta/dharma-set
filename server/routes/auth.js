@@ -55,6 +55,21 @@ router.post('/register', registerRules, async (req, res) => {
     }
 
     const user = await User.create({ name, email, password, language_preference });
+
+    // Link any previous guest purchases made with this email to the new account
+    const Payment = require('../models/Payment');
+    const CourseEnrollment = require('../models/CourseEnrollment');
+    
+    await Payment.update({ userId: user.id }, { where: { buyerEmail: email, userId: null } });
+    
+    // For CourseEnrollments, they don't have buyerEmail directly. But we can update enrollments
+    // where paymentId is in the list of payments we just updated, or simply find all payments by this user.
+    const userPayments = await Payment.findAll({ where: { userId: user.id }, attributes: ['id'] });
+    const paymentIds = userPayments.map(p => p.id);
+    if (paymentIds.length > 0) {
+      await CourseEnrollment.update({ userId: user.id }, { where: { paymentId: paymentIds, userId: null } });
+    }
+
     sendTokenResponse(user, 201, res);
   } catch (error) {
     console.error('[Auth] Register error:', error.message);

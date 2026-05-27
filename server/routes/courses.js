@@ -189,7 +189,15 @@ router.post('/purchase', async (req, res) => {
         const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
         userId = decoded.id;
       }
-    } catch (_) { /* guest purchase — no userId */ }
+    } catch (_) { /* guest purchase — no userId from token */ }
+
+    // If not authenticated, check if user exists by email and link it anyway
+    if (!userId && buyerEmail) {
+      const user = await User.findOne({ where: { email: buyerEmail } });
+      if (user) {
+        userId = user.id;
+      }
+    }
 
     // Create Payment record
     const payment = await Payment.create({

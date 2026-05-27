@@ -127,11 +127,23 @@ router.patch('/payments/:id/confirm', async (req, res) => {
       return res.status(400).json({ success: false, message: `Payment is already ${payment.status}` });
     }
 
-    await payment.update({ status: 'completed', adminNote: adminNote || '' });
+    let finalUserId = payment.userId;
+    if (!finalUserId && payment.buyerEmail) {
+      const user = await User.findOne({ where: { email: payment.buyerEmail } });
+      if (user) {
+        finalUserId = user.id;
+      }
+    }
+
+    await payment.update({ status: 'completed', adminNote: adminNote || '', userId: finalUserId });
 
     // Update matching enrollment
+    const enrollmentUpdate = { status: 'confirmed' };
+    if (finalUserId) {
+      enrollmentUpdate.userId = finalUserId;
+    }
     await CourseEnrollment.update(
-      { status: 'confirmed' },
+      enrollmentUpdate,
       { where: { paymentId: payment.id } }
     );
 

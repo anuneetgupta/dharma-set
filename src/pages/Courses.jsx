@@ -106,10 +106,33 @@ const courses = [
 ];
 
 export default function Courses() {
-  const { user } = useAuth();
+  const { user, authFetch } = useAuth();
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [enrollments, setEnrollments] = useState({});
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchEnrollments = async () => {
+      try {
+        const res = await authFetch('/courses/my-enrollments');
+        const data = await res.json();
+        if (data.success) {
+          const enrollMap = {};
+          data.data.forEach(e => {
+            enrollMap[e.courseId] = e.status;
+          });
+          setEnrollments(enrollMap);
+        }
+      } catch (err) {
+        // silent fail
+      }
+    };
+    fetchEnrollments();
+  }, [user, authFetch]);
 
   const handleEnroll = (course) => {
+    const courseId = course.title.toLowerCase().replace(/\s+/g, '-');
+    if (enrollments[courseId]) return; // Do nothing if already enrolled/pending
     setSelectedCourse(course);
   };
 
@@ -155,77 +178,90 @@ export default function Courses() {
 
         {/* ── Course Cards ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {courses.map((course, i) => (
-            <motion.div
-              key={course.title}
-              custom={i}
-              variants={cardVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-50px' }}
-              className={`glass-card border ${course.border} p-7 flex flex-col gap-5 hover:shadow-card transition-all duration-300 group relative overflow-hidden`}
-            >
-              {/* Top accent line */}
-              <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent ${course.bg} to-transparent opacity-80`} />
+          {courses.map((course, i) => {
+            const courseId = course.title.toLowerCase().replace(/\s+/g, '-');
+            const status = enrollments[courseId];
 
-              {/* Icon + Badge */}
-              <div className="flex items-start justify-between">
-                <div className={`w-13 h-13 w-12 h-12 rounded-2xl ${course.bg} border ${course.border} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                  <course.icon size={22} className={course.color} />
-                </div>
-                <span className={`text-xs px-3 py-1 rounded-full border font-semibold ${course.badgeColor}`}>
-                  {course.badge}
-                </span>
-              </div>
+            return (
+              <motion.div
+                key={course.title}
+                custom={i}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-50px' }}
+                className={`glass-card border ${course.border} p-7 flex flex-col gap-5 hover:shadow-card transition-all duration-300 group relative overflow-hidden`}
+              >
+                {/* Top accent line */}
+                <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent ${course.bg} to-transparent opacity-80`} />
 
-              {/* Title + Description */}
-              <div>
-                <h2 className={`font-serif text-2xl ${course.color} mb-1`}>{course.title}</h2>
-                <p className="text-xs text-white/40 font-medium uppercase tracking-widest mb-3">{course.subtitle}</p>
-                <p className="text-sm text-white/55 leading-relaxed">{course.description}</p>
-              </div>
-
-              {/* What's included */}
-              <div>
-                <p className="text-xs text-white/30 uppercase tracking-wider mb-2">What's included</p>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                  {course.includes.map(item => (
-                    <li key={item} className="flex items-center gap-2 text-xs text-white/50">
-                      <CheckCircle size={12} className={course.color} />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Meta info */}
-              <div className="flex flex-wrap gap-4 text-xs text-white/40 border-t border-white/[0.06] pt-4">
-                <span className="flex items-center gap-1.5"><Clock size={12} className={course.color} />{course.duration}</span>
-                <span className="flex items-center gap-1.5"><BookOpen size={12} className={course.color} />{course.lessons} lessons</span>
-                <span className="flex items-center gap-1.5"><Users size={12} className={course.color} />{course.students} enrolled</span>
-                <span className={`ml-auto px-2.5 py-0.5 rounded-full text-xs ${course.bg} ${course.color} border ${course.border}`}>{course.level}</span>
-              </div>
-
-              {/* Price + CTA */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-baseline gap-2">
-                  <span className={`font-serif text-3xl font-semibold ${course.color}`}>{course.price}</span>
-                  <span className="text-sm text-white/25 line-through">{course.originalPrice}</span>
-                  <span className="text-xs text-emerald-400 font-medium">
-                    {Math.round((1 - parseInt(course.price.replace(/[^0-9]/g, '')) / parseInt(course.originalPrice.replace(/[^0-9]/g, ''))) * 100)}% off
+                {/* Icon + Badge */}
+                <div className="flex items-start justify-between">
+                  <div className={`w-13 h-13 w-12 h-12 rounded-2xl ${course.bg} border ${course.border} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                    <course.icon size={22} className={course.color} />
+                  </div>
+                  <span className={`text-xs px-3 py-1 rounded-full border font-semibold ${course.badgeColor}`}>
+                    {course.badge}
                   </span>
                 </div>
-                <button
-                  id={`enroll-btn-${course.title.toLowerCase().replace(/\s+/g, '-')}`}
-                  onClick={() => handleEnroll(course)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border ${course.border} ${course.color} ${course.bg} hover:scale-105 hover:shadow-lg transition-all duration-300`}
-                >
-                  {user ? 'Enroll Now' : <><Lock size={12} /> Enroll Now</>}
-                  <ArrowRight size={14} />
-                </button>
-              </div>
-            </motion.div>
-          ))}
+
+                {/* Title + Description */}
+                <div>
+                  <h2 className={`font-serif text-2xl ${course.color} mb-1`}>{course.title}</h2>
+                  <p className="text-xs text-white/40 font-medium uppercase tracking-widest mb-3">{course.subtitle}</p>
+                  <p className="text-sm text-white/55 leading-relaxed">{course.description}</p>
+                </div>
+
+                {/* What's included */}
+                <div>
+                  <p className="text-xs text-white/30 uppercase tracking-wider mb-2">What's included</p>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                    {course.includes.map(item => (
+                      <li key={item} className="flex items-center gap-2 text-xs text-white/50">
+                        <CheckCircle size={12} className={course.color} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Meta info */}
+                <div className="flex flex-wrap gap-4 text-xs text-white/40 border-t border-white/[0.06] pt-4">
+                  <span className="flex items-center gap-1.5"><Clock size={12} className={course.color} />{course.duration}</span>
+                  <span className="flex items-center gap-1.5"><BookOpen size={12} className={course.color} />{course.lessons} lessons</span>
+                  <span className="flex items-center gap-1.5"><Users size={12} className={course.color} />{course.students} enrolled</span>
+                  <span className={`ml-auto px-2.5 py-0.5 rounded-full text-xs ${course.bg} ${course.color} border ${course.border}`}>{course.level}</span>
+                </div>
+
+                {/* Price + CTA */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-baseline gap-2">
+                    <span className={`font-serif text-3xl font-semibold ${course.color}`}>{course.price}</span>
+                    <span className="text-sm text-white/25 line-through">{course.originalPrice}</span>
+                    <span className="text-xs text-emerald-400 font-medium">
+                      {Math.round((1 - parseInt(course.price.replace(/[^0-9]/g, '')) / parseInt(course.originalPrice.replace(/[^0-9]/g, ''))) * 100)}% off
+                    </span>
+                  </div>
+                  
+                  <button
+                    id={`enroll-btn-${courseId}`}
+                    onClick={() => handleEnroll(course)}
+                    disabled={status === 'pending' || status === 'confirmed'}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border transition-all duration-300 ${
+                      status === 'confirmed' ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' :
+                      status === 'pending' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
+                      `${course.border} ${course.color} ${course.bg} hover:scale-105 hover:shadow-lg`
+                    }`}
+                  >
+                    {status === 'confirmed' ? <><CheckCircle size={14} /> Access Granted</> :
+                     status === 'pending' ? <><Clock size={14} /> Pending Approval</> :
+                     !user ? <><Lock size={12} /> Enroll Now <ArrowRight size={14} /></> : 
+                     <>Enroll Now <ArrowRight size={14} /></>}
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* ── Footer note ── */}
