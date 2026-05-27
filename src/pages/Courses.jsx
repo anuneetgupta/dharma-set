@@ -243,21 +243,29 @@ export default function Courses() {
                     </span>
                   </div>
                   
-                  <button
-                    id={`enroll-btn-${courseId}`}
-                    onClick={() => handleEnroll(course)}
-                    disabled={status === 'pending' || status === 'confirmed'}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border transition-all duration-300 ${
-                      status === 'confirmed' ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' :
-                      status === 'pending' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
-                      `${course.border} ${course.color} ${course.bg} hover:scale-105 hover:shadow-lg`
-                    }`}
-                  >
-                    {status === 'confirmed' ? <><CheckCircle size={14} /> Access Granted</> :
-                     status === 'pending' ? <><Clock size={14} /> Pending Approval</> :
-                     !user ? <><Lock size={12} /> Enroll Now <ArrowRight size={14} /></> : 
-                     <>Enroll Now <ArrowRight size={14} /></>}
-                  </button>
+                  {status === 'confirmed' ? (
+                    <Link
+                      to={`/courses/${courseId}`}
+                      id={`enroll-btn-${courseId}`}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border transition-all duration-300 border-emerald-500/50 text-emerald-400 bg-emerald-500/10 hover:scale-105 hover:shadow-lg cursor-pointer"
+                    >
+                      <CheckCircle size={14} /> Access Granted <ArrowRight size={14} />
+                    </Link>
+                  ) : (
+                    <button
+                      id={`enroll-btn-${courseId}`}
+                      onClick={() => handleEnroll(course)}
+                      disabled={status === 'pending'}
+                      className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold border transition-all duration-300 ${
+                        status === 'pending' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
+                        `${course.border} ${course.color} ${course.bg} hover:scale-105 hover:shadow-lg`
+                      }`}
+                    >
+                      {status === 'pending' ? <><Clock size={14} /> Pending Approval</> :
+                       !user ? <><Lock size={12} /> Enroll Now <ArrowRight size={14} /></> : 
+                       <>Enroll Now <ArrowRight size={14} /></>}
+                    </button>
+                  )}
                 </div>
               </motion.div>
             );

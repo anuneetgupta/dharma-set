@@ -14,6 +14,7 @@ import Auth from './pages/Auth';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Courses from './pages/Courses';
+import CourseViewer from './pages/CourseViewer';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 
@@ -55,6 +56,7 @@ function AnimatedRoutes() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/courses" element={<Courses />} />
+          <Route path="/courses/:courseId" element={<CourseViewer />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/register" element={<Auth />} />

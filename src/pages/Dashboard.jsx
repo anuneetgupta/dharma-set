@@ -139,31 +139,59 @@ export default function UserDashboard() {
                   key={enrollment.id}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className={`flex items-center justify-between p-4 rounded-2xl border ${statusCfg.bg} ${statusCfg.border} transition-all`}
+                  className={`block rounded-2xl border ${statusCfg.bg} ${statusCfg.border} transition-all ${
+                    enrollment.status === 'confirmed' ? 'hover:scale-[1.01] hover:shadow-lg cursor-pointer' : ''
+                  }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-white/5`}>
-                      <GraduationCap size={18} className={statusCfg.color} />
+                  {enrollment.status === 'confirmed' ? (
+                    <Link to={`/courses/${enrollment.courseId}`} className="flex items-center justify-between p-4 w-full">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-white/5`}>
+                          <GraduationCap size={18} className={statusCfg.color} />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium text-sm">{enrollment.courseTitle}</p>
+                          <p className="text-xs text-white/40 mt-0.5">
+                            Enrolled on {new Date(enrollment.createdAt).toLocaleDateString('en-IN', {
+                              day: '2-digit', month: 'short', year: 'numeric',
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusCfg.color} bg-white/5 border ${statusCfg.border}`}>
+                          <StatusIcon size={11} /> {statusCfg.label}
+                        </span>
+                        <ArrowRight size={16} className="text-white/30 hidden sm:block" />
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="flex items-center justify-between p-4">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-white/5`}>
+                          <GraduationCap size={18} className={statusCfg.color} />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium text-sm">{enrollment.courseTitle}</p>
+                          <p className="text-xs text-white/40 mt-0.5">
+                            Enrolled on {new Date(enrollment.createdAt).toLocaleDateString('en-IN', {
+                              day: '2-digit', month: 'short', year: 'numeric',
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right hidden sm:block">
+                          <p className={`font-serif text-lg font-semibold ${statusCfg.color}`}>
+                            ₹{parseFloat(enrollment.coursePrice || 0).toLocaleString('en-IN')}
+                          </p>
+                        </div>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusCfg.color} bg-white/5 border ${statusCfg.border}`}>
+                          <StatusIcon size={11} /> {statusCfg.label}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">{enrollment.courseTitle}</p>
-                      <p className="text-xs text-white/40 mt-0.5">
-                        Enrolled on {new Date(enrollment.createdAt).toLocaleDateString('en-IN', {
-                          day: '2-digit', month: 'short', year: 'numeric',
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right hidden sm:block">
-                      <p className={`font-serif text-lg font-semibold ${statusCfg.color}`}>
-                        ₹{parseFloat(enrollment.coursePrice || 0).toLocaleString('en-IN')}
-                      </p>
-                    </div>
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${statusCfg.color} bg-white/5 border ${statusCfg.border}`}>
-                      <StatusIcon size={11} /> {statusCfg.label}
-                    </span>
-                  </div>
+                  )}
                 </motion.div>
               );
             })}
