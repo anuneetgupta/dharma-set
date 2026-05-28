@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PenLine, BookOpen, ChevronDown, ChevronUp, Pencil, LogOut, Calendar, Mail, User as UserIcon, Sparkles } from 'lucide-react';
+import { PenLine, BookOpen, ChevronDown, ChevronUp, Pencil, LogOut, Calendar, Mail, User as UserIcon, Sparkles, Crown, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ShlokaCard from '../components/ShlokaCard';
 
@@ -94,9 +94,20 @@ export default function Profile() {
 
             {/* Info */}
             <div className="flex-1 text-center sm:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs mb-3">
-                <Sparkles size={10} />
-                Dharma Seeker
+              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap mb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-xs">
+                  <Sparkles size={10} />
+                  Dharma Seeker
+                </div>
+                {user.isPremium && (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-gold-600/20 to-amber-500/15 border border-gold-500/40 text-gold-300 text-xs font-medium shadow-[0_0_12px_rgba(201,169,110,0.15)]">
+                    <Crown size={10} />
+                    Premium
+                    {user.premiumChatsRemaining > 0 && (
+                      <span className="ml-1 opacity-60">· {user.premiumChatsRemaining} left</span>
+                    )}
+                  </div>
+                )}
               </div>
               <h1 className="font-serif text-3xl sm:text-4xl text-white mb-1">{user.name}</h1>
 

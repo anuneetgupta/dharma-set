@@ -85,6 +85,8 @@ app.use(passport.initialize());
 
 // ── Routes ──────────────────────────────────────────────────────────────
 app.use('/api/guidance', guidanceLimiter, require('./routes/guidance'));
+app.use('/api/guidance-plan', require('./routes/guidancePlan'));
+
 
 const chatbotLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute

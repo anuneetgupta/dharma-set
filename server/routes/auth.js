@@ -16,7 +16,15 @@ const sendTokenResponse = (user, statusCode, res) => {
   const token = generateToken(user.id);
   res.status(statusCode).json({
     success: true,
-    data: { id: user.id, name: user.name, email: user.email, role: user.role, token },
+    data: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isPremium: user.isPremium || false,
+      premiumChatsRemaining: user.premiumChatsRemaining || 0,
+      token,
+    },
   });
 };
 
@@ -108,7 +116,15 @@ router.post('/login', loginRules, async (req, res) => {
 router.get('/me', protect, (req, res) => {
   res.status(200).json({
     success: true,
-    data: { id: req.user.id, name: req.user.name, email: req.user.email, role: req.user.role },
+    data: {
+      id: req.user.id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role,
+      isPremium: req.user.isPremium || false,
+      premiumChatsRemaining: req.user.premiumChatsRemaining || 0,
+      createdAt: req.user.createdAt,
+    },
   });
 });
 

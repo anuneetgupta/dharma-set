@@ -1,5 +1,6 @@
 const express = require('express');
 const OpenAI = require('openai');
+const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -8,6 +9,13 @@ const groq = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,
   baseURL: 'https://api.groq.com/openai/v1',
 });
+
+// ── Limits ──────────────────────────────────────────────────────────────────
+const FREE_DAILY_LIMIT = 5;
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 // ── Spiritual system prompt ──
 const SYSTEM_PROMPT = `You are Dharma Setu, a compassionate and wise spiritual guide who draws from the Bhagavad Gita, Ramayana, and Mahabharata.
@@ -51,15 +59,53 @@ Respond ONLY with valid JSON in this exact structure (no text outside the JSON):
 }`;
 
 // @route  POST /api/guidance
-// @desc   Get AI spiritual guidance (Groq LLM)
-// @access Public
-router.post('/', async (req, res) => {
+// @desc   Get AI spiritual guidance (Groq LLM) — requires login + quota
+// @access Private
+router.post('/', protect, async (req, res) => {
   try {
+    const user = req.user;
     const { query, emotion, language } = req.body;
 
     if (!query && !emotion) {
       return res.status(400).json({ success: false, message: 'Please provide a query or emotion' });
     }
+
+    // ── Quota check ──────────────────────────────────────────────────────────
+    const today = todayStr();
+
+    // Reset free counter if it's a new day
+    if (user.guidanceLastResetDate !== today) {
+      user.guidanceFreeUsedToday = 0;
+      user.guidanceLastResetDate = today;
+    }
+
+    const hasPremiumCredits = user.isPremium && (user.premiumChatsRemaining || 0) > 0;
+    const freeUsed = user.guidanceFreeUsedToday || 0;
+    const withinFreeLimit = freeUsed < FREE_DAILY_LIMIT;
+
+    if (!hasPremiumCredits && !withinFreeLimit) {
+      // Quota exhausted
+      return res.status(402).json({
+        success: false,
+        type: 'LIMIT_REACHED',
+        message: 'Your 5 free guidance sessions for today are over. Upgrade to continue.',
+      });
+    }
+
+    // Deduct from the correct pool
+    if (hasPremiumCredits) {
+      user.premiumChatsRemaining = user.premiumChatsRemaining - 1;
+      // If premium credits hit 0 and no more, mark as non-premium
+      if (user.premiumChatsRemaining <= 0) {
+        user.isPremium = false;
+        user.premiumChatsRemaining = 0;
+      }
+    } else {
+      user.guidanceFreeUsedToday = freeUsed + 1;
+    }
+
+    await user.save();
+    // ────────────────────────────────────────────────────────────────────────
 
     let userMessage = query
       ? `The user says: "${query}"${emotion ? `. They also selected the emotion: "${emotion}"` : ''}`
@@ -81,7 +127,18 @@ router.post('/', async (req, res) => {
     });
 
     const parsed = JSON.parse(completion.choices[0].message.content);
-    res.json({ success: true, data: parsed });
+
+    // Return response with updated quota info
+    const freeRemaining = Math.max(0, FREE_DAILY_LIMIT - (user.guidanceFreeUsedToday || 0));
+    res.json({
+      success: true,
+      data: parsed,
+      quota: {
+        isPremium: user.isPremium,
+        premiumChatsRemaining: user.premiumChatsRemaining || 0,
+        freeChatsRemaining: freeRemaining,
+      },
+    });
 
   } catch (err) {
     console.error('Guidance API error:', err?.message || err);

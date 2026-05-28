@@ -48,6 +48,23 @@ const User = sequelize.define('User', {
     type: DataTypes.ENUM('user', 'admin'),
     defaultValue: 'user',
   },
+  // ── AI Guidance freemium fields ──────────────────────────────────────────
+  isPremium: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  premiumChatsRemaining: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
+  guidanceFreeUsedToday: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
+  guidanceLastResetDate: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+  },
 }, {
   timestamps: true,
   hooks: {

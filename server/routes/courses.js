@@ -247,6 +247,32 @@ router.post('/purchase', async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 router.get('/my-enrollments', protect, async (req, res) => {
   try {
+    // Auto-link any legacy orphaned purchases made with this email
+    const orphanedPayments = await Payment.findAll({
+      where: { buyerEmail: req.user.email, userId: null },
+      attributes: ['id']
+    });
+    
+    if (orphanedPayments.length > 0) {
+      const paymentIds = orphanedPayments.map(p => p.id);
+      await Payment.update({ userId: req.user.id }, { where: { id: paymentIds } });
+    }
+
+    // Also ensure all enrollments linked to the user's payments have the correct userId
+    // This catches edge cases where the payment was linked but the enrollment was missed
+    const allUserPayments = await Payment.findAll({
+      where: { userId: req.user.id },
+      attributes: ['id']
+    });
+    
+    if (allUserPayments.length > 0) {
+      const allPaymentIds = allUserPayments.map(p => p.id);
+      await CourseEnrollment.update(
+        { userId: req.user.id }, 
+        { where: { paymentId: allPaymentIds, userId: null } }
+      );
+    }
+
     const enrollments = await CourseEnrollment.findAll({
       where: { userId: req.user.id },
       order: [['createdAt', 'DESC']],
