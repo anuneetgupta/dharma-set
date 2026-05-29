@@ -231,14 +231,22 @@ export default function Guidance() {
     setIsLiveAI(false);
   };
 
-  // Called after successful premium purchase
+  // Called after successful premium purchase — update quota instantly
   const handlePremiumSuccess = (purchaseData) => {
+    // Immediately reflect premium status in the UI
     setQuota(prev => ({
       ...prev,
       isPremium: true,
       premiumChatsRemaining: purchaseData.premiumChatsRemaining,
+      freeChatsRemaining: 0,
     }));
     setShowPremiumModal(false);
+
+    // Also re-fetch fresh quota from server to sync any server-side data
+    authFetch('/guidance-plan/status')
+      .then(r => r.json())
+      .then(data => { if (data.success) setQuota(data.data); })
+      .catch(() => {});
   };
 
   return (

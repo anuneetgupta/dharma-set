@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Sparkles, LogIn, LogOut, User, ChevronDown } from 'lucide-react';
+import { Menu, X, Sparkles, LogIn, LogOut, User, ChevronDown, Crown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
@@ -118,6 +118,11 @@ export default function Navbar() {
                     <span className="text-sm text-white/70 group-hover:text-white/90 transition-colors max-w-24 truncate">
                       {user.name?.split(' ')[0] || 'Seeker'}
                     </span>
+                    {user.isPremium && (
+                      <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gold-500/20 border border-gold-500/30 text-gold-400" title="Premium Member">
+                        <Crown size={9} />
+                      </span>
+                    )}
                     <ChevronDown size={13} className={`text-white/40 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -221,7 +226,14 @@ export default function Navbar() {
                           </div>
                         )}
                         <div>
-                          <p className="text-sm text-white/80 font-medium">{user.name}</p>
+                          <p className="text-sm text-white/80 font-medium flex items-center gap-1.5">
+                            {user.name}
+                            {user.isPremium && (
+                              <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gold-500/20 border border-gold-500/30 text-gold-400 text-[9px]">
+                                <Crown size={8} /> Premium
+                              </span>
+                            )}
+                          </p>
                           <p className="text-xs text-white/35">{user.email}</p>
                         </div>
                       </Link>
