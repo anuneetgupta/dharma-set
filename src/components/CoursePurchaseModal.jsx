@@ -298,7 +298,7 @@ export default function CoursePurchaseModal({ course, onClose }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.93, y: 20 }}
         transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[#0d0a1a] border border-white/10 rounded-3xl shadow-2xl"
+        className="relative w-full max-w-lg max-h-[92vh] flex flex-col bg-[#0d0a1a] border border-white/10 rounded-3xl shadow-2xl"
         style={{ background: 'linear-gradient(135deg, #0d0a1a 0%, #120e24 50%, #0d0a1a 100%)' }}
       >
         {/* Top gradient line */}
@@ -434,7 +434,7 @@ export default function CoursePurchaseModal({ course, onClose }) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -30 }}
               transition={{ duration: 0.25 }}
-              className="p-6 space-y-5"
+              className="p-6 space-y-5 overflow-y-auto flex-1"
             >
               {/* Buyer summary */}
               <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 flex flex-col gap-1.5 text-xs text-white/50">
@@ -528,10 +528,10 @@ export default function CoursePurchaseModal({ course, onClose }) {
 
               {/* UPI form */}
               {payMethod === 'upi' && (
-                <div className="space-y-4">
-                  {/* QR Code placeholder */}
-                  <div className="flex flex-col items-center gap-3 py-6 bg-white/[0.02] border border-white/[0.06] rounded-2xl">
-                    <div className="w-44 h-44 rounded-2xl overflow-hidden shadow-lg shadow-black/40 border border-white/10 bg-white flex items-center justify-center p-2">
+                <div className="space-y-3">
+                  {/* Compact QR + info side by side */}
+                  <div className="flex gap-4 items-center bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4">
+                    <div className="w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border border-white/10 bg-white flex items-center justify-center p-1.5">
                       <img
                         src="/qr-code.jpeg"
                         alt="UPI QR Code — Scan to pay"
@@ -539,12 +539,14 @@ export default function CoursePurchaseModal({ course, onClose }) {
                         style={{ imageRendering: 'crisp-edges' }}
                       />
                     </div>
-                    <p className="text-xs text-white/40">Scan with any UPI app to pay</p>
-                    <p className="text-xs text-amber-400/60 font-medium">PhonePe · GPay · Paytm · BHIM</p>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-sm text-white/70 font-medium">Scan to Pay</p>
+                      <p className="text-xs text-white/40 leading-relaxed">Open any UPI app and scan this QR code to pay instantly.</p>
+                      <p className="text-xs text-amber-400/60 font-medium mt-1">PhonePe · GPay · Paytm · BHIM</p>
+                    </div>
                   </div>
-
                   <div className="space-y-1.5">
-                    <label className="text-xs text-white/40 uppercase tracking-wider">Your UPI ID</label>
+                    <label className="text-xs text-white/40 uppercase tracking-wider">Or enter your UPI ID</label>
                     <input
                       id="upi-id"
                       type="text"

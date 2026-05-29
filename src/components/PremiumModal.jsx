@@ -170,9 +170,10 @@ function PaymentForm({ plan, onBack, onPaid, submitting }) {
 
       {/* UPI form */}
       {payMethod === 'upi' && (
-        <div className="space-y-4">
-          <div className="flex flex-col items-center gap-3 py-6 bg-white/[0.02] border border-white/[0.06] rounded-2xl">
-            <div className="w-44 h-44 rounded-2xl overflow-hidden shadow-lg shadow-black/40 border border-white/10 bg-white flex items-center justify-center p-2">
+        <div className="space-y-3">
+          {/* Compact QR + info side by side */}
+          <div className="flex gap-4 items-center bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4">
+            <div className="w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border border-white/10 bg-white flex items-center justify-center p-1.5">
               <img
                 src="/qr-code.jpeg"
                 alt="UPI QR Code — Scan to pay"
@@ -180,11 +181,14 @@ function PaymentForm({ plan, onBack, onPaid, submitting }) {
                 style={{ imageRendering: 'crisp-edges' }}
               />
             </div>
-            <p className="text-xs text-white/40">Scan with any UPI app to pay</p>
-            <p className="text-xs text-amber-400/60 font-medium">PhonePe · GPay · Paytm · BHIM</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-sm text-white/70 font-medium">Scan to Pay</p>
+              <p className="text-xs text-white/40 leading-relaxed">Open any UPI app and scan this QR code to pay instantly.</p>
+              <p className="text-xs text-amber-400/60 font-medium mt-1">PhonePe · GPay · Paytm · BHIM</p>
+            </div>
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs text-white/40 uppercase tracking-wider">Your UPI ID</label>
+            <label className="text-xs text-white/40 uppercase tracking-wider">Or enter your UPI ID</label>
             <input
               type="text"
               value={upiId}
@@ -295,7 +299,7 @@ export default function PremiumModal({ isOpen, onClose, onSuccess }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 16 }}
             transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-            className="relative w-full max-w-2xl rounded-3xl border border-white/[0.08] bg-cosmic-800/90 backdrop-blur-2xl shadow-[0_32px_80px_rgba(0,0,0,0.5)] overflow-hidden"
+            className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-white/[0.08] bg-cosmic-800/90 backdrop-blur-2xl shadow-[0_32px_80px_rgba(0,0,0,0.5)] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Top glow */}
@@ -328,7 +332,7 @@ export default function PremiumModal({ isOpen, onClose, onSuccess }) {
               <X size={14} />
             </button>
 
-            <div className="p-6 sm:p-8">
+            <div className="p-6 sm:p-8 overflow-y-auto flex-1">
               <AnimatePresence mode="wait">
 
                 {/* ── STEP 1: Plan Selection ── */}
