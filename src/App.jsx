@@ -30,6 +30,7 @@ import PaymentTracker from './pages/admin/PaymentTracker';
 import SiteSettingsForm from './pages/admin/SiteSettingsForm';
 import JournalModeration from './pages/admin/JournalModeration';
 import UserDashboard from './pages/Dashboard';
+import ContactInbox from './pages/admin/ContactInbox';
 import Profile from './pages/Profile';
 import AvatarPicker from './components/AvatarPicker';
 import ChatbotWidget from './components/ChatbotWidget';
@@ -76,6 +77,7 @@ function AnimatedRoutes() {
               <Route path="journals" element={<JournalModeration />} />
               <Route path="payments" element={<PaymentTracker />} />
               <Route path="settings" element={<SiteSettingsForm />} />
+              <Route path="contacts" element={<ContactInbox />} />
               <Route path="*" element={<div className="text-white p-8">Under Construction</div>} />
             </Route>
           </Route>

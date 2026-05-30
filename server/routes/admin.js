@@ -9,6 +9,7 @@ const Payment = require('../models/Payment');
 const SiteSetting = require('../models/SiteSetting');
 const JournalEntry = require('../models/JournalEntry');
 const CourseEnrollment = require('../models/CourseEnrollment');
+const ContactMessage = require('../models/ContactMessage');
 const { sequelize } = require('../config/db');
 
 // Apply protection to all admin routes
@@ -174,6 +175,62 @@ router.patch('/payments/:id/reject', async (req, res) => {
     res.json({ success: true, message: 'Payment rejected.', data: payment });
   } catch (error) {
     console.error('Admin reject payment error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ── Contact Messages ─────────────────────────────────────────────────────────
+
+// GET /api/admin/contacts — list all contact messages
+router.get('/contacts', async (req, res) => {
+  try {
+    const { status } = req.query; // optional: unread | read | replied
+    const where = {};
+    if (status && ['unread', 'read', 'replied'].includes(status)) where.status = status;
+
+    const messages = await ContactMessage.findAll({
+      where,
+      order: [['createdAt', 'DESC']],
+    });
+    res.json({ success: true, data: messages });
+  } catch (err) {
+    console.error('Admin contacts list error:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// PATCH /api/admin/contacts/:id/read — mark as read
+router.patch('/contacts/:id/read', async (req, res) => {
+  try {
+    const msg = await ContactMessage.findByPk(req.params.id);
+    if (!msg) return res.status(404).json({ success: false, message: 'Message not found' });
+    if (msg.status === 'unread') await msg.update({ status: 'read' });
+    res.json({ success: true, data: msg });
+  } catch (err) {
+    console.error('Admin mark read error:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// POST /api/admin/contacts/:id/reply — send reply (saves reply text; extend with email later)
+router.post('/contacts/:id/reply', async (req, res) => {
+  try {
+    const { replyText } = req.body;
+    if (!replyText || !replyText.trim()) {
+      return res.status(400).json({ success: false, message: 'Reply text is required.' });
+    }
+    const msg = await ContactMessage.findByPk(req.params.id);
+    if (!msg) return res.status(404).json({ success: false, message: 'Message not found' });
+
+    await msg.update({
+      adminReply: replyText.trim(),
+      repliedAt: new Date(),
+      status: 'replied',
+    });
+
+    res.json({ success: true, message: 'Reply saved successfully.', data: msg });
+  } catch (err) {
+    console.error('Admin reply error:', err.message);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });

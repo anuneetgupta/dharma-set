@@ -28,6 +28,8 @@ Your personality:
 - Always give practical, grounded advice alongside spiritual insight
 - IMPORTANT: Always match the user's language. If the user types in Hindi or Hinglish, respond with all JSON values in that same language (keep JSON keys in English, and keep Sanskrit/Roman text as is).
 
+CRITICAL: You MUST always include the "relatedStory" field. This field is required and must never be null or omitted. Choose the most relevant story from Mahabharata, Ramayana, or Bhagavad Gita that mirrors the user's specific situation.
+
 Respond ONLY with valid JSON in this exact structure (no text outside the JSON):
 {
   "greeting": "A warm, empathetic 1-2 sentence opening that acknowledges the person's feeling",
@@ -44,12 +46,12 @@ Respond ONLY with valid JSON in this exact structure (no text outside the JSON):
     "emotions": ["emotion1", "emotion2"]
   },
   "relatedStory": {
-    "title": "Name of the story or scene",
+    "title": "Name of the story or scene — REQUIRED, choose a story that directly mirrors the user's situation",
     "scripture": "Mahabharata or Ramayana or Bhagavad Gita",
     "character": "Main character name",
-    "summary": "2-3 sentence summary of the relevant scene",
-    "wisdom": "The core lesson from this story for their situation",
-    "modernParallel": "How this maps to their modern situation in 1-2 sentences"
+    "summary": "2-3 sentence summary of the relevant scene and why it connects to the user's need",
+    "wisdom": "The core lesson from this story specifically for their situation",
+    "modernParallel": "How this ancient story maps directly to their modern situation in 1-2 sentences"
   },
   "practicalSteps": [
     "Step 1 — specific and actionable",
@@ -122,11 +124,25 @@ router.post('/', protect, async (req, res) => {
         { role: 'user', content: userMessage },
       ],
       response_format: { type: 'json_object' },
-      max_tokens: 1500,
+      max_tokens: 2500,
       temperature: 0.75,
     });
 
     const parsed = JSON.parse(completion.choices[0].message.content);
+
+    // Ensure relatedStory is always present — inject a contextual fallback if AI omitted it
+    if (!parsed.relatedStory) {
+      const storyFallbacks = {
+        anxiety: { title: "Arjuna's Collapse Before Battle", scripture: 'Mahabharata', character: 'Arjuna', summary: 'On the battlefield of Kurukshetra, Arjuna sees his loved ones on the opposing side and collapses in paralysis — not from cowardice, but from the weight of an impossible moral moment.', wisdom: 'Collapse is sometimes the precondition for transformation. Your greatest crises are classrooms in disguise.', modernParallel: 'You are facing a moment where the right path feels impossibly costly. Like Arjuna, clarity often arrives after the honest admission of confusion.' },
+        confusion: { title: "Arjuna's Collapse Before Battle", scripture: 'Mahabharata', character: 'Arjuna', summary: 'Arjuna, the finest warrior alive, was paralyzed not by an enemy arrow but by the arrows of his own indecision at the most critical moment of his life.', wisdom: 'Confusion is not weakness — it is the mind\'s honest signal that it needs deeper wisdom.', modernParallel: 'Like Arjuna, you may need to sit with the discomfort of not-knowing before clarity arrives.' },
+        grief: { title: "Rama's Exile — Accepting What Cannot Be Changed", scripture: 'Ramayana', character: 'Rama', summary: 'On the eve of his coronation, Rama learns he must be exiled for 14 years. He accepts without protest, touching his father\'s feet with the same composure he would have shown at his coronation.', wisdom: 'Equanimity is not indifference. Accepting what is does not mean approving of it.', modernParallel: 'Like Rama, you can feel the full pain of a loss while still choosing how you carry it forward.' },
+        anger: { title: "Draupadi's Question in the Assembly", scripture: 'Mahabharata', character: 'Draupadi', summary: 'Dragged into the royal assembly with no protector, Draupadi used the only weapon she had — a razor-sharp question that silenced the entire court.', wisdom: 'Even in powerlessness, clear thinking is power. Anger becomes wisdom when it sharpens your mind.', modernParallel: 'Channel your anger into the right question — asked calmly, it can do more than a thousand reactions.' },
+        fear: { title: "Hanuman's Leap of Faith", scripture: 'Ramayana', character: 'Hanuman', summary: 'When every monkey warrior despaired at the impossible ocean, Hanuman was reminded of his own forgotten power — and leaped across without hesitation.', wisdom: 'Your limitation is often not your reality — it is your memory of yourself. You are more capable than you currently believe.', modernParallel: 'The challenge before you may feel impossible. Like Hanuman, you may need someone to remind you of your own strength.' },
+        default: { title: "Yudhishthira's Final Test", scripture: 'Mahabharata', character: 'Yudhishthira', summary: 'At the gates of heaven, Yudhishthira refused to abandon a faithful stray dog for paradise. The dog revealed itself as Dharma itself — testing his integrity one last time.', wisdom: 'The truest version of you appears in moments when no one is watching and nothing is being offered.', modernParallel: 'You are being asked to do the right thing when it costs you something. That is always the real test.' },
+      };
+      const detectedEmotion = parsed.detectedEmotion || 'default';
+      parsed.relatedStory = storyFallbacks[detectedEmotion] || storyFallbacks.default;
+    }
 
     // Return response with updated quota info
     const freeRemaining = Math.max(0, FREE_DAILY_LIMIT - (user.guidanceFreeUsedToday || 0));

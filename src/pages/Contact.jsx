@@ -40,9 +40,12 @@ const subjects = ['General Inquiry', 'Bug Report', 'Partnership', 'Feature Reque
 
 const fade = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.6 } }) };
 
+const API_BASE = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
+
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [status, setStatus] = useState(null); // 'success' | 'error' | null
+  const [errorMsg, setErrorMsg] = useState('');
   const [sending, setSending] = useState(false);
 
   const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -52,11 +55,27 @@ export default function Contact() {
     if (!form.name || !form.email || !form.message) return;
     setSending(true);
     setStatus(null);
-    // Simulate API call — replace with real endpoint
-    await new Promise(r => setTimeout(r, 1400));
-    setSending(false);
-    setStatus('success');
-    setForm({ name: '', email: '', subject: '', message: '' });
+    setErrorMsg('');
+    try {
+      const res = await fetch(`${API_BASE}/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('success');
+        setForm({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setErrorMsg(data.message || 'Something went wrong.');
+        setStatus('error');
+      }
+    } catch {
+      setErrorMsg('Could not reach the server. Please email us directly.');
+      setStatus('error');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -140,7 +159,7 @@ export default function Contact() {
                 )}
                 {status === 'error' && (
                   <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-6">
-                    <AlertCircle size={16} /> Something went wrong. Please try again or email us directly.
+                    <AlertCircle size={16} /> {errorMsg || 'Something went wrong. Please try again or email us directly.'}
                   </motion.div>
                 )}
 
