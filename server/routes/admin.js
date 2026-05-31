@@ -290,6 +290,7 @@ router.get('/test-email', async (req, res) => {
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '465'),
       secure: true,
+      family: 4, // force IPv4
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     });
     await transporter.verify();
