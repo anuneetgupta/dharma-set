@@ -25,7 +25,8 @@ export default function ContactInbox() {
   const [replyText, setReplyText]       = useState('');
   const [replying, setReplying]         = useState(false);
   const [replySuccess, setReplySuccess] = useState(false);
-  const [replyMode, setReplyMode]       = useState('both'); // 'website' | 'email' | 'both'
+  const [emailError, setEmailError]     = useState('');   // real SMTP error from server
+  const [replyMode, setReplyMode]       = useState('both');
   const [filter, setFilter]             = useState('all');
   const [search, setSearch]             = useState('');
   const [error, setError]               = useState('');
@@ -66,23 +67,45 @@ export default function ContactInbox() {
     if (!replyText.trim() || !selected) return;
     setReplying(true);
     setReplySuccess(false);
+    setEmailError('');
     try {
       const sendEmail = replyMode === 'email' || replyMode === 'both';
       const saveOnly  = replyMode === 'website';
-      const res = await authFetch(`/admin/contacts/${selected.id}/reply`, {
+      const res  = await authFetch(`/admin/contacts/${selected.id}/reply`, {
         method: 'POST',
         body: JSON.stringify({ replyText, sendEmail, saveOnly }),
       });
       const data = await res.json();
       if (data.success) {
-        setReplySuccess(true);
+        // Check if email failed even though save succeeded
+        if (sendEmail && data.emailStatus && data.emailStatus !== 'sent') {
+          setEmailError(`Email failed: ${data.emailStatus}`);
+        } else {
+          setReplySuccess(true);
+        }
         setReplyText('');
         const updated = data.data;
         setMessages(prev => prev.map(m => m.id === selected.id ? updated : m));
         setSelected(updated);
       }
-    } catch { /* silent */ }
-    finally { setReplying(false); }
+    } catch (e) {
+      setEmailError('Could not reach server.');
+    } finally {
+      setReplying(false);
+    }
+  };
+
+  // Test SMTP connectivity
+  const testSmtp = async () => {
+    setEmailError('');
+    try {
+      const res  = await authFetch('/admin/test-email');
+      const data = await res.json();
+      if (data.success) alert(`✅ ${data.message}\n\nCheck your inbox at ${process.env.SMTP_USER || 'the SMTP_USER email'}.`);
+      else              setEmailError(`SMTP test failed: ${data.message}`);
+    } catch {
+      setEmailError('Could not reach server for SMTP test.');
+    }
   };
 
   // Filtered + searched list
@@ -108,9 +131,14 @@ export default function ContactInbox() {
           </h1>
           <p className="text-white/30 text-sm mt-1">Messages from users via the contact form</p>
         </div>
-        <button onClick={load} className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 text-white/50 hover:text-white hover:border-white/20 transition-all text-sm">
-          <RefreshCw size={14} /> Refresh
-        </button>
+        <div className="flex gap-2">
+          <button onClick={testSmtp} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition-all text-sm">
+            <Mail size={14} /> Test SMTP
+          </button>
+          <button onClick={load} className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 text-white/50 hover:text-white hover:border-white/20 transition-all text-sm">
+            <RefreshCw size={14} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Toolbar */}
@@ -312,7 +340,17 @@ export default function ContactInbox() {
                   </p>
 
                   <AnimatePresence>
-                    {replySuccess && (
+                    {emailError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center gap-2 text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2 text-sm mb-3"
+                      >
+                        <X size={14} /> {emailError}
+                      </motion.div>
+                    )}
+                    {replySuccess && !emailError && (
                       <motion.div
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}

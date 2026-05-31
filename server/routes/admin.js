@@ -251,21 +251,58 @@ router.post('/contacts/:id/reply', async (req, res) => {
       });
     }
 
-    // Send email if admin chose email or both modes
+    // Send email — BLOCKING so we can report real errors back to admin
+    let emailStatus = null;
     if (sendEmail) {
-      sendContactReplyEmail({
-        to: msg.email,
-        userName: msg.name,
-        userMessage: msg.message,
-        subject: msg.subject,
-        replyText: replyText.trim(),
-      }).catch(err => console.error('Contact reply email error (non-fatal):', err.message));
+      try {
+        await sendContactReplyEmail({
+          to: msg.email,
+          userName: msg.name,
+          userMessage: msg.message,
+          subject: msg.subject,
+          replyText: replyText.trim(),
+        });
+        emailStatus = 'sent';
+      } catch (mailErr) {
+        console.error('Contact reply email FAILED:', mailErr.message);
+        emailStatus = mailErr.message; // send real error back to frontend
+      }
     }
 
-    res.json({ success: true, message: 'Reply handled successfully.', data: msg });
+    res.json({
+      success: true,
+      message: 'Reply handled.',
+      emailStatus, // 'sent' | null | '<error message>'
+      data: msg,
+    });
   } catch (err) {
     console.error('Admin reply error:', err.message);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// GET /api/admin/test-email — verify SMTP is working (admin only)
+router.get('/test-email', async (req, res) => {
+  try {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '465'),
+      secure: true,
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    });
+    await transporter.verify();
+    // Send a test email to the SMTP_USER itself
+    await transporter.sendMail({
+      from: process.env.SMTP_USER,
+      to: process.env.SMTP_USER,
+      subject: '✅ Dharma Setu — SMTP Test',
+      text: 'SMTP is working correctly! This is a test email from your Dharma Setu admin panel.',
+    });
+    res.json({ success: true, message: `Test email sent to ${process.env.SMTP_USER}` });
+  } catch (err) {
+    console.error('SMTP test error:', err.message);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
