@@ -11,7 +11,7 @@ const JournalEntry = require('../models/JournalEntry');
 const CourseEnrollment = require('../models/CourseEnrollment');
 const ContactMessage = require('../models/ContactMessage');
 const { sequelize } = require('../config/db');
-const { sendContactReplyEmail, sendPaymentConfirmationEmail, sendPaymentRejectionEmail } = require('../utils/mailer');
+const { getTransporter, sendContactReplyEmail, sendPaymentConfirmationEmail, sendPaymentRejectionEmail } = require('../utils/mailer');
 
 // Apply protection to all admin routes
 router.use(protect, isAdmin);
@@ -284,16 +284,9 @@ router.post('/contacts/:id/reply', async (req, res) => {
 // GET /api/admin/test-email — verify SMTP is working (admin only)
 router.get('/test-email', async (req, res) => {
   try {
-    require('dns').setDefaultResultOrder('ipv4first');
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '465'),
-      secure: true,
-      family: 4, // force IPv4
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    });
+    const transporter = await getTransporter();
     await transporter.verify();
+    
     // Send a test email to the SMTP_USER itself
     await transporter.sendMail({
       from: process.env.SMTP_USER,

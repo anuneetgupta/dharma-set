@@ -8,21 +8,39 @@
  */
 
 const nodemailer = require('nodemailer');
-require('dns').setDefaultResultOrder('ipv4first');
+const dns = require('dns');
 
-// ── Transporter ───────────────────────────────────────────────────────────────
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '465'),
-  secure: true, // SSL
-  family: 4, // force IPv4 to prevent ENETUNREACH on IPv6-broken networks
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+// ── Custom Transporter (Forced IPv4) ──────────────────────────────────────────
+// Resolving DNS manually to IPv4 completely prevents the ENETUNREACH IPv6 error
+let transporterInstance = null;
 
-const FROM = process.env.SMTP_FROM || `"Dharma Setu" <${process.env.SMTP_USER}>`;
+async function getTransporter() {
+  if (transporterInstance) return transporterInstance;
+
+  return new Promise((resolve, reject) => {
+    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+    
+    // Explicitly ask for IPv4 only
+    dns.lookup(host, { family: 4 }, (err, address) => {
+      if (err) return reject(new Error(`DNS resolution failed for ${host}: ${err.message}`));
+      
+      transporterInstance = nodemailer.createTransport({
+        host: address, // e.g. 142.251.163.108
+        port: parseInt(process.env.SMTP_PORT || '465'),
+        secure: true, // SSL
+        tls: {
+          servername: host, // Must specify hostname so TLS cert validates correctly
+        },
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+      
+      resolve(transporterInstance);
+    });
+  });
+}
 
 // ── Shared HTML wrapper ───────────────────────────────────────────────────────
 function htmlWrap(bodyHtml) {
@@ -68,6 +86,11 @@ function htmlWrap(bodyHtml) {
 </html>`;
 }
 
+// Helper to get FROM address
+function getFrom() {
+  return process.env.SMTP_FROM || `"Dharma Setu" <${process.env.SMTP_USER}>`;
+}
+
 // ── 1. Admin → User contact reply ─────────────────────────────────────────────
 async function sendContactReplyEmail({ to, userName, userMessage, subject, replyText }) {
   const html = htmlWrap(`
@@ -85,8 +108,9 @@ async function sendContactReplyEmail({ to, userName, userMessage, subject, reply
     <p style="color:rgba(255,255,255,0.3);font-size:13px;">With gratitude,<br/>The Dharma Setu Team 🕉</p>
   `);
 
+  const transporter = await getTransporter();
   return transporter.sendMail({
-    from: FROM,
+    from: getFrom(),
     to,
     subject: `Re: ${subject || 'Your message to Dharma Setu'}`,
     html,
@@ -110,8 +134,9 @@ async function sendPaymentOtpEmail({ to, userName, otp, courseTitle }) {
     <p style="color:rgba(255,255,255,0.3);font-size:13px;">With gratitude,<br/>The Dharma Setu Team 🕉</p>
   `);
 
+  const transporter = await getTransporter();
   return transporter.sendMail({
-    from: FROM,
+    from: getFrom(),
     to,
     subject: `${otp} — Your Dharma Setu Payment OTP`,
     html,
@@ -137,8 +162,9 @@ Status: ✅ Confirmed
     <p style="color:rgba(255,255,255,0.3);font-size:13px;">With gratitude,<br/>The Dharma Setu Team 🕉</p>
   `);
 
+  const transporter = await getTransporter();
   return transporter.sendMail({
-    from: FROM,
+    from: getFrom(),
     to,
     subject: `✅ Course Access Confirmed — ${courseTitle}`,
     html,
@@ -161,8 +187,9 @@ async function sendPaymentRejectionEmail({ to, userName, courseTitle, adminNote 
     <p style="color:rgba(255,255,255,0.3);font-size:13px;">With gratitude,<br/>The Dharma Setu Team 🕉</p>
   `);
 
+  const transporter = await getTransporter();
   return transporter.sendMail({
-    from: FROM,
+    from: getFrom(),
     to,
     subject: `Payment Update — ${courseTitle}`,
     html,
@@ -170,6 +197,7 @@ async function sendPaymentRejectionEmail({ to, userName, courseTitle, adminNote 
 }
 
 module.exports = {
+  getTransporter, // Exported so admin.js can reuse the same forced IPv4 logic
   sendContactReplyEmail,
   sendPaymentOtpEmail,
   sendPaymentConfirmationEmail,
