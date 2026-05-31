@@ -17,29 +17,17 @@ let transporterInstance = null;
 async function getTransporter() {
   if (transporterInstance) return transporterInstance;
 
-  return new Promise((resolve, reject) => {
-    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-    
-    // Explicitly ask for IPv4 only
-    dns.lookup(host, { family: 4 }, (err, address) => {
-      if (err) return reject(new Error(`DNS resolution failed for ${host}: ${err.message}`));
-      
-      transporterInstance = nodemailer.createTransport({
-        host: address, // e.g. 142.251.163.108
-        port: parseInt(process.env.SMTP_PORT || '465'),
-        secure: true, // SSL
-        tls: {
-          servername: host, // Must specify hostname so TLS cert validates correctly
-        },
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
-      
-      resolve(transporterInstance);
-    });
+  transporterInstance = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: parseInt(process.env.SMTP_PORT) === 465, // true for 465, false for 587 (STARTTLS)
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
   });
+  
+  return transporterInstance;
 }
 
 // ── Shared HTML wrapper ───────────────────────────────────────────────────────
