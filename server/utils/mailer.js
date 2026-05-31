@@ -8,6 +8,7 @@
  */
 
 const nodemailer = require('nodemailer');
+require('dns').setDefaultResultOrder('ipv4first');
 
 // ── Transporter ───────────────────────────────────────────────────────────────
 const transporter = nodemailer.createTransport({

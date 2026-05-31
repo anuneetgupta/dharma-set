@@ -284,6 +284,7 @@ router.post('/contacts/:id/reply', async (req, res) => {
 // GET /api/admin/test-email — verify SMTP is working (admin only)
 router.get('/test-email', async (req, res) => {
   try {
+    require('dns').setDefaultResultOrder('ipv4first');
     const nodemailer = require('nodemailer');
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
