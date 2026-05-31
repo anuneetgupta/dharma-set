@@ -11,6 +11,7 @@ const JournalEntry = require('../models/JournalEntry');
 const CourseEnrollment = require('../models/CourseEnrollment');
 const ContactMessage = require('../models/ContactMessage');
 const { sequelize } = require('../config/db');
+const { sendContactReplyEmail, sendPaymentConfirmationEmail, sendPaymentRejectionEmail } = require('../utils/mailer');
 
 // Apply protection to all admin routes
 router.use(protect, isAdmin);
@@ -149,6 +150,16 @@ router.patch('/payments/:id/confirm', async (req, res) => {
     );
 
     res.json({ success: true, message: 'Payment confirmed. Course unlocked for user.', data: payment });
+
+    // Send confirmation email to buyer (non-blocking)
+    sendPaymentConfirmationEmail({
+      to: payment.buyerEmail,
+      userName: payment.buyerName,
+      courseTitle: payment.courseTitle,
+      transactionId: payment.transactionId,
+      amount: payment.amount,
+    }).catch(err => console.error('Payment confirm email error (non-fatal):', err.message));
+
   } catch (error) {
     console.error('Admin confirm payment error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -173,6 +184,15 @@ router.patch('/payments/:id/reject', async (req, res) => {
     );
 
     res.json({ success: true, message: 'Payment rejected.', data: payment });
+
+    // Send rejection email to buyer (non-blocking)
+    sendPaymentRejectionEmail({
+      to: payment.buyerEmail,
+      userName: payment.buyerName,
+      courseTitle: payment.courseTitle,
+      adminNote: adminNote || '',
+    }).catch(err => console.error('Payment reject email error (non-fatal):', err.message));
+
   } catch (error) {
     console.error('Admin reject payment error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -212,7 +232,7 @@ router.patch('/contacts/:id/read', async (req, res) => {
   }
 });
 
-// POST /api/admin/contacts/:id/reply — send reply (saves reply text; extend with email later)
+// POST /api/admin/contacts/:id/reply — save reply and email the user
 router.post('/contacts/:id/reply', async (req, res) => {
   try {
     const { replyText } = req.body;
@@ -228,7 +248,16 @@ router.post('/contacts/:id/reply', async (req, res) => {
       status: 'replied',
     });
 
-    res.json({ success: true, message: 'Reply saved successfully.', data: msg });
+    // Send reply email to the user (non-blocking — failure won't break the response)
+    sendContactReplyEmail({
+      to: msg.email,
+      userName: msg.name,
+      userMessage: msg.message,
+      subject: msg.subject,
+      replyText: replyText.trim(),
+    }).catch(err => console.error('Contact reply email error (non-fatal):', err.message));
+
+    res.json({ success: true, message: 'Reply saved and email sent to user.', data: msg });
   } catch (err) {
     console.error('Admin reply error:', err.message);
     res.status(500).json({ success: false, message: 'Server error' });

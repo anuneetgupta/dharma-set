@@ -17,6 +17,7 @@
     "express-validator": "^7.3.2",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^8.0.10",
     "openai": "^4.47.1",
     "passport": "^0.7.0",
     "passport-facebook": "^3.0.0",

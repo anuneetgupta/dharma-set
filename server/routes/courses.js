@@ -5,6 +5,7 @@ const Payment = require('../models/Payment');
 const CourseEnrollment = require('../models/CourseEnrollment');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth');
+const { sendPaymentOtpEmail } = require('../utils/mailer');
 
 // ── In-memory OTP store (dev/demo — replace with Redis in production) ──────
 // Structure: { [sessionKey]: { otp, expiresAt, verified } }
@@ -32,7 +33,13 @@ router.post('/otp/send-email', async (req, res) => {
     const key = sessionKey('email', email);
     otpStore.set(key, { otp, expiresAt: Date.now() + OTP_TTL_MS, verified: false });
 
-    // TODO: Replace with real email sender (Nodemailer / SendGrid)
+    // Send real OTP email via Nodemailer
+    try {
+      await sendPaymentOtpEmail({ to: email, userName: email, otp, courseTitle: req.body.courseTitle || 'your course' });
+    } catch (mailErr) {
+      console.error('OTP email send error:', mailErr.message);
+      // In dev, still return devOtp so you can test without SMTP configured
+    }
     console.log(`\n📧 [OTP] Email OTP for ${email}: ${otp}  (expires in 5 min)\n`);
 
     res.json({

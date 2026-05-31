@@ -4,9 +4,9 @@ import { Mail, MailOpen, MessageCircle, Send, RefreshCw, Search, CheckCircle, Fi
 import { useAuth } from '../../context/AuthContext';
 
 const STATUS_CONFIG = {
-  unread:  { label: 'Unread',  color: 'text-amber-400',  bg: 'bg-amber-500/10',  border: 'border-amber-500/30',  dot: 'bg-amber-400'  },
-  read:    { label: 'Read',    color: 'text-white/40',   bg: 'bg-white/[0.04]',  border: 'border-white/10',      dot: 'bg-white/20'   },
-  replied: { label: 'Replied', color: 'text-emerald-400',bg: 'bg-emerald-500/10',border: 'border-emerald-500/30',dot: 'bg-emerald-400'},
+  unread: { label: 'Unread', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', dot: 'bg-amber-400' },
+  read: { label: 'Read', color: 'text-white/40', bg: 'bg-white/[0.04]', border: 'border-white/10', dot: 'bg-white/20' },
+  replied: { label: 'Replied', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', dot: 'bg-emerald-400' },
 };
 
 function timeAgo(dateStr) {
@@ -19,15 +19,15 @@ function timeAgo(dateStr) {
 
 export default function ContactInbox() {
   const { authFetch } = useAuth();
-  const [messages, setMessages]       = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [selected, setSelected]       = useState(null);
-  const [replyText, setReplyText]     = useState('');
-  const [replying, setReplying]       = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [replying, setReplying] = useState(false);
   const [replySuccess, setReplySuccess] = useState(false);
-  const [filter, setFilter]           = useState('all'); // all | unread | read | replied
-  const [search, setSearch]           = useState('');
-  const [error, setError]             = useState('');
+  const [filter, setFilter] = useState('all'); // all | unread | read | replied
+  const [search, setSearch] = useState('');
+  const [error, setError] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -118,11 +118,10 @@ export default function ContactInbox() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
-                filter === f
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${filter === f
                   ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30'
                   : 'text-white/40 hover:text-white/70'
-              }`}
+                }`}
             >
               {f}
             </button>
@@ -153,7 +152,7 @@ export default function ContactInbox() {
         <div className="w-80 flex-shrink-0 flex flex-col gap-2 overflow-y-auto pr-1">
           {loading ? (
             <div className="flex flex-col gap-2">
-              {[1,2,3].map(i => (
+              {[1, 2, 3].map(i => (
                 <div key={i} className="h-24 rounded-2xl bg-white/[0.03] animate-pulse" />
               ))}
             </div>
@@ -176,11 +175,10 @@ export default function ContactInbox() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     onClick={() => openMessage(msg)}
-                    className={`w-full text-left p-4 rounded-2xl border transition-all duration-200 ${
-                      isActive
+                    className={`w-full text-left p-4 rounded-2xl border transition-all duration-200 ${isActive
                         ? 'bg-gold-500/10 border-gold-500/30'
                         : 'bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.06] hover:border-white/10'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 min-w-0">
