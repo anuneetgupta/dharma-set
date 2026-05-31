@@ -19,8 +19,9 @@ async function getTransporter() {
 
   transporterInstance = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: parseInt(process.env.SMTP_PORT) === 465, // true for 465, false for 587 (STARTTLS)
+    port: 587,          // HARDCODED to bypass memory caching of old .env
+    secure: false,      // STARTTLS
+    family: 4,          // Force IPv4 to prevent ENETUNREACH
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
