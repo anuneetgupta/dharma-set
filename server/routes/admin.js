@@ -232,32 +232,37 @@ router.patch('/contacts/:id/read', async (req, res) => {
   }
 });
 
-// POST /api/admin/contacts/:id/reply — save reply and email the user
+// POST /api/admin/contacts/:id/reply — save reply and/or email the user
 router.post('/contacts/:id/reply', async (req, res) => {
   try {
-    const { replyText } = req.body;
+    const { replyText, sendEmail = true, saveOnly = false } = req.body;
     if (!replyText || !replyText.trim()) {
       return res.status(400).json({ success: false, message: 'Reply text is required.' });
     }
     const msg = await ContactMessage.findByPk(req.params.id);
     if (!msg) return res.status(404).json({ success: false, message: 'Message not found' });
 
-    await msg.update({
-      adminReply: replyText.trim(),
-      repliedAt: new Date(),
-      status: 'replied',
-    });
+    // Save reply to DB unless admin chose email-only mode
+    if (!saveOnly) {
+      await msg.update({
+        adminReply: replyText.trim(),
+        repliedAt: new Date(),
+        status: 'replied',
+      });
+    }
 
-    // Send reply email to the user (non-blocking — failure won't break the response)
-    sendContactReplyEmail({
-      to: msg.email,
-      userName: msg.name,
-      userMessage: msg.message,
-      subject: msg.subject,
-      replyText: replyText.trim(),
-    }).catch(err => console.error('Contact reply email error (non-fatal):', err.message));
+    // Send email if admin chose email or both modes
+    if (sendEmail) {
+      sendContactReplyEmail({
+        to: msg.email,
+        userName: msg.name,
+        userMessage: msg.message,
+        subject: msg.subject,
+        replyText: replyText.trim(),
+      }).catch(err => console.error('Contact reply email error (non-fatal):', err.message));
+    }
 
-    res.json({ success: true, message: 'Reply saved and email sent to user.', data: msg });
+    res.json({ success: true, message: 'Reply handled successfully.', data: msg });
   } catch (err) {
     console.error('Admin reply error:', err.message);
     res.status(500).json({ success: false, message: 'Server error' });

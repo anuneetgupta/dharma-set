@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, MailOpen, MessageCircle, Send, RefreshCw, Search, CheckCircle, Filter, X, Clock } from 'lucide-react';
+import { Mail, MailOpen, MessageCircle, Send, RefreshCw, Search, CheckCircle, X, Clock, AtSign } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const STATUS_CONFIG = {
@@ -22,12 +22,13 @@ export default function ContactInbox() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
-  const [replyText, setReplyText] = useState('');
-  const [replying, setReplying] = useState(false);
+  const [replyText, setReplyText]       = useState('');
+  const [replying, setReplying]         = useState(false);
   const [replySuccess, setReplySuccess] = useState(false);
-  const [filter, setFilter] = useState('all'); // all | unread | read | replied
-  const [search, setSearch] = useState('');
-  const [error, setError] = useState('');
+  const [replyMode, setReplyMode]       = useState('both'); // 'website' | 'email' | 'both'
+  const [filter, setFilter]             = useState('all');
+  const [search, setSearch]             = useState('');
+  const [error, setError]               = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -66,9 +67,11 @@ export default function ContactInbox() {
     setReplying(true);
     setReplySuccess(false);
     try {
+      const sendEmail = replyMode === 'email' || replyMode === 'both';
+      const saveOnly  = replyMode === 'website';
       const res = await authFetch(`/admin/contacts/${selected.id}/reply`, {
         method: 'POST',
-        body: JSON.stringify({ replyText }),
+        body: JSON.stringify({ replyText, sendEmail, saveOnly }),
       });
       const data = await res.json();
       if (data.success) {
@@ -275,6 +278,39 @@ export default function ContactInbox() {
                     className="w-full bg-white/[0.04] border border-white/[0.10] focus:border-gold-500/40 rounded-xl px-4 py-3 text-sm text-white/80 placeholder-white/20 outline-none transition-all resize-none mb-3"
                   />
 
+                  {/* ── Delivery mode toggle ── */}
+                  <div className="flex gap-2 mb-4">
+                    {[
+                      { key: 'website', label: '🌐 Website only',   desc: 'User sees it in My Replies tab' },
+                      { key: 'email',   label: '📧 Email only',      desc: 'Send via Nodemailer, no in-app' },
+                      { key: 'both',    label: '✅ Both',             desc: 'Website + email (recommended)' },
+                    ].map(opt => (
+                      <button
+                        key={opt.key}
+                        onClick={() => setReplyMode(opt.key)}
+                        title={opt.desc}
+                        className={`flex-1 text-xs font-medium py-2 px-2 rounded-xl border transition-all duration-200 ${
+                          replyMode === opt.key
+                            ? opt.key === 'email'
+                              ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300'
+                              : opt.key === 'website'
+                              ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
+                              : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                            : 'bg-white/[0.03] border-white/10 text-white/40 hover:text-white/70 hover:border-white/20'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Delivery hint */}
+                  <p className="text-xs text-white/25 mb-3 flex items-center gap-1.5">
+                    {replyMode === 'website' && <><span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" /> Reply saved to app only — no email sent</>}
+                    {replyMode === 'email'   && <><AtSign size={11} /> Email sent to <span className="text-indigo-400/70">{selected.email}</span> — not saved in app</>}
+                    {replyMode === 'both'    && <><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" /> Saved in app + email sent to <span className="text-emerald-400/70">{selected.email}</span></>}
+                  </p>
+
                   <AnimatePresence>
                     {replySuccess && (
                       <motion.div
@@ -283,7 +319,10 @@ export default function ContactInbox() {
                         exit={{ opacity: 0 }}
                         className="flex items-center gap-2 text-emerald-400 text-sm mb-3"
                       >
-                        <CheckCircle size={14} /> Reply saved successfully! 🙏
+                        <CheckCircle size={14} />
+                        {replyMode === 'website' && 'Reply saved! User can see it in My Replies tab. 🙏'}
+                        {replyMode === 'email'   && `Email sent to ${selected.email}! 📧`}
+                        {replyMode === 'both'    && `Reply saved + email sent to ${selected.email}! 🙏`}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -294,7 +333,7 @@ export default function ContactInbox() {
                     className="flex items-center gap-2 btn-primary py-2.5 px-6 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {replying ? (
-                      <><div className="w-3.5 h-3.5 border-2 border-cosmic-900/40 border-t-cosmic-900 rounded-full animate-spin" /> Saving…</>
+                      <><div className="w-3.5 h-3.5 border-2 border-cosmic-900/40 border-t-cosmic-900 rounded-full animate-spin" /> Sending…</>
                     ) : (
                       <><Send size={14} /> {selected.adminReply ? 'Update Reply' : 'Send Reply'}</>
                     )}
