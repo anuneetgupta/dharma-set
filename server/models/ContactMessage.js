@@ -7,6 +7,10 @@ const ContactMessage = sequelize.define('ContactMessage', {
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
   },
+  userId: {
+    type: DataTypes.UUID,
+    allowNull: true, // null for guests, linked when user is logged in
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false,
