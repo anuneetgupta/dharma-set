@@ -205,6 +205,9 @@ export default function CoursePurchaseModal({ course, onClose }) {
     phone: user?.phone || '',
   });
 
+  // OTP verification state
+  const [emailVerified, setEmailVerified] = useState(false);
+
   // Step 2 payment data
   const [payMethod, setPayMethod] = useState('card'); // 'card' | 'upi'
   const [cardData, setCardData] = useState({ cardNumber: '', cardHolder: '', expiry: '', cvv: '' });
@@ -222,6 +225,7 @@ export default function CoursePurchaseModal({ course, onClose }) {
     setGlobalError('');
     if (!form.name.trim()) return setGlobalError('Please enter your full name');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return setGlobalError('Please enter a valid email address');
+    if (!emailVerified) return setGlobalError('Please verify your email address with OTP before continuing.');
     if (!/^[6-9]\d{9}$/.test(form.phone.replace(/\s/g, ''))) return setGlobalError('Please enter a valid 10-digit Indian mobile number');
     setStep(2);
   };
@@ -378,16 +382,29 @@ export default function CoursePurchaseModal({ course, onClose }) {
                 <label className="text-xs text-white/50 font-medium uppercase tracking-wider flex items-center gap-1.5">
                   <Mail size={11} /> Email Address <span className="text-red-400">*</span>
                 </label>
-                <div className="flex gap-2">
-                  <input
-                    id="buyer-email"
+                <input
+                  id="buyer-email"
+                  type="email"
+                  value={form.email}
+                  onChange={e => {
+                    setForm(f => ({ ...f, email: e.target.value }));
+                    setEmailVerified(false); // reset OTP when email changes
+                  }}
+                  disabled={emailVerified}
+                  placeholder="you@example.com"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-amber-400/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                />
+                {/* Email OTP verification */}
+                {/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) && (
+                  <OtpBlock
+                    label="Email"
+                    contact={form.email}
                     type="email"
-                    value={form.email}
-                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                    placeholder="you@example.com"
-                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-amber-400/50 transition-all"
+                    verified={emailVerified}
+                    onVerified={() => setEmailVerified(true)}
+                    apiBase={API_BASE}
                   />
-                </div>
+                )}
               </div>
 
               {/* Phone + OTP */}

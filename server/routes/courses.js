@@ -173,7 +173,18 @@ router.post('/purchase', async (req, res) => {
       return res.status(400).json({ success: false, message: 'All fields are required' });
     }
 
-    // OTP verification has been disabled temporarily
+    // ── Enforce email OTP verification ──────────────────────────────────────
+    const emailKey = sessionKey('email', buyerEmail);
+    const emailRecord = otpStore.get(emailKey);
+    if (!emailRecord || !emailRecord.verified) {
+      return res.status(403).json({
+        success: false,
+        message: 'Email not verified. Please complete OTP verification before submitting payment.',
+      });
+    }
+    // Consume the verified session so it can't be reused
+    otpStore.delete(emailKey);
+
 
 
     // Sanitize payment details — never store full card number
