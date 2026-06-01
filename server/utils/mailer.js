@@ -7,28 +7,56 @@
  *   SMTP_FROM="Dharma Setu <dharmasetu03@gmail.com>"
  */
 
-const nodemailer = require('nodemailer');
-const dns = require('dns');
+const https = require('https');
 
-// ── Custom Transporter (Forced IPv4) ──────────────────────────────────────────
-// Resolving DNS manually to IPv4 completely prevents the ENETUNREACH IPv6 error
-let transporterInstance = null;
+// ── HTTP Mailer (Bypasses Render SMTP Block) ──────────────────────────────────
+// Sends via Brevo API (Port 443) instead of SMTP
+function sendViaBrevo({ to, subject, htmlContent }) {
+  return new Promise((resolve, reject) => {
+    if (!process.env.BREVO_API_KEY) {
+      return reject(new Error('BREVO_API_KEY is missing in .env! Cannot send email.'));
+    }
 
-async function getTransporter() {
-  if (transporterInstance) return transporterInstance;
+    const payload = JSON.stringify({
+      sender: { name: 'Dharma Setu', email: process.env.SMTP_USER || 'dharmasetu03@gmail.com' },
+      to: [{ email: to }],
+      subject: subject,
+      htmlContent: htmlContent
+    });
 
-  transporterInstance = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: 587,          // HARDCODED to bypass memory caching of old .env
-    secure: false,      // STARTTLS
-    family: 4,          // Force IPv4 to prevent ENETUNREACH
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
+    const options = {
+      hostname: 'api.brevo.com',
+      path: '/v3/smtp/email',
+      method: 'POST',
+      headers: {
+        'api-key': process.env.BREVO_API_KEY,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(data);
+        } else {
+          reject(new Error(`Brevo API Error (${res.statusCode}): ${data}`));
+        }
+      });
+    });
+
+    // Fail fast after 15 s so the admin sees a clear error instead of a hang
+    req.setTimeout(15000, () => {
+      req.destroy();
+      reject(new Error('Brevo API timed out (15 s). Check your network or Render outbound rules.'));
+    });
+
+    req.on('error', error => reject(error));
+    req.write(payload);
+    req.end();
   });
-  
-  return transporterInstance;
 }
 
 // ── Shared HTML wrapper ───────────────────────────────────────────────────────
@@ -97,12 +125,10 @@ async function sendContactReplyEmail({ to, userName, userMessage, subject, reply
     <p style="color:rgba(255,255,255,0.3);font-size:13px;">With gratitude,<br/>The Dharma Setu Team 🕉</p>
   `);
 
-  const transporter = await getTransporter();
-  return transporter.sendMail({
-    from: getFrom(),
+  return sendViaBrevo({
     to,
     subject: `Re: ${subject || 'Your message to Dharma Setu'}`,
-    html,
+    htmlContent: html,
   });
 }
 
@@ -123,12 +149,10 @@ async function sendPaymentOtpEmail({ to, userName, otp, courseTitle }) {
     <p style="color:rgba(255,255,255,0.3);font-size:13px;">With gratitude,<br/>The Dharma Setu Team 🕉</p>
   `);
 
-  const transporter = await getTransporter();
-  return transporter.sendMail({
-    from: getFrom(),
+  return sendViaBrevo({
     to,
     subject: `${otp} — Your Dharma Setu Payment OTP`,
-    html,
+    htmlContent: html,
   });
 }
 
@@ -151,12 +175,10 @@ Status: ✅ Confirmed
     <p style="color:rgba(255,255,255,0.3);font-size:13px;">With gratitude,<br/>The Dharma Setu Team 🕉</p>
   `);
 
-  const transporter = await getTransporter();
-  return transporter.sendMail({
-    from: getFrom(),
+  return sendViaBrevo({
     to,
     subject: `✅ Course Access Confirmed — ${courseTitle}`,
-    html,
+    htmlContent: html,
   });
 }
 
@@ -176,17 +198,15 @@ async function sendPaymentRejectionEmail({ to, userName, courseTitle, adminNote 
     <p style="color:rgba(255,255,255,0.3);font-size:13px;">With gratitude,<br/>The Dharma Setu Team 🕉</p>
   `);
 
-  const transporter = await getTransporter();
-  return transporter.sendMail({
-    from: getFrom(),
+  return sendViaBrevo({
     to,
     subject: `Payment Update — ${courseTitle}`,
-    html,
+    htmlContent: html,
   });
 }
 
 module.exports = {
-  getTransporter, // Exported so admin.js can reuse the same forced IPv4 logic
+  sendViaBrevo, // Exported so admin.js can reuse it for tests
   sendContactReplyEmail,
   sendPaymentOtpEmail,
   sendPaymentConfirmationEmail,

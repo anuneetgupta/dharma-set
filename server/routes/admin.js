@@ -11,7 +11,7 @@ const JournalEntry = require('../models/JournalEntry');
 const CourseEnrollment = require('../models/CourseEnrollment');
 const ContactMessage = require('../models/ContactMessage');
 const { sequelize } = require('../config/db');
-const { getTransporter, sendContactReplyEmail, sendPaymentConfirmationEmail, sendPaymentRejectionEmail } = require('../utils/mailer');
+const { sendViaBrevo, sendContactReplyEmail, sendPaymentConfirmationEmail, sendPaymentRejectionEmail } = require('../utils/mailer');
 
 // Apply protection to all admin routes
 router.use(protect, isAdmin);
@@ -281,18 +281,14 @@ router.post('/contacts/:id/reply', async (req, res) => {
   }
 });
 
-// GET /api/admin/test-email — verify SMTP is working (admin only)
+// GET /api/admin/test-email — verify HTTP mailer is working (admin only)
 router.get('/test-email', async (req, res) => {
   try {
-    const transporter = await getTransporter();
-    await transporter.verify();
-    
-    // Send a test email to the SMTP_USER itself
-    await transporter.sendMail({
-      from: process.env.SMTP_USER,
+    // Send a test email to the SMTP_USER itself using the HTTP API
+    await sendViaBrevo({
       to: process.env.SMTP_USER,
-      subject: '✅ Dharma Setu — SMTP Test',
-      text: 'SMTP is working correctly! This is a test email from your Dharma Setu admin panel.',
+      subject: '✅ Dharma Setu — HTTP Email Test',
+      htmlContent: '<p>HTTP Email is working correctly! This completely bypasses Render SMTP blocks.</p>',
     });
     res.json({ success: true, message: `Test email sent to ${process.env.SMTP_USER}` });
   } catch (err) {
