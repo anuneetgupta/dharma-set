@@ -124,14 +124,32 @@ router.post('/users/:id/email', async (req, res) => {
   }
 });
 
-// PATCH /api/admin/users/:id/premium — toggle premium status
+// PATCH /api/admin/users/:id/premium — toggle premium status and add chats
 router.patch('/users/:id/premium', async (req, res) => {
   try {
+    const { action, planId } = req.body;
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
 
-    await user.update({ isPremium: !user.isPremium });
-    res.json({ success: true, message: `Premium status ${user.isPremium ? 'granted' : 'revoked'}.`, data: user });
+    if (action === 'revoke') {
+      await user.update({ isPremium: false, premiumChatsRemaining: 0 });
+      return res.json({ success: true, message: 'Premium revoked.', data: user });
+    }
+
+    if (action === 'grant') {
+      let addChats = 0;
+      if (planId === '99') addChats = 15;
+      else if (planId === '199') addChats = 35;
+      else return res.status(400).json({ success: false, message: 'Invalid plan ID.' });
+
+      await user.update({
+        isPremium: true,
+        premiumChatsRemaining: (user.premiumChatsRemaining || 0) + addChats
+      });
+      return res.json({ success: true, message: `Granted Plan ${planId} (+${addChats} chats).`, data: user });
+    }
+
+    res.status(400).json({ success: false, message: 'Invalid action.' });
   } catch (err) {
     console.error('Admin toggle premium error:', err.message);
     res.status(500).json({ success: false, message: 'Server error' });

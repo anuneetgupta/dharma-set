@@ -148,9 +148,9 @@ function UserCard({ u, idx, onEmail, onTogglePremium, onToggleBan }) {
   const [loadingPremium, setLoadingPremium] = useState(false);
   const [loadingBan, setLoadingBan] = useState(false);
 
-  const handlePremium = async () => {
+  const handlePremium = async (action, planId) => {
     setLoadingPremium(true);
-    await onTogglePremium(u.id);
+    await onTogglePremium(u.id, action, planId);
     setLoadingPremium(false);
   };
 
@@ -224,18 +224,35 @@ function UserCard({ u, idx, onEmail, onTogglePremium, onToggleBan }) {
 
         {/* Grant/Revoke Premium */}
         {u.role !== 'admin' && (
-          <button 
-            onClick={handlePremium}
-            disabled={loadingPremium || u.isBanned}
-            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all font-medium disabled:opacity-50 ${
-              u.isPremium 
-                ? 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10' 
-                : 'bg-emerald-500/8 border-emerald-500/15 text-emerald-400/70 hover:text-emerald-400 hover:bg-emerald-500/15'
-            }`}
-          >
-            {loadingPremium ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
-            {u.isPremium ? 'Revoke Premium' : 'Grant Premium'}
-          </button>
+          u.isPremium ? (
+            <button 
+              onClick={() => handlePremium('revoke')}
+              disabled={loadingPremium || u.isBanned}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all font-medium disabled:opacity-50 bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10"
+            >
+              {loadingPremium ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+              Revoke Premium
+            </button>
+          ) : (
+            <div className="flex gap-1">
+              <button 
+                onClick={() => handlePremium('grant', '99')}
+                disabled={loadingPremium || u.isBanned}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all font-medium disabled:opacity-50 bg-emerald-500/8 border-emerald-500/15 text-emerald-400/70 hover:text-emerald-400 hover:bg-emerald-500/15"
+              >
+                {loadingPremium ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+                Grant ₹99 Plan
+              </button>
+              <button 
+                onClick={() => handlePremium('grant', '199')}
+                disabled={loadingPremium || u.isBanned}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all font-medium disabled:opacity-50 bg-amber-500/8 border-amber-500/15 text-amber-400/70 hover:text-amber-400 hover:bg-amber-500/15"
+              >
+                {loadingPremium ? <Loader2 size={12} className="animate-spin" /> : <Star size={12} />}
+                Grant ₹199 Plan
+              </button>
+            </div>
+          )
         )}
 
         {/* Ban/Unban */}
@@ -290,12 +307,17 @@ export default function UserManager() {
 
   useEffect(() => { fetchUsers(); }, [authFetch]);
 
-  const handleTogglePremium = async (userId) => {
+  const handleTogglePremium = async (userId, action, planId) => {
     try {
-      const res = await authFetch(`/admin/users/${userId}/premium`, { method: 'PATCH' });
+      const res = await authFetch(`/admin/users/${userId}/premium`, { 
+        method: 'PATCH',
+        body: JSON.stringify({ action, planId })
+      });
       const data = await res.json();
       if (data.success) {
-        setUsers(users.map(u => u.id === userId ? { ...u, isPremium: !u.isPremium } : u));
+        setUsers(users.map(u => u.id === userId ? { ...u, isPremium: data.data.isPremium } : u));
+        // Show success msg (can use an alert or a toast here if you have one, falling back to basic alert for immediate feedback)
+        alert(data.message);
       } else setError(data.message);
     } catch {
       setError('Failed to toggle premium status.');
