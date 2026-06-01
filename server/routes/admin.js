@@ -52,13 +52,47 @@ router.get('/overview', async (req, res) => {
 router.get('/users', async (req, res) => {
   try {
     const users = await User.findAll({
-      attributes: ['id', 'name', 'email', 'role', 'createdAt'],
+      attributes: ['id', 'name', 'email', 'role', 'isPremium', 'isBanned', 'createdAt'],
       order: [['createdAt', 'DESC']]
     });
     res.json({ success: true, data: users });
   } catch (error) {
     console.error('Admin fetch users error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// POST /api/admin/users/email-all — send a custom email to all users
+router.post('/users/email-all', async (req, res) => {
+  try {
+    const { subject, messageText } = req.body;
+    if (!subject || !subject.trim()) {
+      return res.status(400).json({ success: false, message: 'Subject is required.' });
+    }
+    if (!messageText || !messageText.trim()) {
+      return res.status(400).json({ success: false, message: 'Message body is required.' });
+    }
+
+    const users = await User.findAll({ attributes: ['id', 'name', 'email'] });
+    let sentCount = 0;
+
+    const promises = users.map(user => {
+      if (user.email) {
+        return sendAdminDirectEmail({
+          to: user.email,
+          userName: user.name,
+          subject: subject.trim(),
+          messageText: messageText.trim(),
+        }).then(() => { sentCount++; }).catch(e => console.error(`Failed to send to ${user.email}:`, e));
+      }
+      return Promise.resolve();
+    });
+
+    await Promise.all(promises);
+    res.json({ success: true, message: `Email sent to ${sentCount} users.` });
+  } catch (err) {
+    console.error('Admin mass email error:', err.message);
+    res.status(500).json({ success: false, message: err.message || 'Failed to send mass email.' });
   }
 });
 
@@ -87,6 +121,34 @@ router.post('/users/:id/email', async (req, res) => {
   } catch (err) {
     console.error('Admin send user email error:', err.message);
     res.status(500).json({ success: false, message: err.message || 'Failed to send email.' });
+  }
+});
+
+// PATCH /api/admin/users/:id/premium — toggle premium status
+router.patch('/users/:id/premium', async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    await user.update({ isPremium: !user.isPremium });
+    res.json({ success: true, message: `Premium status ${user.isPremium ? 'granted' : 'revoked'}.`, data: user });
+  } catch (err) {
+    console.error('Admin toggle premium error:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// PATCH /api/admin/users/:id/ban — toggle ban status
+router.patch('/users/:id/ban', async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    await user.update({ isBanned: !user.isBanned });
+    res.json({ success: true, message: `User ${user.isBanned ? 'banned' : 'unbanned'}.`, data: user });
+  } catch (err) {
+    console.error('Admin toggle ban error:', err.message);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 

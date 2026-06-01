@@ -99,6 +99,10 @@ router.post('/login', loginRules, async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
+    if (user.isBanned) {
+      return res.status(403).json({ success: false, message: 'Your account has been suspended.' });
+    }
+
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });

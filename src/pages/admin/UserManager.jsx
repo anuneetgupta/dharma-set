@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, ShieldAlert, ShieldCheck, Users,
   RefreshCw, Mail, X, Send, Loader2, CheckCircle, AlertCircle,
-  Calendar, ChevronDown
+  Calendar, Star, Ban
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -24,14 +24,15 @@ function ComposeModal({ user, onClose, authFetch }) {
     setSending(true);
     setStatus(null);
     try {
-      const res  = await authFetch(`/admin/users/${user.id}/email`, {
+      const url = user.id === 'ALL' ? '/admin/users/email-all' : `/admin/users/${user.id}/email`;
+      const res  = await authFetch(url, {
         method: 'POST',
         body: JSON.stringify({ subject: subject.trim(), messageText: message.trim() }),
       });
       const data = await res.json();
       if (data.success) {
         setStatus('success');
-        setStatusMsg(`Email sent to ${user.email}! ✅`);
+        setStatusMsg(data.message || 'Email sent successfully! ✅');
         setSubject('');
         setMessage('');
       } else {
@@ -67,12 +68,12 @@ function ComposeModal({ user, onClose, authFetch }) {
         <div className="flex items-start justify-between p-6 pb-4 border-b border-white/[0.06]">
           <div>
             <div className="text-xs text-indigo-400/70 font-medium uppercase tracking-widest mb-1 flex items-center gap-1.5">
-              <Mail size={11} /> Direct Email
+              <Mail size={11} /> {user.id === 'ALL' ? 'Mass Email' : 'Direct Email'}
             </div>
-            <h2 className="text-lg font-serif text-white">Send Email to User</h2>
+            <h2 className="text-lg font-serif text-white">Send Email to {user.id === 'ALL' ? 'All Users' : 'User'}</h2>
             <p className="text-sm text-white/40 mt-1 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 inline-flex items-center justify-center font-bold text-xs flex-shrink-0">
-                {user.name?.charAt(0)?.toUpperCase()}
+              <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${user.id === 'ALL' ? 'bg-indigo-500/40 text-white' : 'bg-indigo-500/20 text-indigo-400'}`}>
+                {user.id === 'ALL' ? <Users size={12} /> : user.name?.charAt(0)?.toUpperCase()}
               </span>
               <span className="truncate"><strong className="text-white/70">{user.name}</strong> · {user.email}</span>
             </p>
@@ -103,7 +104,7 @@ function ComposeModal({ user, onClose, authFetch }) {
               value={message}
               onChange={e => { setMessage(e.target.value); setStatus(null); }}
               rows={6}
-              placeholder={`Write your message to ${user.name}…`}
+              placeholder={user.id === 'ALL' ? `Write your message to all users... (Names will be automatically customized)` : `Write your message to ${user.name}…`}
               className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/20 focus:outline-none focus:border-indigo-400/50 transition-all resize-none leading-relaxed"
             />
           </div>
@@ -143,25 +144,46 @@ function ComposeModal({ user, onClose, authFetch }) {
 }
 
 // ── User Card Row ──────────────────────────────────────────────────────────────
-function UserCard({ u, idx, onEmail }) {
+function UserCard({ u, idx, onEmail, onTogglePremium, onToggleBan }) {
+  const [loadingPremium, setLoadingPremium] = useState(false);
+  const [loadingBan, setLoadingBan] = useState(false);
+
+  const handlePremium = async () => {
+    setLoadingPremium(true);
+    await onTogglePremium(u.id);
+    setLoadingPremium(false);
+  };
+
+  const handleBan = async () => {
+    setLoadingBan(true);
+    await onToggleBan(u.id);
+    setLoadingBan(false);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: idx * 0.03 }}
-      className="bg-white/[0.02] border border-white/[0.06] rounded-2xl px-5 py-4 hover:border-white/10 hover:bg-white/[0.035] transition-all duration-200"
+      className={`bg-white/[0.02] border border-white/[0.06] rounded-2xl px-5 py-4 hover:border-white/10 transition-all duration-200 ${u.isBanned ? 'opacity-50 grayscale hover:grayscale-0' : 'hover:bg-white/[0.035]'}`}
     >
       {/* Top row: avatar + name + email + role badge */}
       <div className="flex items-center gap-3 mb-3">
         {/* Avatar */}
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500/30 to-purple-500/20 text-indigo-300 flex items-center justify-center font-bold text-base flex-shrink-0 border border-indigo-500/20">
-          {u.name?.charAt(0)?.toUpperCase() || '?'}
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-base flex-shrink-0 border ${
+          u.isBanned 
+            ? 'bg-red-500/10 text-red-400 border-red-500/20'
+            : u.isPremium 
+              ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/20 text-amber-300 border-amber-500/20'
+              : 'bg-gradient-to-br from-indigo-500/30 to-purple-500/20 text-indigo-300 border-indigo-500/20'
+        }`}>
+          {u.isBanned ? <Ban size={18} /> : u.name?.charAt(0)?.toUpperCase() || '?'}
         </div>
 
         {/* Name + email */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-white font-semibold text-sm">{u.name}</span>
+            <span className={`font-semibold text-sm ${u.isBanned ? 'text-white/50 line-through' : 'text-white'}`}>{u.name}</span>
             <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-medium flex-shrink-0 ${
               u.role === 'admin'
                 ? 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/25'
@@ -169,6 +191,16 @@ function UserCard({ u, idx, onEmail }) {
             }`}>
               {u.role}
             </span>
+            {u.isPremium && !u.isBanned && (
+               <span className="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-medium flex-shrink-0 bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center gap-1">
+                 <Star size={10} /> Premium
+               </span>
+            )}
+            {u.isBanned && (
+               <span className="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-medium flex-shrink-0 bg-red-500/15 text-red-400 border border-red-500/25">
+                 Banned
+               </span>
+            )}
           </div>
           <div className="text-xs text-white/45 truncate mt-0.5">{u.email}</div>
         </div>
@@ -187,18 +219,40 @@ function UserCard({ u, idx, onEmail }) {
           onClick={() => onEmail(u)}
           className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 hover:border-indigo-400/40 transition-all font-medium"
         >
-          <Mail size={12} /> Send Email
+          <Mail size={12} /> Email
         </button>
 
-        {/* Grant Premium */}
-        <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-emerald-500/8 border border-emerald-500/15 text-emerald-400/70 hover:text-emerald-400 hover:bg-emerald-500/15 hover:border-emerald-500/30 transition-all font-medium">
-          <ShieldCheck size={12} /> Grant Premium
-        </button>
+        {/* Grant/Revoke Premium */}
+        {u.role !== 'admin' && (
+          <button 
+            onClick={handlePremium}
+            disabled={loadingPremium || u.isBanned}
+            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all font-medium disabled:opacity-50 ${
+              u.isPremium 
+                ? 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10' 
+                : 'bg-emerald-500/8 border-emerald-500/15 text-emerald-400/70 hover:text-emerald-400 hover:bg-emerald-500/15'
+            }`}
+          >
+            {loadingPremium ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+            {u.isPremium ? 'Revoke Premium' : 'Grant Premium'}
+          </button>
+        )}
 
-        {/* Ban */}
-        <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-red-500/8 border border-red-500/15 text-red-400/60 hover:text-red-400 hover:bg-red-500/15 hover:border-red-500/30 transition-all font-medium">
-          <ShieldAlert size={12} /> Ban User
-        </button>
+        {/* Ban/Unban */}
+        {u.role !== 'admin' && (
+          <button 
+            onClick={handleBan}
+            disabled={loadingBan}
+            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all font-medium disabled:opacity-50 ${
+              u.isBanned 
+                ? 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10' 
+                : 'bg-red-500/8 border-red-500/15 text-red-400/60 hover:text-red-400 hover:bg-red-500/15'
+            }`}
+          >
+            {loadingBan ? <Loader2 size={12} className="animate-spin" /> : <ShieldAlert size={12} />}
+            {u.isBanned ? 'Unban User' : 'Ban User'}
+          </button>
+        )}
 
         {/* Joined (mobile) */}
         <span className="sm:hidden ml-auto flex items-center gap-1 text-xs text-white/20">
@@ -236,6 +290,30 @@ export default function UserManager() {
 
   useEffect(() => { fetchUsers(); }, [authFetch]);
 
+  const handleTogglePremium = async (userId) => {
+    try {
+      const res = await authFetch(`/admin/users/${userId}/premium`, { method: 'PATCH' });
+      const data = await res.json();
+      if (data.success) {
+        setUsers(users.map(u => u.id === userId ? { ...u, isPremium: !u.isPremium } : u));
+      } else setError(data.message);
+    } catch {
+      setError('Failed to toggle premium status.');
+    }
+  };
+
+  const handleToggleBan = async (userId) => {
+    try {
+      const res = await authFetch(`/admin/users/${userId}/ban`, { method: 'PATCH' });
+      const data = await res.json();
+      if (data.success) {
+        setUsers(users.map(u => u.id === userId ? { ...u, isBanned: !u.isBanned } : u));
+      } else setError(data.message);
+    } catch {
+      setError('Failed to toggle ban status.');
+    }
+  };
+
   const filteredUsers = users.filter(u =>
     u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -260,8 +338,14 @@ export default function UserManager() {
             <p className="text-white/40 text-sm">View, search, and manage all registered users.</p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="relative">
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <button
+              onClick={() => setComposeUser({ id: 'ALL', name: 'All Users', email: 'all@users.com' })}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/30 transition-all text-sm font-medium"
+            >
+              <Mail size={16} /> Email All Users
+            </button>
+            <div className="relative flex-1 sm:flex-none">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
               <input
                 type="text"
@@ -306,6 +390,8 @@ export default function UserManager() {
                 u={u}
                 idx={idx}
                 onEmail={setComposeUser}
+                onTogglePremium={handleTogglePremium}
+                onToggleBan={handleToggleBan}
               />
             ))
           )}

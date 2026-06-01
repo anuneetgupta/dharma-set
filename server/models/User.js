@@ -53,6 +53,10 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  isBanned: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   premiumChatsRemaining: {
     type: DataTypes.INTEGER,
     defaultValue: 0,
