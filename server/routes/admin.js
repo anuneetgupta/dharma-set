@@ -11,7 +11,7 @@ const JournalEntry = require('../models/JournalEntry');
 const CourseEnrollment = require('../models/CourseEnrollment');
 const ContactMessage = require('../models/ContactMessage');
 const { sequelize } = require('../config/db');
-const { sendViaBrevo, sendContactReplyEmail, sendPaymentConfirmationEmail, sendPaymentRejectionEmail } = require('../utils/mailer');
+const { sendViaBrevo, sendContactReplyEmail, sendPaymentConfirmationEmail, sendPaymentRejectionEmail, sendAdminDirectEmail } = require('../utils/mailer');
 
 // Apply protection to all admin routes
 router.use(protect, isAdmin);
@@ -59,6 +59,34 @@ router.get('/users', async (req, res) => {
   } catch (error) {
     console.error('Admin fetch users error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// POST /api/admin/users/:id/email — send a custom email to a user
+router.post('/users/:id/email', async (req, res) => {
+  try {
+    const { subject, messageText } = req.body;
+    if (!subject || !subject.trim()) {
+      return res.status(400).json({ success: false, message: 'Subject is required.' });
+    }
+    if (!messageText || !messageText.trim()) {
+      return res.status(400).json({ success: false, message: 'Message body is required.' });
+    }
+
+    const user = await User.findByPk(req.params.id, { attributes: ['id', 'name', 'email'] });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    await sendAdminDirectEmail({
+      to: user.email,
+      userName: user.name,
+      subject: subject.trim(),
+      messageText: messageText.trim(),
+    });
+
+    res.json({ success: true, message: `Email sent to ${user.email}` });
+  } catch (err) {
+    console.error('Admin send user email error:', err.message);
+    res.status(500).json({ success: false, message: err.message || 'Failed to send email.' });
   }
 });
 

@@ -205,10 +205,25 @@ async function sendPaymentRejectionEmail({ to, userName, courseTitle, adminNote 
   });
 }
 
+// ── 5. Admin → User direct message ────────────────────────────────────────────
+async function sendAdminDirectEmail({ to, userName, subject, messageText }) {
+  const html = htmlWrap(`
+    <span class="badge">📬 Message from Dharma Setu</span>
+    <h2>Namaste, ${userName || 'there'} 🙏</h2>
+    <p>You have received a message from the Dharma Setu team:</p>
+    <div class="reply-box">${messageText.replace(/\n/g, '<br/>')}</div>
+    <p>If you have any questions, feel free to reply to this email or visit our <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}/contact">Contact page</a>.</p>
+    <p style="color:rgba(255,255,255,0.3);font-size:13px;">With gratitude,<br/>The Dharma Setu Team 🕉</p>
+  `);
+
+  return sendViaBrevo({ to, subject, htmlContent: html });
+}
+
 module.exports = {
   sendViaBrevo, // Exported so admin.js can reuse it for tests
   sendContactReplyEmail,
   sendPaymentOtpEmail,
   sendPaymentConfirmationEmail,
   sendPaymentRejectionEmail,
+  sendAdminDirectEmail,
 };
