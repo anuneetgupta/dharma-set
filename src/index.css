@@ -229,6 +229,23 @@
   animation: glyphDraw 1.3s cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
+/* ── TTS sound-wave bars ── */
+@keyframes ttsWave {
+  0%, 100% { height: 4px;  }
+  25%      { height: 14px; }
+  50%      { height: 8px;  }
+  75%      { height: 16px; }
+}
+
+.tts-wave-bar {
+  min-height: 3px;
+  transition: height 0.2s ease, background-color 0.2s ease;
+}
+
+.animate-tts-wave {
+  animation: ttsWave 0.9s ease-in-out infinite;
+}
+
 /* ── Premium expo-out easing for card reveals (used via inline framer variants) ── */
 /* cubic-bezier(0.23, 1, 0.32, 1) is declared in JS variants — no extra CSS needed */
 

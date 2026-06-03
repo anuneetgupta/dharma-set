@@ -2,11 +2,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import EmotionTag from './EmotionTag';
+import TextToSpeech from './TextToSpeech';
 import { scriptureColors } from '../data/stories';
 
 export default function StoryCard({ story, featured = false }) {
   const [expanded, setExpanded] = useState(false);
   const scriptureStyle = scriptureColors[story.scripture] || scriptureColors['Bhagavad Gita'];
+
+  // Build TTS text based on expanded state
+  const ttsText = expanded
+    ? `${story.title}. ${story.fullStory}. Wisdom: ${story.wisdom}. In your life today: ${story.modernParallel}`
+    : `${story.title}. ${story.summary}`;
 
   return (
     <motion.div
@@ -23,7 +29,8 @@ export default function StoryCard({ story, featured = false }) {
               {story.scripture}
             </span>
           </div>
-          <div className="text-right">
+          <div className="flex items-center gap-2">
+            <TextToSpeech text={ttsText} compact />
             <div className="text-xs text-white/30 font-medium">{story.character}</div>
           </div>
         </div>

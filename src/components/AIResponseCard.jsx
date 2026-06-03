@@ -2,11 +2,21 @@ import { motion } from 'framer-motion';
 import { BookOpen, Lightbulb, MessageCircle, Scroll } from 'lucide-react';
 import ShlokaCard from './ShlokaCard';
 import EmotionTag from './EmotionTag';
+import TextToSpeech from './TextToSpeech';
 
 export default function AIResponseCard({ response }) {
   if (!response) return null;
 
   const { greeting, detectedEmotion, shloka, secondaryShloka, relatedStory, reflection, practicalSteps } = response;
+
+  // Build full TTS narration from all response sections
+  const fullNarration = [
+    greeting,
+    `Reflection: ${reflection}`,
+    shloka?.meaning ? `From the Bhagavad Gita: ${shloka.meaning}` : '',
+    practicalSteps?.length ? `Practical steps: ${practicalSteps.join('. ')}` : '',
+    relatedStory ? `Related story: ${relatedStory.title}. ${relatedStory.summary}` : '',
+  ].filter(Boolean).join('. ');
 
   return (
     <motion.div
@@ -22,7 +32,10 @@ export default function AIResponseCard({ response }) {
             ॐ
           </div>
           <div>
-            <p className="text-xs text-gold-500/60 uppercase tracking-wider font-medium mb-2">Dharma Setu</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-gold-500/60 uppercase tracking-wider font-medium">Dharma Setu</p>
+              <TextToSpeech text={fullNarration} label="Listen to guidance" />
+            </div>
             <p className="text-base text-white/80 leading-relaxed font-light">{greeting}</p>
             <div className="mt-3">
               <EmotionTag emotion={detectedEmotion} />

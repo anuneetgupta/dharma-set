@@ -3,6 +3,7 @@ import { BookOpen, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import { emotionTagColors } from '../data/shlokas';
 import EmotionTag from './EmotionTag';
+import TextToSpeech from './TextToSpeech';
 
 export default function ShlokaCard({ shloka, featured = false, compact = false }) {
   const [copied, setCopied] = useState(false);
@@ -12,6 +13,14 @@ export default function ShlokaCard({ shloka, featured = false, compact = false }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Build TTS text — include transliteration, meaning, explanation, and practical advice for featured
+  const ttsText = [
+    shloka.transliteration,
+    shloka.meaning,
+    shloka.explanation,
+    featured && shloka.practicalAdvice ? `Today's Practice: ${shloka.practicalAdvice}` : '',
+  ].filter(Boolean).join('. ');
 
   if (compact) {
     return (
@@ -52,13 +61,16 @@ export default function ShlokaCard({ shloka, featured = false, compact = false }
             Bhagavad Gita · Chapter {shloka.chapter}, Verse {shloka.verse}
           </span>
         </div>
-        <button
-          onClick={handleCopy}
-          className="p-2 rounded-lg text-white/30 hover:text-gold-400 hover:bg-white/5 transition-all duration-200"
-          title="Copy shloka"
-        >
-          {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-        </button>
+        <div className="flex items-center gap-1">
+          <TextToSpeech text={ttsText} compact />
+          <button
+            onClick={handleCopy}
+            className="p-2 rounded-lg text-white/30 hover:text-gold-400 hover:bg-white/5 transition-all duration-200"
+            title="Copy shloka"
+          >
+            {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+          </button>
+        </div>
       </div>
 
       {/* Sanskrit text */}
