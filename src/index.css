@@ -148,27 +148,24 @@
 /* ── Sudarshana Chakra animations ── */
 .chakra-container {
   position: absolute;
-  right: -60px;
-  top: 45%;
-  transform: translateY(-50%);
-  opacity: 0.9;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.18;
   z-index: 1;
   pointer-events: none;
 }
 
 @media (max-width: 1024px) {
   .chakra-container {
-    right: -20px;
-    scale: 0.9;
+    opacity: 0.15;
   }
 }
 
 @media (max-width: 768px) {
   .chakra-container {
-    right: 50%;
-    transform: translate(50%, -50%);
     scale: 0.7;
-    opacity: 0.7;
+    opacity: 0.12;
   }
 }
 

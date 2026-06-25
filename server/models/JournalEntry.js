@@ -14,6 +14,11 @@ const JournalEntry = sequelize.define('JournalEntry', {
     references: { model: User, key: 'id' },
     onDelete: 'CASCADE',
   },
+  title: {
+    type: DataTypes.STRING(200),
+    allowNull: true,
+    defaultValue: null,
+  },
   text: {
     type: DataTypes.TEXT,
     allowNull: false,
@@ -29,6 +34,16 @@ const JournalEntry = sequelize.define('JournalEntry', {
   status: {
     type: DataTypes.ENUM('private', 'pending', 'approved', 'rejected'),
     defaultValue: 'private',
+    allowNull: false,
+  },
+  rejectionReason: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null,
+  },
+  isAnonymous: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
     allowNull: false,
   },
 }, {

@@ -118,6 +118,12 @@ router.post('/login', loginRules, async (req, res) => {
 // @desc    Get current logged in user
 // @route   GET /api/auth/me
 router.get('/me', protect, (req, res) => {
+  // Parse interests JSON if stored as text
+  let interests = null;
+  if (req.user.interests) {
+    try { interests = JSON.parse(req.user.interests); } catch { interests = req.user.interests; }
+  }
+
   res.status(200).json({
     success: true,
     data: {
@@ -128,8 +134,62 @@ router.get('/me', protect, (req, res) => {
       isPremium: req.user.isPremium || false,
       premiumChatsRemaining: req.user.premiumChatsRemaining || 0,
       createdAt: req.user.createdAt,
+      // Spiritual preferences
+      preferredLanguage: req.user.preferredLanguage || 'en',
+      spiritualPath: req.user.spiritualPath || null,
+      interests,
+      favoriteDeity: req.user.favoriteDeity || null,
+      preferredScripture: req.user.preferredScripture || null,
+      meditationLevel: req.user.meditationLevel || 'beginner',
     },
   });
+});
+
+// @desc    Update spiritual preferences
+// @route   PATCH /api/auth/preferences
+router.patch('/preferences', protect, async (req, res) => {
+  try {
+    const allowedFields = ['preferredLanguage', 'spiritualPath', 'interests', 'favoriteDeity', 'preferredScripture', 'meditationLevel'];
+    const updates = {};
+
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        if (field === 'interests' && Array.isArray(req.body[field])) {
+          updates[field] = JSON.stringify(req.body[field]);
+        } else {
+          updates[field] = req.body[field];
+        }
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, message: 'No valid preference fields provided.' });
+    }
+
+    await req.user.update(updates);
+
+    // Parse interests back for response
+    let interests = null;
+    if (req.user.interests) {
+      try { interests = JSON.parse(req.user.interests); } catch { interests = req.user.interests; }
+    }
+
+    res.json({
+      success: true,
+      message: 'Preferences updated.',
+      data: {
+        preferredLanguage: req.user.preferredLanguage,
+        spiritualPath: req.user.spiritualPath,
+        interests,
+        favoriteDeity: req.user.favoriteDeity,
+        preferredScripture: req.user.preferredScripture,
+        meditationLevel: req.user.meditationLevel,
+      },
+    });
+  } catch (error) {
+    console.error('[Auth] Update preferences error:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to update preferences.' });
+  }
 });
 
 // ── OAuth Social Auth ─────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { CheckCircle, XCircle, BookOpen, User } from 'lucide-react';
+import { CheckCircle, XCircle, BookOpen, User, EyeOff } from 'lucide-react';
 
 function formatDate(ts) {
   return new Date(ts).toLocaleDateString('en-IN', {
@@ -14,6 +14,8 @@ export default function JournalModeration() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
+  const [rejectingId, setRejectingId] = useState(null); // which entry is showing rejection form
+  const [rejectionReason, setRejectionReason] = useState('');
 
   useEffect(() => {
     authFetch('/api/admin/journals')
@@ -23,12 +25,12 @@ export default function JournalModeration() {
       .finally(() => setLoading(false));
   }, [authFetch]);
 
-  const handleAction = async (id, action) => {
-    setActionLoading(id + action);
+  const handleApprove = async (id) => {
+    setActionLoading(id + 'approve');
     try {
       const res = await authFetch(`/api/admin/journals/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action: 'approve' }),
       });
       const data = await res.json();
       if (data.success) {
@@ -38,6 +40,26 @@ export default function JournalModeration() {
       console.error(err);
     } finally {
       setActionLoading(null);
+    }
+  };
+
+  const handleReject = async (id) => {
+    setActionLoading(id + 'reject');
+    try {
+      const res = await authFetch(`/api/admin/journals/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ action: 'reject', rejectionReason: rejectionReason.trim() || null }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEntries(prev => prev.filter(e => e.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActionLoading(null);
+      setRejectingId(null);
+      setRejectionReason('');
     }
   };
 
@@ -72,9 +94,19 @@ export default function JournalModeration() {
                   <span className="text-white font-medium">{entry.user?.name || 'Unknown'}</span>
                   <span className="text-white/30">·</span>
                   <span className="text-white/30">{entry.user?.email}</span>
+                  {entry.isAnonymous && (
+                    <span className="inline-flex items-center gap-1 text-[10px] text-indigo-400/70 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-2 py-0.5 ml-1">
+                      <EyeOff size={9} /> Wants Anonymous
+                    </span>
+                  )}
                 </div>
                 <span className="text-xs text-white/25">{formatDate(entry.createdAt)}</span>
               </div>
+
+              {/* Title */}
+              {entry.title && (
+                <h3 className="font-serif text-lg text-white/80">{entry.title}</h3>
+              )}
 
               {/* Journal text */}
               <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4">
@@ -93,25 +125,57 @@ export default function JournalModeration() {
                 </div>
               )}
 
+              {/* Rejection reason input */}
+              {rejectingId === entry.id && (
+                <div className="bg-red-500/5 border border-red-500/15 rounded-xl p-4 space-y-3">
+                  <p className="text-xs text-red-400/60 uppercase tracking-wider">Rejection Reason (optional)</p>
+                  <textarea
+                    value={rejectionReason}
+                    onChange={e => setRejectionReason(e.target.value)}
+                    placeholder="Let the user know why their journal wasn't approved…"
+                    rows={3}
+                    className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl p-3 text-sm text-white/70 placeholder-white/20 resize-none outline-none focus:border-red-500/30 transition-colors"
+                  />
+                  <div className="flex items-center gap-3 justify-end">
+                    <button
+                      onClick={() => { setRejectingId(null); setRejectionReason(''); }}
+                      className="px-4 py-2 rounded-xl text-sm text-white/40 hover:text-white/60 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => handleReject(entry.id)}
+                      disabled={actionLoading !== null}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-red-400 border border-red-400/20 hover:bg-red-400/10 transition-colors disabled:opacity-40"
+                    >
+                      <XCircle size={15} />
+                      {actionLoading === entry.id + 'reject' ? 'Rejecting…' : 'Confirm Rejection'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Action buttons */}
-              <div className="flex items-center gap-3 justify-end border-t border-white/[0.06] pt-4">
-                <button
-                  onClick={() => handleAction(entry.id, 'reject')}
-                  disabled={actionLoading !== null}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-red-400 border border-red-400/20 hover:bg-red-400/10 transition-colors disabled:opacity-40"
-                >
-                  <XCircle size={15} />
-                  {actionLoading === entry.id + 'reject' ? 'Rejecting…' : 'Reject'}
-                </button>
-                <button
-                  onClick={() => handleAction(entry.id, 'approve')}
-                  disabled={actionLoading !== null}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-emerald-400 border border-emerald-400/20 hover:bg-emerald-400/10 transition-colors disabled:opacity-40"
-                >
-                  <CheckCircle size={15} />
-                  {actionLoading === entry.id + 'approve' ? 'Approving…' : 'Approve & Publish'}
-                </button>
-              </div>
+              {rejectingId !== entry.id && (
+                <div className="flex items-center gap-3 justify-end border-t border-white/[0.06] pt-4">
+                  <button
+                    onClick={() => { setRejectingId(entry.id); setRejectionReason(''); }}
+                    disabled={actionLoading !== null}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-red-400 border border-red-400/20 hover:bg-red-400/10 transition-colors disabled:opacity-40"
+                  >
+                    <XCircle size={15} />
+                    Reject
+                  </button>
+                  <button
+                    onClick={() => handleApprove(entry.id)}
+                    disabled={actionLoading !== null}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-emerald-400 border border-emerald-400/20 hover:bg-emerald-400/10 transition-colors disabled:opacity-40"
+                  >
+                    <CheckCircle size={15} />
+                    {actionLoading === entry.id + 'approve' ? 'Approving…' : 'Approve & Publish'}
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

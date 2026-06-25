@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Send, Lock, LogIn, Zap, Crown } from 'lucide-react';
+import { Sparkles, Send, Lock, LogIn, Zap, Crown, History, Trash2, ChevronRight, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AIResponseCard from '../components/AIResponseCard';
 import { getMockAIResponse } from '../data/aiResponses';
@@ -76,6 +76,32 @@ function normalizeAPIResponse(data) {
     relatedStory: data.relatedStory || null,
     practicalSteps: data.practicalSteps || [],
   };
+}
+
+// ── Local Storage helpers for chat history ──────────────────────────────────
+function getHistoryKey(userId) {
+  return `dharma_guidance_history_${userId}`;
+}
+
+function loadHistory(userId) {
+  if (!userId) return [];
+  try {
+    return JSON.parse(localStorage.getItem(getHistoryKey(userId)) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(userId, history) {
+  if (!userId) return;
+  // Keep max 50 sessions
+  const trimmed = history.slice(0, 50);
+  localStorage.setItem(getHistoryKey(userId), JSON.stringify(trimmed));
+}
+
+function clearHistory(userId) {
+  if (!userId) return;
+  localStorage.removeItem(getHistoryKey(userId));
 }
 
 // ── Login Gate ─────────────────────────────────────────────────────────────
@@ -165,6 +191,92 @@ function QuotaBadge({ quota }) {
   );
 }
 
+// ── History Drawer ──────────────────────────────────────────────────────────
+function HistoryDrawer({ history, onSelect, onClear, isOpen, onClose }) {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            onClick={onClose}
+          />
+          {/* Panel */}
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed left-0 top-0 bottom-0 z-50 w-80 max-w-[85vw] bg-cosmic-800 border-r border-white/[0.08] shadow-2xl flex flex-col"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+              <div className="flex items-center gap-2 text-white/70">
+                <History size={16} />
+                <span className="text-sm font-medium">Previous Sessions</span>
+              </div>
+              <button onClick={onClose} className="p-1.5 rounded-lg text-white/30 hover:text-white/60 transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Sessions list */}
+            <div className="flex-1 overflow-y-auto py-2">
+              {history.length === 0 ? (
+                <div className="text-center py-12 text-white/20">
+                  <History size={24} className="mx-auto mb-3 opacity-50" />
+                  <p className="text-xs">No previous sessions.</p>
+                  <p className="text-[10px] mt-1 opacity-60">Your conversations are stored locally on this device.</p>
+                </div>
+              ) : (
+                history.map((session, i) => (
+                  <button
+                    key={session.id}
+                    onClick={() => { onSelect(session); onClose(); }}
+                    className="w-full text-left px-5 py-3 hover:bg-white/[0.04] transition-colors border-b border-white/[0.04] group"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm text-white/60 font-light line-clamp-1 flex-1">
+                        {session.query || session.emotion || 'Session'}
+                      </p>
+                      <ChevronRight size={12} className="text-white/20 group-hover:text-gold-400 transition-colors flex-shrink-0" />
+                    </div>
+                    <p className="text-[10px] text-white/25 mt-1">
+                      {new Date(session.timestamp).toLocaleDateString('en-IN', {
+                        day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+                      })}
+                    </p>
+                  </button>
+                ))
+              )}
+            </div>
+
+            {/* Footer */}
+            {history.length > 0 && (
+              <div className="px-5 py-3 border-t border-white/[0.06]">
+                <button
+                  onClick={onClear}
+                  className="flex items-center gap-2 text-xs text-red-400/60 hover:text-red-400 transition-colors"
+                >
+                  <Trash2 size={12} />
+                  Clear all history
+                </button>
+                <p className="text-[10px] text-white/15 mt-2">
+                  History is stored locally. Clearing browser data will remove it.
+                </p>
+              </div>
+            )}
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
 export default function Guidance() {
   const { user, token, authFetch } = useAuth();
 
@@ -176,6 +288,20 @@ export default function Guidance() {
   const [isLiveAI, setIsLiveAI] = useState(false);
   const [quota, setQuota] = useState(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+
+  // History state
+  const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [viewingFromHistory, setViewingFromHistory] = useState(false);
+
+  // Load history from localStorage when user changes
+  useEffect(() => {
+    if (user?.id) {
+      setHistory(loadHistory(user.id));
+    } else {
+      setHistory([]);
+    }
+  }, [user?.id]);
 
   // Fetch quota when user is logged in
   useEffect(() => {
@@ -191,6 +317,7 @@ export default function Guidance() {
     if (!input.trim() && !selectedEmotion) return;
     setLoading(true);
     setResponse(null);
+    setViewingFromHistory(false);
 
     try {
       const res = await authFetch('/guidance', {
@@ -206,10 +333,25 @@ export default function Guidance() {
       }
 
       if (data.success) {
-        setResponse(normalizeAPIResponse(data.data));
+        const normalized = normalizeAPIResponse(data.data);
+        setResponse(normalized);
         setIsLiveAI(true);
         // Update quota from response
         if (data.quota) setQuota(data.quota);
+
+        // Save to localStorage history
+        if (user?.id) {
+          const session = {
+            id: `session_${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            query: input || null,
+            emotion: selectedEmotion || null,
+            response: normalized,
+          };
+          const updated = [session, ...history];
+          setHistory(updated);
+          saveHistory(user.id, updated);
+        }
       } else {
         throw new Error(data.message);
       }
@@ -217,8 +359,23 @@ export default function Guidance() {
       if (err?.message === 'LIMIT_REACHED') return; // already handled
       // Graceful fallback to mock AI when server is offline
       await new Promise(r => setTimeout(r, 1400));
-      setResponse(getMockAIResponse(input || selectedEmotion, selectedEmotion));
+      const mockResponse = getMockAIResponse(input || selectedEmotion, selectedEmotion);
+      setResponse(mockResponse);
       setIsLiveAI(false);
+
+      // Save mock response to history too
+      if (user?.id) {
+        const session = {
+          id: `session_${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          query: input || null,
+          emotion: selectedEmotion || null,
+          response: mockResponse,
+        };
+        const updated = [session, ...history];
+        setHistory(updated);
+        saveHistory(user.id, updated);
+      }
     } finally {
       setLoading(false);
     }
@@ -229,6 +386,21 @@ export default function Guidance() {
     setInput('');
     setSelectedEmotion(null);
     setIsLiveAI(false);
+    setViewingFromHistory(false);
+  };
+
+  const handleSelectHistory = (session) => {
+    setResponse(session.response);
+    setInput(session.query || '');
+    setSelectedEmotion(session.emotion || null);
+    setIsLiveAI(true);
+    setViewingFromHistory(true);
+  };
+
+  const handleClearHistory = () => {
+    if (!user?.id) return;
+    clearHistory(user.id);
+    setHistory([]);
   };
 
   // Called after successful premium purchase — update quota instantly
@@ -291,9 +463,25 @@ export default function Guidance() {
           <LoginGate />
         ) : (
           <>
-            {/* Quota badge + status row */}
-            <div className="flex items-center justify-between mb-5">
-              <QuotaBadge quota={quota} />
+            {/* Quota badge + History button + status row */}
+            <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <QuotaBadge quota={quota} />
+                {/* History button */}
+                <button
+                  onClick={() => setShowHistory(true)}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-white/[0.04] border border-white/[0.08] text-white/40 hover:text-white/60 hover:border-white/15 transition-all"
+                >
+                  <History size={11} />
+                  Previous Sessions
+                  {history.length > 0 && (
+                    <span className="ml-1 w-4 h-4 rounded-full bg-gold-500/20 text-gold-400 text-[9px] flex items-center justify-center">
+                      {history.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+
               {quota && !quota.isPremium && (quota.freeChatsRemaining ?? 5) < 3 && (
                 <button
                   onClick={() => setShowPremiumModal(true)}
@@ -381,9 +569,14 @@ export default function Guidance() {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 sm:gap-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm text-white/30">Your guidance is ready 🙏</p>
-                      {isLiveAI && (
+                      {isLiveAI && !viewingFromHistory && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400">
                           Live AI
+                        </span>
+                      )}
+                      {viewingFromHistory && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                          From History
                         </span>
                       )}
                     </div>
@@ -410,6 +603,15 @@ export default function Guidance() {
         )}
 
       </div>
+
+      {/* History Drawer */}
+      <HistoryDrawer
+        history={history}
+        onSelect={handleSelectHistory}
+        onClear={handleClearHistory}
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+      />
 
       {/* Premium Modal */}
       <PremiumModal

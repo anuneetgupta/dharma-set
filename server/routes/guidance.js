@@ -117,10 +117,38 @@ router.post('/', protect, async (req, res) => {
       userMessage += ` IMPORTANT: The user has requested the response to be in Hindi. Please translate all your output values (greeting, reflection, meaning, explanation, advice, story summary, practical steps, etc.) into Hindi. Keep the JSON keys in English. Sanskrit shlokas and Roman transliterations should remain as they are.`;
     }
 
+    // ── Build personalization context from stored preferences ────────────
+    const prefParts = [];
+    if (user.preferredLanguage && user.preferredLanguage !== 'en') {
+      prefParts.push(`User's preferred language: ${user.preferredLanguage}`);
+    }
+    if (user.spiritualPath) {
+      prefParts.push(`Spiritual path: ${user.spiritualPath}`);
+    }
+    if (user.interests) {
+      try {
+        const arr = JSON.parse(user.interests);
+        if (Array.isArray(arr) && arr.length) prefParts.push(`Interests: ${arr.join(', ')}`);
+      } catch { /* ignore */ }
+    }
+    if (user.favoriteDeity) {
+      prefParts.push(`Favorite deity: ${user.favoriteDeity}`);
+    }
+    if (user.preferredScripture) {
+      prefParts.push(`Preferred scripture: ${user.preferredScripture}`);
+    }
+    if (user.meditationLevel && user.meditationLevel !== 'beginner') {
+      prefParts.push(`Meditation level: ${user.meditationLevel}`);
+    }
+
+    const personalizationBlock = prefParts.length
+      ? `\n\nUser profile context (use this to tailor your response — prioritize stories and wisdom from their preferred scripture and spiritual path):\n${prefParts.join('\n')}`
+      : '';
+
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',   // Groq's fastest + smartest model
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: SYSTEM_PROMPT + personalizationBlock },
         { role: 'user', content: userMessage },
       ],
       response_format: { type: 'json_object' },

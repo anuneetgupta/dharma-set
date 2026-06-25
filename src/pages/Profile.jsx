@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PenLine, BookOpen, ChevronDown, ChevronUp, Pencil, LogOut, Calendar, Mail, User as UserIcon, Sparkles, Crown, Zap } from 'lucide-react';
+import { PenLine, BookOpen, ChevronDown, ChevronUp, Pencil, LogOut, Calendar, Mail, User as UserIcon, Sparkles, Crown, Zap, Heart, Save, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ShlokaCard from '../components/ShlokaCard';
 
@@ -20,6 +20,13 @@ function formatJoinDate(ts) {
   });
 }
 
+// ── Preference options ──
+const SPIRITUAL_PATHS = ['Bhakti Yoga', 'Karma Yoga', 'Jnana Yoga', 'Raja Yoga', 'Advaita Vedanta'];
+const INTEREST_OPTIONS = ['Meditation', 'Gita Study', 'Mantras', 'Yoga', 'Vedanta', 'Pranayama', 'Devotional Singing', 'Sanskrit'];
+const DEITY_OPTIONS = ['Krishna', 'Rama', 'Shiva', 'Hanuman', 'Durga', 'Ganesh', 'Saraswati', 'Lakshmi'];
+const SCRIPTURE_OPTIONS = ['Bhagavad Gita', 'Ramayana', 'Mahabharata', 'Upanishads', 'Yoga Sutras', 'Vedas'];
+const MEDITATION_LEVELS = ['beginner', 'intermediate', 'advanced'];
+
 export default function Profile() {
   const { user, authFetch, logout, updateUser } = useAuth();
 
@@ -27,6 +34,18 @@ export default function Profile() {
   const [journalLoading, setJournalLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [activeTab, setActiveTab] = useState('journals');
+
+  // Preference state
+  const [prefs, setPrefs] = useState({
+    preferredLanguage: 'en',
+    spiritualPath: null,
+    interests: [],
+    favoriteDeity: null,
+    preferredScripture: null,
+    meditationLevel: 'beginner',
+  });
+  const [prefsSaving, setPrefsSaving] = useState(false);
+  const [prefsSaved, setPrefsSaved] = useState(false);
 
   if (!user) return <Navigate to="/auth" replace />;
 
@@ -39,6 +58,20 @@ export default function Profile() {
       .finally(() => setJournalLoading(false));
   }, []);
 
+  // Load preferences from user data
+  useEffect(() => {
+    if (user) {
+      setPrefs({
+        preferredLanguage: user.preferredLanguage || 'en',
+        spiritualPath: user.spiritualPath || null,
+        interests: Array.isArray(user.interests) ? user.interests : [],
+        favoriteDeity: user.favoriteDeity || null,
+        preferredScripture: user.preferredScripture || null,
+        meditationLevel: user.meditationLevel || 'beginner',
+      });
+    }
+  }, [user]);
+
   const handleDeleteJournal = async (id) => {
     try {
       await authFetch(`/journal/${id}`, { method: 'DELETE' });
@@ -49,6 +82,36 @@ export default function Profile() {
   const handleResetAvatar = () => {
     // Just reset the frontend state to show the picker again
     updateUser({ avatarChosen: false });
+  };
+
+  const handleSavePrefs = async () => {
+    setPrefsSaving(true);
+    setPrefsSaved(false);
+    try {
+      const res = await authFetch('/auth/preferences', {
+        method: 'PATCH',
+        body: JSON.stringify(prefs),
+      });
+      const data = await res.json();
+      if (data.success) {
+        updateUser(data.data);
+        setPrefsSaved(true);
+        setTimeout(() => setPrefsSaved(false), 3000);
+      }
+    } catch (err) {
+      console.error('Save prefs error:', err);
+    } finally {
+      setPrefsSaving(false);
+    }
+  };
+
+  const toggleInterest = (interest) => {
+    setPrefs(prev => ({
+      ...prev,
+      interests: prev.interests.includes(interest)
+        ? prev.interests.filter(i => i !== interest)
+        : [...prev.interests, interest],
+    }));
   };
 
   const memberSince = user.createdAt ? formatJoinDate(user.createdAt) : null;
@@ -154,10 +217,11 @@ export default function Profile() {
         </motion.div>
 
         {/* ── Tabs ── */}
-        <div className="flex gap-1 mb-6 p-1 rounded-2xl bg-white/[0.03] border border-white/[0.06] w-fit">
+        <div className="flex gap-1 mb-6 p-1 rounded-2xl bg-white/[0.03] border border-white/[0.06] w-fit flex-wrap">
           {[
             { id: 'journals', label: 'My Journals', icon: PenLine },
             { id: 'courses', label: 'My Courses', icon: BookOpen },
+            { id: 'preferences', label: 'Spiritual Preferences', icon: Heart },
           ].map(tab => (
             <button
               key={tab.id}
@@ -209,6 +273,9 @@ export default function Profile() {
                       <div className="flex items-start justify-between gap-4 p-5">
                         <div className="flex-1 min-w-0">
                           <p className="text-xs text-white/25 mb-2">{formatDate(entry.createdAt)}</p>
+                          {entry.title && (
+                            <h3 className="text-base font-serif text-white/80 mb-1">{entry.title}</h3>
+                          )}
                           <p className="text-sm text-white/60 leading-relaxed line-clamp-2 font-light">{entry.text}</p>
                         </div>
                         <div className="flex items-center gap-1 flex-shrink-0">
@@ -282,6 +349,181 @@ export default function Profile() {
               <Link to="/courses" className="text-gold-400 text-sm hover:text-gold-300 transition-colors underline underline-offset-4">
                 Browse courses →
               </Link>
+            </motion.div>
+          )}
+
+          {/* ── Spiritual Preferences Tab ── */}
+          {activeTab === 'preferences' && (
+            <motion.div
+              key="preferences"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-6"
+            >
+              <div className="glass-card border border-white/[0.06] p-6">
+                <div className="flex items-center gap-2 mb-1">
+                  <Heart size={16} className="text-gold-400" />
+                  <h2 className="font-serif text-xl text-white">Your Spiritual Profile</h2>
+                </div>
+                <p className="text-xs text-white/30 mb-6">
+                  These preferences help our AI personalize guidance for you. Only preferences are stored — your conversations remain private.
+                </p>
+
+                <div className="space-y-6">
+
+                  {/* Preferred Language */}
+                  <div>
+                    <label className="text-xs text-white/40 uppercase tracking-wider block mb-2">Preferred Language</label>
+                    <div className="flex gap-2">
+                      {[{ id: 'en', label: 'English' }, { id: 'hi', label: 'हिंदी (Hindi)' }].map(lang => (
+                        <button
+                          key={lang.id}
+                          onClick={() => setPrefs(p => ({ ...p, preferredLanguage: lang.id }))}
+                          className={`px-4 py-2 rounded-xl text-sm border transition-all ${
+                            prefs.preferredLanguage === lang.id
+                              ? 'bg-gold-500/15 border-gold-500/30 text-gold-400'
+                              : 'border-white/[0.08] text-white/40 hover:border-white/20'
+                          }`}
+                        >
+                          {lang.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Spiritual Path */}
+                  <div>
+                    <label className="text-xs text-white/40 uppercase tracking-wider block mb-2">Spiritual Path</label>
+                    <div className="flex flex-wrap gap-2">
+                      {SPIRITUAL_PATHS.map(path => (
+                        <button
+                          key={path}
+                          onClick={() => setPrefs(p => ({ ...p, spiritualPath: p.spiritualPath === path ? null : path }))}
+                          className={`px-4 py-2 rounded-xl text-sm border transition-all ${
+                            prefs.spiritualPath === path
+                              ? 'bg-indigo-500/15 border-indigo-500/30 text-indigo-400'
+                              : 'border-white/[0.08] text-white/40 hover:border-white/20'
+                          }`}
+                        >
+                          {path}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Interests */}
+                  <div>
+                    <label className="text-xs text-white/40 uppercase tracking-wider block mb-2">Interests (select multiple)</label>
+                    <div className="flex flex-wrap gap-2">
+                      {INTEREST_OPTIONS.map(interest => (
+                        <button
+                          key={interest}
+                          onClick={() => toggleInterest(interest)}
+                          className={`px-4 py-2 rounded-xl text-sm border transition-all ${
+                            prefs.interests.includes(interest)
+                              ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
+                              : 'border-white/[0.08] text-white/40 hover:border-white/20'
+                          }`}
+                        >
+                          {interest}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Favorite Deity */}
+                  <div>
+                    <label className="text-xs text-white/40 uppercase tracking-wider block mb-2">Favorite Deity</label>
+                    <div className="flex flex-wrap gap-2">
+                      {DEITY_OPTIONS.map(deity => (
+                        <button
+                          key={deity}
+                          onClick={() => setPrefs(p => ({ ...p, favoriteDeity: p.favoriteDeity === deity ? null : deity }))}
+                          className={`px-4 py-2 rounded-xl text-sm border transition-all ${
+                            prefs.favoriteDeity === deity
+                              ? 'bg-saffron-400/15 border-saffron-400/30 text-saffron-400'
+                              : 'border-white/[0.08] text-white/40 hover:border-white/20'
+                          }`}
+                        >
+                          {deity}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Preferred Scripture */}
+                  <div>
+                    <label className="text-xs text-white/40 uppercase tracking-wider block mb-2">Preferred Scripture</label>
+                    <div className="flex flex-wrap gap-2">
+                      {SCRIPTURE_OPTIONS.map(scripture => (
+                        <button
+                          key={scripture}
+                          onClick={() => setPrefs(p => ({ ...p, preferredScripture: p.preferredScripture === scripture ? null : scripture }))}
+                          className={`px-4 py-2 rounded-xl text-sm border transition-all ${
+                            prefs.preferredScripture === scripture
+                              ? 'bg-purple-500/15 border-purple-500/30 text-purple-400'
+                              : 'border-white/[0.08] text-white/40 hover:border-white/20'
+                          }`}
+                        >
+                          {scripture}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Meditation Level */}
+                  <div>
+                    <label className="text-xs text-white/40 uppercase tracking-wider block mb-2">Meditation Level</label>
+                    <div className="flex gap-2">
+                      {MEDITATION_LEVELS.map(level => (
+                        <button
+                          key={level}
+                          onClick={() => setPrefs(p => ({ ...p, meditationLevel: level }))}
+                          className={`px-4 py-2 rounded-xl text-sm border transition-all capitalize ${
+                            prefs.meditationLevel === level
+                              ? 'bg-gold-500/15 border-gold-500/30 text-gold-400'
+                              : 'border-white/[0.08] text-white/40 hover:border-white/20'
+                          }`}
+                        >
+                          {level}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Save button */}
+                <div className="flex items-center gap-3 mt-8 pt-6 border-t border-white/[0.06]">
+                  <button
+                    onClick={handleSavePrefs}
+                    disabled={prefsSaving}
+                    className="flex items-center gap-2 btn-primary py-2.5 px-6 disabled:opacity-50"
+                  >
+                    {prefsSaving ? (
+                      <div className="w-3.5 h-3.5 border-2 border-cosmic-900/50 border-t-cosmic-900 rounded-full animate-spin" />
+                    ) : prefsSaved ? (
+                      <Check size={14} />
+                    ) : (
+                      <Save size={14} />
+                    )}
+                    {prefsSaving ? 'Saving…' : prefsSaved ? 'Saved!' : 'Save Preferences'}
+                  </button>
+                  {prefsSaved && (
+                    <span className="text-xs text-emerald-400/60">Your AI guidance will now be personalized.</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Privacy note */}
+              <div className="glass-card border border-white/[0.06] p-5">
+                <p className="text-xs text-white/30 leading-relaxed">
+                  <span className="text-gold-400/60 font-medium">🔒 Privacy Note:</span> Only these preferences are stored in our database.
+                  Your guidance questions, AI responses, and conversation history are <span className="text-white/50">never stored</span> on our servers.
+                  Chat history is saved locally on your device and will be lost if you clear browser data.
+                </p>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

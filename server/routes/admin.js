@@ -189,13 +189,21 @@ router.get('/journals', async (req, res) => {
 // PATCH approve or reject a journal
 router.patch('/journals/:id', async (req, res) => {
   try {
-    const { action } = req.body; // 'approve' or 'reject'
+    const { action, rejectionReason } = req.body; // 'approve' or 'reject'
     if (!['approve', 'reject'].includes(action)) {
       return res.status(400).json({ success: false, message: 'Invalid action' });
     }
     const entry = await JournalEntry.findByPk(req.params.id);
     if (!entry) return res.status(404).json({ success: false, message: 'Entry not found' });
-    await entry.update({ status: action === 'approve' ? 'approved' : 'rejected' });
+
+    const updates = { status: action === 'approve' ? 'approved' : 'rejected' };
+    if (action === 'reject' && rejectionReason) {
+      updates.rejectionReason = rejectionReason.trim();
+    } else if (action === 'approve') {
+      updates.rejectionReason = null; // Clear any old rejection reason on approval
+    }
+    await entry.update(updates);
+
     res.json({ success: true, data: entry });
   } catch (error) {
     console.error('Admin journal action error:', error);

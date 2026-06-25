@@ -69,6 +69,31 @@ const User = sequelize.define('User', {
     type: DataTypes.DATEONLY,
     allowNull: true,
   },
+  // ── Spiritual preferences (for AI personalization) ──────────────────────
+  preferredLanguage: {
+    type: DataTypes.STRING(10),
+    defaultValue: 'en',
+  },
+  spiritualPath: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  },
+  interests: {
+    type: DataTypes.TEXT, // JSON array stored as text, e.g. '["meditation","gita-study"]'
+    allowNull: true,
+  },
+  favoriteDeity: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  },
+  preferredScripture: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  },
+  meditationLevel: {
+    type: DataTypes.STRING(20),
+    defaultValue: 'beginner',
+  },
 }, {
   timestamps: true,
   hooks: {

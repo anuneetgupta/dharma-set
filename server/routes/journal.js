@@ -17,7 +17,17 @@ router.get('/public', async (req, res) => {
         attributes: ['name'],
       }],
     });
-    res.json({ success: true, data: entries });
+
+    // Mask author name for anonymous entries
+    const sanitized = entries.map(e => {
+      const plain = e.toJSON();
+      if (plain.isAnonymous && plain.user) {
+        plain.user = { name: 'A Seeker' };
+      }
+      return plain;
+    });
+
+    res.json({ success: true, data: sanitized });
   } catch (error) {
     console.error('[Journal] Public fetch error:', error.message);
     res.status(500).json({ success: false, message: 'Failed to fetch public journals' });
@@ -43,12 +53,13 @@ router.get('/', protect, async (req, res) => {
 // @route   POST /api/journal
 router.post('/', protect, async (req, res) => {
   try {
-    const { text, reflection } = req.body;
+    const { title, text, reflection } = req.body;
     if (!text || !text.trim()) {
       return res.status(400).json({ success: false, message: 'Journal text is required' });
     }
     const entry = await JournalEntry.create({
       userId: req.user.id,
+      title: title ? title.trim() : null,
       text: text.trim(),
       reflection: reflection || null,
       status: 'private',
@@ -64,6 +75,7 @@ router.post('/', protect, async (req, res) => {
 // @route   PATCH /api/journal/:id/submit
 router.patch('/:id/submit', protect, async (req, res) => {
   try {
+    const { isAnonymous } = req.body;
     const entry = await JournalEntry.findOne({
       where: { id: req.params.id, userId: req.user.id },
     });
@@ -73,8 +85,18 @@ router.patch('/:id/submit', protect, async (req, res) => {
     if (entry.status !== 'private' && entry.status !== 'rejected') {
       return res.status(400).json({ success: false, message: 'Entry is already submitted or approved' });
     }
-    await entry.update({ status: 'pending' });
-    res.json({ success: true, data: entry });
+
+    const updates = { status: 'pending', rejectionReason: null };
+    if (typeof isAnonymous === 'boolean') {
+      updates.isAnonymous = isAnonymous;
+    }
+    await entry.update(updates);
+
+    res.json({
+      success: true,
+      message: 'Your journal has been submitted for review.',
+      data: entry,
+    });
   } catch (error) {
     console.error('[Journal] Submit error:', error.message);
     res.status(500).json({ success: false, message: 'Failed to submit journal entry' });

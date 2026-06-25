@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PenLine, Trash2, ChevronDown, ChevronUp, Sparkles, Globe, Lock, Clock, XCircle } from 'lucide-react';
+import { PenLine, Trash2, ChevronDown, ChevronUp, Sparkles, Globe, Lock, Clock, XCircle, Eye, EyeOff, X, CheckCircle } from 'lucide-react';
 import { getMockJournalReflection } from '../data/aiResponses';
 import ShlokaCard from '../components/ShlokaCard';
 import { useAuth } from '../context/AuthContext';
@@ -19,9 +19,16 @@ export default function Journal() {
 
   const [entries, setEntries] = useState([]);
   const [currentText, setCurrentText] = useState('');
+  const [currentTitle, setCurrentTitle] = useState('');
   const [loading, setLoading] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [fetchLoading, setFetchLoading] = useState(false);
+
+  // Share modal state
+  const [shareModal, setShareModal] = useState(null); // entry id
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(null); // success message
 
   // Load entries — from DB if logged in, localStorage if guest
   useEffect(() => {
@@ -44,15 +51,26 @@ export default function Journal() {
   }, [user]);
 
   // Submit a journal entry for public approval
-  const handleShare = async (id) => {
+  const handleShare = async () => {
+    if (!shareModal) return;
+    setShareLoading(true);
     try {
-      const res = await authFetch(`/journal/${id}/submit`, { method: 'PATCH' });
+      const res = await authFetch(`/journal/${shareModal}/submit`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isAnonymous }),
+      });
       const data = await res.json();
       if (data.success) {
-        setEntries(prev => prev.map(e => e.id === id ? { ...e, status: 'pending' } : e));
+        setEntries(prev => prev.map(e => e.id === shareModal ? { ...e, status: 'pending', isAnonymous, rejectionReason: null } : e));
+        setShareSuccess('Your journal has been submitted for review.');
+        setTimeout(() => setShareSuccess(null), 4000);
       }
     } catch (err) {
       console.error('Share error:', err);
+    } finally {
+      setShareLoading(false);
+      setShareModal(null);
+      setIsAnonymous(false);
     }
   };
 
@@ -95,7 +113,7 @@ export default function Journal() {
       try {
         const res = await authFetch('/journal', {
           method: 'POST',
-          body: JSON.stringify({ text: currentText, reflection }),
+          body: JSON.stringify({ title: currentTitle || null, text: currentText, reflection }),
         });
         const data = await res.json();
         if (data.success) {
@@ -104,17 +122,18 @@ export default function Journal() {
         }
       } catch {
         // fallback: add locally
-        const newEntry = { id: Date.now(), text: currentText, reflection, createdAt: new Date().toISOString() };
+        const newEntry = { id: Date.now(), title: currentTitle || null, text: currentText, reflection, createdAt: new Date().toISOString() };
         setEntries(prev => [newEntry, ...prev]);
         setExpandedId(newEntry.id);
       }
     } else {
-      const newEntry = { id: Date.now(), text: currentText, reflection, timestamp: Date.now() };
+      const newEntry = { id: Date.now(), title: currentTitle || null, text: currentText, reflection, timestamp: Date.now() };
       setEntries(prev => [newEntry, ...prev]);
       setExpandedId(newEntry.id);
     }
 
     setCurrentText('');
+    setCurrentTitle('');
     setLoading(false);
   };
 
@@ -155,6 +174,21 @@ export default function Journal() {
           )}
         </motion.div>
 
+        {/* Success banner */}
+        <AnimatePresence>
+          {shareSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex items-center gap-3 p-4 mb-6 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-sm"
+            >
+              <CheckCircle size={16} />
+              {shareSuccess}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Writing area */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -162,8 +196,16 @@ export default function Journal() {
           transition={{ delay: 0.1 }}
           className="glass-card border border-white/[0.06] focus-within:border-gold-500/20 transition-all duration-300 mb-8"
         >
-          <div className="p-5 pb-0">
-            <p className="text-xs text-white/20 uppercase tracking-wider mb-3">Write your thoughts</p>
+          <div className="p-5 pb-0 space-y-3">
+            <p className="text-xs text-white/20 uppercase tracking-wider">Write your thoughts</p>
+            {/* Title input */}
+            <input
+              value={currentTitle}
+              onChange={e => setCurrentTitle(e.target.value)}
+              placeholder="Title (optional)"
+              maxLength={200}
+              className="w-full bg-transparent text-white/80 placeholder-white/15 text-lg font-serif outline-none border-b border-white/[0.06] pb-2 focus:border-gold-500/20 transition-colors"
+            />
             <textarea
               value={currentText}
               onChange={e => setCurrentText(e.target.value)}
@@ -222,10 +264,13 @@ export default function Journal() {
                   <div className="flex items-start justify-between gap-4 p-5">
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-white/25 mb-2">{formatDate(getTimestamp(entry))}</p>
+                      {entry.title && (
+                        <h3 className="text-base font-serif text-white/80 mb-1">{entry.title}</h3>
+                      )}
                       <p className="text-sm text-white/55 leading-relaxed line-clamp-2 font-light">{entry.text}</p>
                       {/* Status badge (only for logged-in users) */}
                       {user && entry.status && (
-                        <div className="mt-2">
+                        <div className="mt-2 space-y-1">
                           {entry.status === 'private' && (
                             <span className="inline-flex items-center gap-1 text-[10px] text-white/25 border border-white/10 rounded-full px-2 py-0.5">
                               <Lock size={9} /> Private
@@ -242,9 +287,16 @@ export default function Journal() {
                             </span>
                           )}
                           {entry.status === 'rejected' && (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-red-400/60 border border-red-400/20 rounded-full px-2 py-0.5 bg-red-400/5">
-                              <XCircle size={9} /> Not Approved
-                            </span>
+                            <div className="space-y-1">
+                              <span className="inline-flex items-center gap-1 text-[10px] text-red-400/60 border border-red-400/20 rounded-full px-2 py-0.5 bg-red-400/5">
+                                <XCircle size={9} /> Not Approved
+                              </span>
+                              {entry.rejectionReason && (
+                                <p className="text-[11px] text-red-400/50 italic pl-1">
+                                  Reason: {entry.rejectionReason}
+                                </p>
+                              )}
+                            </div>
                           )}
                         </div>
                       )}
@@ -253,7 +305,7 @@ export default function Journal() {
                       {/* Share button — only for private/rejected, logged-in users */}
                       {user && (entry.status === 'private' || entry.status === 'rejected') && (
                         <button
-                          onClick={() => handleShare(entry.id)}
+                          onClick={() => { setShareModal(entry.id); setIsAnonymous(false); }}
                           className="p-2 rounded-lg text-white/20 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all"
                           title="Share with community (needs admin approval)"
                         >
@@ -339,6 +391,84 @@ export default function Journal() {
         )}
 
       </div>
+
+      {/* ── Share Confirmation Modal ── */}
+      <AnimatePresence>
+        {shareModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => { setShareModal(null); setIsAnonymous(false); }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-md bg-cosmic-800 border border-white/[0.1] rounded-2xl p-6 shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="font-serif text-xl text-white">Publish Publicly</h3>
+                <button
+                  onClick={() => { setShareModal(null); setIsAnonymous(false); }}
+                  className="p-1 rounded-lg text-white/30 hover:text-white/60 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <p className="text-sm text-white/50 leading-relaxed mb-6">
+                Your journal will be sent to our team for review. Once approved, it will appear on the Community Journal Wall for others to read and reflect upon.
+              </p>
+
+              {/* Anonymous toggle */}
+              <button
+                onClick={() => setIsAnonymous(!isAnonymous)}
+                className={`flex items-center gap-3 w-full p-4 rounded-xl border transition-all duration-200 mb-6 ${
+                  isAnonymous
+                    ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300'
+                    : 'bg-white/[0.03] border-white/[0.08] text-white/50 hover:border-white/20'
+                }`}
+              >
+                {isAnonymous ? <EyeOff size={18} /> : <Eye size={18} />}
+                <div className="text-left flex-1">
+                  <p className="text-sm font-medium">
+                    {isAnonymous ? 'Publishing as Anonymous' : 'Publishing with your name'}
+                  </p>
+                  <p className="text-xs opacity-60 mt-0.5">
+                    {isAnonymous
+                      ? 'Others will see you as "A Seeker"'
+                      : 'Your name will be shown on the public wall'}
+                  </p>
+                </div>
+              </button>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => { setShareModal(null); setIsAnonymous(false); }}
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm text-white/50 border border-white/[0.08] hover:border-white/20 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleShare}
+                  disabled={shareLoading}
+                  className="flex-1 flex items-center justify-center gap-2 btn-primary py-2.5 px-4 disabled:opacity-50"
+                >
+                  {shareLoading ? (
+                    <div className="w-3.5 h-3.5 border-2 border-cosmic-900/50 border-t-cosmic-900 rounded-full animate-spin" />
+                  ) : (
+                    <Globe size={14} />
+                  )}
+                  {shareLoading ? 'Submitting…' : 'Submit for Review'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

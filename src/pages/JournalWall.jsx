@@ -101,6 +101,11 @@ export default function JournalWall() {
                     <span className="text-xs text-white/25">{formatDate(entry.createdAt)}</span>
                   </div>
 
+                  {/* Title */}
+                  {entry.title && (
+                    <h3 className="font-serif text-lg text-white/80">{entry.title}</h3>
+                  )}
+
                   {/* Journal text */}
                   <p className="text-sm text-white/60 leading-loose font-light whitespace-pre-wrap line-clamp-4">
                     {entry.text}
