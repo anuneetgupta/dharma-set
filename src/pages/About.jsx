@@ -42,9 +42,14 @@ const founders = [
     img: '/founder.jpg', linkedin: 'https://www.linkedin.com/in/janvi-sahu-0968b8329', github: 'https://github.com/janvi3ssj', instagram: 'https://www.instagram.com/janvi_sahu93',
   },
   {
-    name: 'ANUNEET GUPTA', role: 'Co-Founder & CTO', tag: 'Engineering & AI', tagColor: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
+    name: 'ANUNEET GUPTA', role: 'CTO', tag: 'Engineering & AI', tagColor: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
     bio: "Dedicated to building the technological foundation of Dharma Setu, Anuneet ensures that ancient wisdom reaches the modern world through an intuitive, reliable, and beautifully crafted digital experience. He believes technology is the ideal vessel for timeless knowledge.",
     img: '/anuneet.jpg', fallback: 'https://ui-avatars.com/api/?name=Anuneet+Gupta&background=C9A96E&color=fff&size=256', linkedin: 'https://www.linkedin.com/in/anuneet-gupta-57898631a', github: 'https://github.com/anuneetgupta', instagram: 'https://www.instagram.com/anuneet_gupta',
+  },
+  {
+    name: 'AMAN MAURYA', role: 'CMO', tag: 'Marketing & Outreach', tagColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+    bio: "Passionate about spreading the timeless wisdom of Dharma Setu, our CMO leads the effort to connect seekers with the platform, ensuring the message reaches those who need it most.",
+    img: '/cmo.jpg', fallback: 'https://ui-avatars.com/api/?name=Aman+Maurya&background=10B981&color=fff&size=256', linkedin: 'https://www.linkedin.com/in/maurya-aman-satyendra?utm_source=share_via&utm_content=profile&utm_medium=member_android', github: 'https://github.com/infinity-me', instagram: 'https://www.instagram.com/me.aman_2005?igsh=eDgzbXIybndzODJ',
   },
 ];
 
@@ -160,7 +165,7 @@ export default function About() {
             <h2 className="section-title">Meet the Founders</h2>
             <p className="section-subtitle mx-auto mt-3">Two builders united by one purpose — to make ancient wisdom radically accessible.</p>
           </motion.div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {founders.map((f, i) => (
               <motion.div key={f.name} custom={i} variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} className="glass-card border border-white/[0.06] p-8 sm:p-10 hover:border-gold-500/20 transition-all duration-300 flex flex-col items-center text-center">
                 <div className="relative w-36 h-36 mb-6 flex-shrink-0">
