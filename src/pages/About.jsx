@@ -47,7 +47,7 @@ const founders = [
     img: '/anuneet.jpg', fallback: 'https://ui-avatars.com/api/?name=Anuneet+Gupta&background=C9A96E&color=fff&size=256', linkedin: 'https://www.linkedin.com/in/anuneet-gupta-57898631a', github: 'https://github.com/anuneetgupta', instagram: 'https://www.instagram.com/anuneet_gupta',
   },
   {
-    name: 'AMAN MAURYA', role: 'CMO', tag: 'Marketing & Outreach', tagColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+    name: 'AMAN MAURYA', role: 'Co-Founder & CMO', tag: 'Marketing & Outreach', tagColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
     bio: "Passionate about spreading the timeless wisdom of Dharma Setu, our CMO leads the effort to connect seekers with the platform, ensuring the message reaches those who need it most.",
     img: '/cmo.jpg', fallback: 'https://ui-avatars.com/api/?name=Aman+Maurya&background=10B981&color=fff&size=256', linkedin: 'https://www.linkedin.com/in/maurya-aman-satyendra?utm_source=share_via&utm_content=profile&utm_medium=member_android', github: 'https://github.com/infinity-me', instagram: 'https://www.instagram.com/me.aman_2005?igsh=eDgzbXIybndzODJ',
   },

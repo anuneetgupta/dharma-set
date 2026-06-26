@@ -430,13 +430,23 @@ const founders = [
   },
   {
     name: "ANUNEET GUPTA",
-    role: "CO-FOUNDER AND CTO",
+    role: "CTO",
     description: "\"I am dedicated to building the technological foundation of Dharma Setu, ensuring that ancient wisdom reaches the modern world through an intuitive, reliable, and beautifully crafted digital experience.\"",
     img: "/anuneet.jpg",
     linkedin: "https://www.linkedin.com/in/anuneet-gupta-57898631a?utm_source=share_via&utm_content=profile&utm_medium=member_android",
     github: "https://github.com/anuneetgupta",
     instagram: "https://www.instagram.com/anuneet_gupta?igsh=NXgyb3g4YTVyc2lh",
     fallback: "https://ui-avatars.com/api/?name=Anuneet+Gupta&background=C9A96E&color=fff&size=256"
+  },
+  {
+    name: "AMAN MAURYA",
+    role: "CO-FOUNDER AND CMO",
+    description: "\"Passionate about spreading the timeless wisdom of Dharma Setu, our CMO leads the effort to connect seekers with the platform, ensuring the message reaches those who need it most.\"",
+    img: "/cmo.jpg",
+    linkedin: "https://www.linkedin.com/in/maurya-aman-satyendra?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+    github: "https://github.com/infinity-me",
+    instagram: "https://www.instagram.com/me.aman_2005?igsh=eDgzbXIybndzODJ",
+    fallback: "https://ui-avatars.com/api/?name=Aman+Maurya&background=10B981&color=fff&size=256"
   }
 ];
 
