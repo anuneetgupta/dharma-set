@@ -368,6 +368,26 @@ export default function Journal() {
                               )}
                             </>
                           )}
+
+                          {/* Prominent Share Banner for Private Entries */}
+                          {user && (entry.status === 'private' || entry.status === 'rejected') && (
+                            <div className="mt-6 p-4 bg-white/[0.02] border border-white/[0.05] rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                              <div>
+                                <p className="text-sm text-white/80 font-medium flex items-center gap-2">
+                                  <Lock size={14} className="text-white/40" /> Currently Private
+                                </p>
+                                <p className="text-xs text-white/40 mt-1 max-w-sm leading-relaxed">
+                                  Only you can see this entry. If you feel this could help others, you can submit it to the public Community Journal Wall.
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => { setShareModal(entry.id); setIsAnonymous(false); }}
+                                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs hover:bg-indigo-500/20 hover:text-indigo-200 transition-all flex items-center justify-center gap-2 flex-shrink-0"
+                              >
+                                <Globe size={14} /> Publish Publicly
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     )}
